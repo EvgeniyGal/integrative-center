@@ -7,12 +7,10 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
+import { pageMetadata, pages } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: `Visit Health & Beauty Integrative Center at ${site.address.full}, or call ${site.phone}.`,
-};
+export const metadata: Metadata = pageMetadata(pages.contact);
 
 export default function ContactPage() {
   return (

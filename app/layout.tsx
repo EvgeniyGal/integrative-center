@@ -4,6 +4,7 @@ import { Cormorant_Garamond, Geist } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { JsonLd } from "@/components/JsonLd";
+import { pages } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 import "./globals.css";
@@ -22,19 +23,57 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} | Sarasota`,
+    default: pages.home.title,
     template: `%s | ${site.shortName}`,
   },
-  description: site.description,
+  description: pages.home.description,
+  keywords: pages.home.keywords,
+  applicationName: site.name,
+  authors: [{ name: site.name, url: site.url }],
+  creator: site.name,
+  publisher: site.name,
+  category: "health",
+  referrer: "origin-when-cross-origin",
   icons: {
     icon: "/images/icon.png",
     apple: "/images/icon.png",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   openGraph: {
-    title: site.name,
-    description: site.description,
+    title: pages.home.title,
+    description: pages.home.description,
+    url: site.url,
+    siteName: site.name,
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: pages.home.image,
+        width: 1920,
+        height: 1080,
+        alt: pages.home.imageAlt,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: pages.home.title,
+    description: pages.home.description,
+    images: [
+      {
+        url: pages.home.image,
+        width: 1920,
+        height: 1080,
+        alt: pages.home.imageAlt,
+      },
+    ],
   },
 };
 

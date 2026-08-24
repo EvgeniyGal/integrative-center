@@ -7,13 +7,10 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
+import { pageMetadata, pages } from "@/lib/seo";
 import { wellnessServices } from "@/lib/services";
 
-export const metadata: Metadata = {
-  title: "Health & Wellness",
-  description:
-    "Personalized health and wellness care in Sarasota: diagnostics, IV therapy, hormone balancing, weight management, nutrition, and pelvic floor therapies.",
-};
+export const metadata: Metadata = pageMetadata(pages.wellness);
 
 export default function WellnessPage() {
   return (

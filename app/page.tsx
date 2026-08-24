@@ -9,13 +9,11 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
+import { pageMetadata, pages } from "@/lib/seo";
 import { carePath, site, team } from "@/lib/site";
 import { homeServices } from "@/lib/services";
 
-export const metadata: Metadata = {
-  title: "Greater Sarasota’s Integrative Health & Beauty Center",
-  description: site.description,
-};
+export const metadata: Metadata = pageMetadata(pages.home);
 
 export default function HomePage() {
   return (

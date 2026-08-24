@@ -5,13 +5,10 @@ import { ConsultCta } from "@/components/ConsultCta";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
+import { pageMetadata, pages } from "@/lib/seo";
 import { modalities, site, team } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "Health & Beauty Integrative Center is led by Elina Belilovskiy, ARNP, serving Sarasota with integrative, diagnostic, and aesthetic care.",
-};
+export const metadata: Metadata = pageMetadata(pages.about);
 
 export default function AboutPage() {
   return (
