@@ -46,20 +46,39 @@ export function ContactForm({ className }: { className?: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className={cn("space-y-8", className)} noValidate>
-      <div className="grid gap-8 sm:grid-cols-2">
+    <form onSubmit={onSubmit} className={cn("space-y-6", className)} noValidate>
+      <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="first">First name</Label>
-          <Input id="first" name="first" autoComplete="given-name" required />
+          <Input
+            id="first"
+            name="first"
+            autoComplete="given-name"
+            required
+            className={fieldClass}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="last">Last name</Label>
-          <Input id="last" name="last" autoComplete="family-name" required />
+          <Input
+            id="last"
+            name="last"
+            autoComplete="family-name"
+            required
+            className={fieldClass}
+          />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" name="phone" type="tel" autoComplete="tel" required />
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          autoComplete="tel"
+          required
+          className={fieldClass}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
@@ -69,11 +88,12 @@ export function ContactForm({ className }: { className?: string }) {
           type="email"
           autoComplete="email"
           required
+          className={fieldClass}
         />
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
-        <Textarea id="message" name="message" required />
+        <Textarea id="message" name="message" required className={fieldClass} />
       </div>
       {status === "error" ? (
         <p className="text-sm text-red-700">
@@ -86,3 +106,6 @@ export function ContactForm({ className }: { className?: string }) {
     </form>
   );
 }
+
+const fieldClass =
+  "border border-stone bg-white px-4 shadow-[inset_0_1px_2px_rgba(28,27,25,0.04)] focus:border-brand focus:ring-1 focus:ring-brand/25";

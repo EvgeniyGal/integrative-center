@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { pageMetadata, pages } from "@/lib/seo";
 import { wellnessServices } from "@/lib/services";
 
-export const metadata: Metadata = pageMetadata(pages.wellness);
+export const metadata: Metadata = pageMetadata(pages.services);
 
-export default function WellnessPage() {
+export default function ServicesPage() {
   return (
     <>
-      <section className="relative isolate min-h-[70svh] overflow-hidden pt-20">
+      <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
         <Image
           src="/images/generated/reception.jpg"
           alt="A private consult setting"
@@ -28,7 +28,7 @@ export default function WellnessPage() {
         <div className="relative z-10 mx-auto flex min-h-[70svh] max-w-7xl items-end px-6 pb-16 lg:px-10">
           <div className="max-w-3xl">
             <p className="text-[11px] uppercase tracking-[0.32em] text-brand-light">
-              Health & wellness
+              Services
             </p>
             <h1 className="mt-5 font-display text-5xl leading-[1.02] text-ivory text-balance sm:text-7xl">
               Care tailored to the person in front of us.
@@ -73,7 +73,7 @@ export default function WellnessPage() {
           <section
             key={service.slug}
             id={service.slug}
-            className={`scroll-mt-24 ${index % 2 === 0 ? "bg-ivory" : "bg-stone/30"}`}
+            className={`scroll-mt-36 ${index % 2 === 0 ? "bg-ivory" : "bg-stone/30"}`}
           >
             <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
               <Reveal

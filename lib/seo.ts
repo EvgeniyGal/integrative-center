@@ -104,11 +104,10 @@ export const pages = {
     imageAlt:
       "Interior of the Health & Beauty Integrative Center practice in Sarasota",
   },
-  wellness: {
-    title:
-      "Health & Wellness Services | IV, Hormones & Diagnostics | Sarasota",
+  services: {
+    title: "Services | IV, Hormones & Diagnostics | Sarasota",
     description:
-      "Personalized health and wellness in Sarasota: tests and diagnostics, IV therapy, hormone balancing, weight management, nutritional analysis, and pelvic floor therapies.",
+      "Personalized integrative services in Sarasota: tests and diagnostics, IV therapy, hormone balancing, weight management, nutritional analysis, and pelvic floor therapies.",
     keywords: [
       "IV therapy Sarasota",
       "hormone balancing Sarasota",
@@ -118,10 +117,38 @@ export const pages = {
       "diagnostic testing integrative medicine",
       "wellness clinic Sarasota",
     ],
-    path: "/health-and-wellness",
+    path: "/services",
     image: "/images/generated/reception.jpg",
     imageAlt:
-      "Private consult setting for health and wellness care at HBI Sarasota",
+      "Private consult setting for integrative services at HBI Sarasota",
+  },
+  patientResources: {
+    title: "Patient Resources | Forms & Portal | HBI Sarasota",
+    description:
+      "Patient resources for Health & Beauty Integrative Center in Sarasota: portal access, visit preparation, and guidance before your consult.",
+    keywords: [
+      "patient portal HBI Sarasota",
+      "patient resources integrative medicine",
+      "prepare for consult Sarasota",
+      "Health and Beauty Integrative Center forms",
+    ],
+    path: "/patient-resources",
+    image: "/images/generated/about.jpg",
+    imageAlt: "Patient resources at Health & Beauty Integrative Center",
+  },
+  news: {
+    title: "News & Updates | Health & Beauty Integrative Center",
+    description:
+      "Clinic news, wellness updates, and announcements from Health & Beauty Integrative Center in Sarasota, Florida.",
+    keywords: [
+      "HBI Sarasota news",
+      "integrative medicine updates",
+      "Health and Beauty Integrative Center blog",
+      "wellness news Sarasota",
+    ],
+    path: "/news",
+    image: "/images/generated/exterior.jpg",
+    imageAlt: "Exterior of Health & Beauty Integrative Center in Sarasota",
   },
   contact: {
     title: "Contact Health & Beauty Integrative Center | Sarasota, FL",

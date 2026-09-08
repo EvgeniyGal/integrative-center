@@ -2,11 +2,12 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { Menu, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { SiteLogo } from "@/components/layout/SiteLogo";
+import { Ticker } from "@/components/layout/Ticker";
 import { Button } from "@/components/ui/button";
 import { nav, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ export function Header() {
   }, [pathname]);
 
   const onHero = pathname === "/" && !scrolled;
+  const showTicker = pathname !== "/" || scrolled;
 
   return (
     <header
@@ -40,20 +42,10 @@ export function Header() {
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-6 lg:h-[5.5rem] lg:px-10">
         <Link href="/" className="relative flex items-center">
-          <Image
-            src="/images/logo-transparent.png"
-            alt={site.name}
-            width={220}
-            height={37}
-            className={cn(
-              "h-8 w-auto transition-all duration-500 lg:h-10",
-              onHero ? "brightness-0 invert" : "",
-            )}
-            priority
-          />
+          <SiteLogo inverted={onHero} priority />
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-8 min-[1100px]:flex">
           {nav.map((item) => {
             const active =
               item.href === "/"
@@ -80,7 +72,7 @@ export function Header() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-3 min-[1100px]:flex">
           <a
             href={site.portalUrl}
             target="_blank"
@@ -102,7 +94,7 @@ export function Header() {
             <button
               type="button"
               className={cn(
-                "inline-flex size-11 items-center justify-center rounded-full border lg:hidden",
+                "inline-flex size-11 items-center justify-center rounded-full border min-[1100px]:hidden",
                 onHero
                   ? "border-white/30 text-white"
                   : "border-ink/15 text-ink",
@@ -154,6 +146,7 @@ export function Header() {
           </Dialog.Portal>
         </Dialog.Root>
       </div>
+      <Ticker visible={showTicker} />
     </header>
   );
 }

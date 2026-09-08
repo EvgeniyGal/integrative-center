@@ -21,12 +21,37 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand) var(--color-stone);
 }
 
 body {
   background: var(--color-ivory);
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--color-stone);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-brand);
+  border: 2px solid var(--color-stone);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-dark);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--color-stone);
 }
 
 ::selection {
@@ -37,4 +62,23 @@ body {
 .font-display {
   font-family: var(--font-display), "Times New Roman", serif;
   font-weight: 500;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-25%);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 48s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker {
+    animation: none;
+  }
 }

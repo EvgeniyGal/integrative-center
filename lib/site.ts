@@ -38,9 +38,114 @@ export const site = {
 export const nav = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/health-and-wellness", label: "Health & Wellness" },
+  { href: "/services", label: "Services" },
+  { href: "/patient-resources", label: "Patient Resources" },
+  { href: "/news", label: "News" },
   { href: "/contact", label: "Contact" },
 ] as const;
+
+export const footerNav = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/services", label: "Services" },
+  { href: "/patient-resources", label: "Patient Resources" },
+  { href: "/contact", label: "Contact" },
+] as const;
+
+export const legalLinks = [
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/cookie-policy", label: "Cookie Policy" },
+  { href: "/hipaa-notice", label: "HIPAA Notice" },
+  { href: "/terms", label: "Terms & Conditions" },
+  { href: "/accessibility", label: "Accessibility Statement" },
+] as const;
+
+export const tickerItems = [
+  "Fully licensed in FL",
+  "MA",
+  "IL",
+  "Coming soon in NJ",
+  "CL",
+  "Telehealth Available",
+  "Free 15-Minute Consultation",
+] as const;
+
+export const practiceIntro = {
+  eyebrow: "Our Practice",
+  title: "Functional and traditional medicine, held to a clinical standard.",
+  paragraphs: [
+    "Located in the heart of Sarasota, Florida, Health and Beauty Integrative Center combines modern functional and traditional health therapies with science-backed treatments to support the physical, emotional, and aesthetic needs of our clients. Using a variety of modalities, we address the root causes of our patients’ issues while helping to reduce their symptoms.",
+    "Every patient is unique. No matter your concern, our dedicated providers listen to your needs, and use the latest diagnostic testing to identify the source of your issues. Once we assess your health factors, we develop comprehensive treatment plans personalized to your needs. During your treatments, we monitor your progress and adjust the process based on your body’s response.",
+    "Backed by years of experience, we provide a wide range of health therapies, including Hormone Balancing for Men and Women, Weight Management, Nutritional Analysis, Detox, and more...",
+    "At Health and Beauty Integrative Center, we offer Skin Care and Cosmetic Services, including PRP Facials, Micro-Needling, and Facials with RF and Intense Pulsed Light (IPL) treatment. From our extensive experience in medicine and cosmetology, we know that underlying health conditions cause most skin issues. That’s why we offer personalized skincare solutions - combining aesthetic and health therapies to help you feel and look your best, inside and out.",
+  ],
+} as const;
+
+export const homeQuestions = {
+  eyebrow: "Questions",
+  title: "Functional and traditional medicine, held to a clinical standard.",
+  items: [
+    {
+      number: "1",
+      question: "1 question",
+      answer:
+        "1 queation queation queation queation queation queationqueation",
+    },
+    {
+      number: "2",
+      question: "2 question",
+      answer:
+        "2 queation queation queation queation queation queationqueation",
+    },
+    {
+      number: "3",
+      question: "3 question",
+      answer:
+        "3 queation queation queation queation queation queationqueation",
+    },
+    {
+      number: "4",
+      question: "4 question",
+      answer:
+        "4 queation queation queation queation queation queationqueation",
+    },
+  ],
+} as const;
+
+export const homeNews = {
+  eyebrow: "Questions",
+  title: "News and Articles",
+  body: "Stay informed with expert insights on wellness, prevention, and integrative care.",
+  items: [
+    {
+      slug: "testosterone-replacement-therapy",
+      label: "Hormones",
+      title:
+        "The Power of Testosterone: A Comprehensive Guide to Testosterone Replacement Therapy (TRT)",
+      excerpt:
+        "Patient-specific formulas of hydration, vitamins, minerals, amino acids, and antioxidants — delivered directly into the bloodstream.",
+      image: "/images/generated/hormone.jpg",
+    },
+    {
+      slug: "iv-therapy-insights",
+      label: "Wellness",
+      title:
+        "The Power of Testosterone: A Comprehensive Guide to Testosterone Replacement Therapy (TRT)",
+      excerpt:
+        "Patient-specific formulas of hydration, vitamins, minerals, amino acids, and antioxidants — delivered directly into the bloodstream.",
+      image: "/images/generated/iv.jpg",
+    },
+    {
+      slug: "integrative-care-guide",
+      label: "Prevention",
+      title:
+        "The Power of Testosterone: A Comprehensive Guide to Testosterone Replacement Therapy (TRT)",
+      excerpt:
+        "Patient-specific formulas of hydration, vitamins, minerals, amino acids, and antioxidants — delivered directly into the bloodstream.",
+      image: "/images/generated/care.jpg",
+    },
+  ],
+} as const;
 
 export const reviews = [
   {

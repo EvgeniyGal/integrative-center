@@ -5,7 +5,6 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
-import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
 import { pageMetadata, pages } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -15,7 +14,7 @@ export const metadata: Metadata = pageMetadata(pages.contact);
 export default function ContactPage() {
   return (
     <>
-      <section className="relative isolate min-h-[50svh] overflow-hidden pt-20">
+      <section className="relative isolate min-h-[50svh] overflow-hidden pt-[7.75rem]">
         <Image
           src="/images/generated/exterior.jpg"
           alt="Sarasota practice setting"
@@ -117,15 +116,6 @@ export default function ContactPage() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <SectionHeading eyebrow="Patients" title="What people are saying" />
-          <div className="mt-14">
-            <TestimonialCarousel />
           </div>
         </div>
       </section>

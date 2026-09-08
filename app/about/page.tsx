@@ -13,7 +13,7 @@ export const metadata: Metadata = pageMetadata(pages.about);
 export default function AboutPage() {
   return (
     <>
-      <section className="relative isolate min-h-[70svh] overflow-hidden pt-20">
+      <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
         <Image
           src="/images/generated/about.jpg"
           alt="The HBI practice"

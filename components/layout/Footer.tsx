@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
-import { nav, site } from "@/lib/site";
+import { SiteLogo } from "@/components/layout/SiteLogo";
+import { footerNav, legalLinks, site } from "@/lib/site";
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -22,20 +22,17 @@ function FacebookIcon({ className }: { className?: string }) {
   );
 }
 
+const linkClass =
+  "text-[11px] uppercase tracking-[0.18em] text-ivory/80 transition hover:text-ivory";
+
 export function Footer() {
   return (
     <footer className="bg-ink text-ivory">
       <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-        <div className="grid gap-14 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <Image
-              src="/images/logo-transparent.png"
-              alt={site.name}
-              width={240}
-              height={40}
-              className="h-9 w-auto brightness-0 invert"
-            />
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-ivory/65">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-4">
+            <SiteLogo inverted />
+            <p className="mt-6 max-w-sm text-sm leading-relaxed text-ivory/70">
               Integrative medicine in the heart of Sarasota — diagnostics,
               hormones, IV therapy, nutrition, and aesthetic care, designed
               around you.
@@ -62,7 +59,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <p className="text-[11px] uppercase tracking-[0.28em] text-brand">
               Visit
             </p>
@@ -75,28 +72,20 @@ export function Footer() {
             </p>
             <a
               href={site.phoneHref}
-              className="mt-4 inline-block text-sm text-ivory hover:text-brand"
+              className="mt-4 inline-block text-sm text-ivory transition hover:text-brand"
             >
               {site.phone}
             </a>
-            <p className="mt-3 text-xs text-ivory/50">
-              {site.hours.summary}
-              <br />
-              {site.hours.note}
-            </p>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <p className="text-[11px] uppercase tracking-[0.28em] text-brand">
               Menu
             </p>
             <ul className="mt-4 space-y-3">
-              {nav.map((item) => (
+              {footerNav.map((item) => (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-ivory/75 transition hover:text-ivory"
-                  >
+                  <Link href={item.href} className={linkClass}>
                     {item.label}
                   </Link>
                 </li>
@@ -106,7 +95,7 @@ export function Footer() {
                   href={site.portalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-ivory/75 transition hover:text-ivory"
+                  className={linkClass}
                 >
                   Patient Portal
                 </a>
@@ -114,17 +103,24 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <p className="text-[11px] uppercase tracking-[0.28em] text-brand">
-              Insider
+              Legal / Information
             </p>
-            <p className="mt-4 text-sm text-ivory/65">
-              Exclusive specials, events, and news.
-            </p>
-            <div className="mt-4">
-              <NewsletterForm compact />
-            </div>
+            <ul className="mt-4 space-y-3">
+              {legalLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className={linkClass}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
+        </div>
+
+        <div className="mt-16 lg:mt-20">
+          <NewsletterForm footer />
         </div>
 
         <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-8 text-xs text-ivory/40 sm:flex-row sm:items-center sm:justify-between">
