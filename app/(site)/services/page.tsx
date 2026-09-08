@@ -7,12 +7,20 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
+import {
+  getPublishedTestimonials,
+  getVisibleServices,
+} from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
-import { wellnessServices } from "@/lib/services";
 
 export const metadata: Metadata = pageMetadata(pages.services);
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const [wellnessServices, reviews] = await Promise.all([
+    getVisibleServices(),
+    getPublishedTestimonials(),
+  ]);
+
   return (
     <>
       <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
@@ -69,6 +77,7 @@ export default function ServicesPage() {
 
       {wellnessServices.map((service, index) => {
         const reverse = index % 2 === 1;
+        const body = service.body ?? [];
         return (
           <section
             key={service.slug}
@@ -84,7 +93,7 @@ export default function ServicesPage() {
                 }
               >
                 <Image
-                  src={service.image}
+                  src={service.imageUrl}
                   alt=""
                   fill
                   className="object-cover"
@@ -105,7 +114,7 @@ export default function ServicesPage() {
                 </h2>
                 <p className="mt-4 text-lg text-ink/80">{service.summary}</p>
                 <div className="mt-6 space-y-4 text-muted leading-relaxed">
-                  {service.body.map((para) => (
+                  {body.map((para) => (
                     <p key={para.slice(0, 24)}>{para}</p>
                   ))}
                 </div>
@@ -122,7 +131,14 @@ export default function ServicesPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading eyebrow="Patients" title="What people are saying" />
           <div className="mt-14">
-            <TestimonialCarousel />
+            <TestimonialCarousel
+              reviews={reviews.map((review) => ({
+                title: review.title,
+                quote: review.quote,
+                name: review.name,
+                source: review.source,
+              }))}
+            />
           </div>
         </div>
       </section>

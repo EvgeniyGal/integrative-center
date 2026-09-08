@@ -5,12 +5,15 @@ import { ConsultCta } from "@/components/ConsultCta";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
+import { getPublishedTestimonials } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
 import { modalities, site, team } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.about);
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const reviews = await getPublishedTestimonials();
+
   return (
     <>
       <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
@@ -176,7 +179,14 @@ export default function AboutPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading eyebrow="Patients" title="What people are saying" />
           <div className="mt-14">
-            <TestimonialCarousel />
+            <TestimonialCarousel
+              reviews={reviews.map((review) => ({
+                title: review.title,
+                quote: review.quote,
+                name: review.name,
+                source: review.source,
+              }))}
+            />
           </div>
         </div>
       </section>

@@ -1,8 +1,15 @@
 import Link from "next/link";
+import { cacheLife } from "next/cache";
 
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { SiteLogo } from "@/components/layout/SiteLogo";
 import { footerNav, legalLinks, site } from "@/lib/site";
+
+async function CopyrightYear() {
+  "use cache";
+  cacheLife("max");
+  return new Date().getFullYear();
+}
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -25,7 +32,9 @@ function FacebookIcon({ className }: { className?: string }) {
 const linkClass =
   "text-[11px] uppercase tracking-[0.18em] text-ivory/80 transition hover:text-ivory";
 
-export function Footer() {
+export async function Footer() {
+  const year = await CopyrightYear();
+
   return (
     <footer className="bg-ink text-ivory">
       <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
@@ -125,7 +134,7 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-8 text-xs text-ivory/40 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {site.name}. All rights reserved.
+            © {year} {site.name}. All rights reserved.
           </p>
           <p>Sarasota, Florida</p>
         </div>

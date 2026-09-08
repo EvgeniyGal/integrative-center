@@ -4,14 +4,30 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback } from "react";
 
-import { reviews } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function TestimonialCarousel({ light = false }: { light?: boolean }) {
+export type ReviewItem = {
+  title: string;
+  quote: string;
+  name: string;
+  source: string;
+};
+
+export function TestimonialCarousel({
+  reviews,
+  light = false,
+}: {
+  reviews: ReviewItem[];
+  light?: boolean;
+}) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
 
   const prev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const next = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  if (reviews.length === 0) {
+    return null;
+  }
 
   return (
     <div className="relative">
@@ -19,7 +35,7 @@ export function TestimonialCarousel({ light = false }: { light?: boolean }) {
         <div className="flex">
           {reviews.map((review) => (
             <figure
-              key={review.name}
+              key={`${review.name}-${review.title}`}
               className="min-w-0 shrink-0 grow-0 basis-full pr-8 md:basis-1/2 lg:basis-1/3"
             >
               <p

@@ -7,13 +7,61 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
+import {
+  getFeaturedArticles,
+  getHomeServices,
+  getPublishedQuestions,
+  getPublishedTestimonials,
+} from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
 import { homeNews, homeQuestions, practiceIntro, team } from "@/lib/site";
-import { homeServices } from "@/lib/services";
 
 export const metadata: Metadata = pageMetadata(pages.home);
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [questionRows, serviceRows, articleRows, reviewRows] =
+    await Promise.all([
+      getPublishedQuestions(),
+      getHomeServices(),
+      getFeaturedArticles(3),
+      getPublishedTestimonials(),
+    ]);
+
+  const questionItems =
+    questionRows.length > 0
+      ? questionRows.map((item, index) => ({
+          number: String(index + 1),
+          question: item.question,
+          answer: item.answer,
+        }))
+      : homeQuestions.items;
+
+  const serviceItems = serviceRows.map((service) => ({
+    slug: service.slug,
+    title: service.title,
+    eyebrow: service.eyebrow,
+    summary: service.summary,
+    image: service.imageUrl,
+  }));
+
+  const newsItems =
+    articleRows.length > 0
+      ? articleRows.map((article) => ({
+          slug: article.slug,
+          label: article.category,
+          title: article.title,
+          excerpt: article.excerpt,
+          image: article.coverImageUrl,
+        }))
+      : homeNews.items;
+
+  const reviews = reviewRows.map((review) => ({
+    title: review.title,
+    quote: review.quote,
+    name: review.name,
+    source: review.source,
+  }));
+
   return (
     <>
       <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden">
@@ -83,7 +131,7 @@ export default function HomePage() {
             </h2>
           </Reveal>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-            {homeQuestions.items.map((item, i) => (
+            {questionItems.map((item, i) => (
               <Reveal key={item.number} delay={i * 0.05}>
                 <div className="flex h-full flex-col border border-ink/20 bg-ivory/40 p-6 lg:p-7">
                   <p className="font-display text-3xl text-brand sm:text-4xl">
@@ -147,7 +195,7 @@ export default function HomePage() {
               title="Functional and traditional medicine, held to a clinical standard."
             />
             <div className="mt-10 grid max-w-4xl gap-8 sm:grid-cols-2">
-              {homeQuestions.items.slice(0, 2).map((item) => (
+              {questionItems.slice(0, 2).map((item) => (
                 <div key={item.number}>
                   <h3 className="font-display text-2xl tracking-tight text-ivory">
                     {item.question}
@@ -160,7 +208,7 @@ export default function HomePage() {
             </div>
           </Reveal>
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {homeServices.map((service, i) => (
+            {serviceItems.map((service, i) => (
               <Reveal key={service.slug} delay={i * 0.05}>
                 <Link
                   href={`/services#${service.slug}`}
@@ -220,11 +268,11 @@ export default function HomePage() {
           </div>
 
           <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-            {homeNews.items.map((article, i) => (
+            {newsItems.map((article, i) => (
               <Reveal key={article.slug} delay={i * 0.05}>
                 <article className="flex h-full flex-col">
                   <Link
-                    href={`/news#${article.slug}`}
+                    href={`/news/${article.slug}`}
                     className="relative block aspect-[4/3] overflow-hidden bg-brand"
                   >
                     <Image
@@ -240,7 +288,7 @@ export default function HomePage() {
                   </p>
                   <h3 className="mt-3 font-display text-2xl leading-snug tracking-tight text-ink">
                     <Link
-                      href={`/news#${article.slug}`}
+                      href={`/news/${article.slug}`}
                       className="transition hover:text-brand"
                     >
                       {article.title}
@@ -255,7 +303,7 @@ export default function HomePage() {
                     size="sm"
                     className="mt-6 w-fit rounded-none border-ink/25 hover:border-ink"
                   >
-                    <Link href={`/news#${article.slug}`}>Read more</Link>
+                    <Link href={`/news/${article.slug}`}>Read more</Link>
                   </Button>
                 </article>
               </Reveal>
@@ -270,7 +318,7 @@ export default function HomePage() {
             <SectionHeading eyebrow="Patients" title="What people are saying" />
           </Reveal>
           <div className="mt-14">
-            <TestimonialCarousel />
+            <TestimonialCarousel reviews={reviews} />
           </div>
         </div>
       </section>
