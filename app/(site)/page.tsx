@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
+import { QuestionsCarousel } from "@/components/QuestionsCarousel";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,15 @@ export default async function HomePage() {
 
   const questionItems =
     questionRows.length > 0
-      ? questionRows.map((item, index) => ({
-          number: String(index + 1),
+      ? questionRows.map((item) => ({
           question: item.question,
           answer: item.answer,
         }))
-      : homeQuestions.items;
+      : homeQuestions.items.map((item) => ({
+          question: item.question,
+          answer: item.answer,
+        }));
+
 
   const serviceItems = serviceRows.map((service) => ({
     slug: service.slug,
@@ -130,23 +134,9 @@ export default async function HomePage() {
               {homeQuestions.title}
             </h2>
           </Reveal>
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-            {questionItems.map((item, i) => (
-              <Reveal key={item.number} delay={i * 0.05}>
-                <div className="flex h-full flex-col border border-ink/20 bg-ivory/40 p-6 lg:p-7">
-                  <p className="font-display text-3xl text-brand sm:text-4xl">
-                    {item.number}
-                  </p>
-                  <h3 className="mt-5 font-display text-2xl tracking-tight text-ink">
-                    {item.question}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">
-                    {item.answer}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <Reveal className="mt-14" delay={0.06}>
+            <QuestionsCarousel items={questionItems} />
+          </Reveal>
         </div>
       </section>
 
@@ -196,7 +186,7 @@ export default async function HomePage() {
             />
             <div className="mt-10 grid max-w-4xl gap-8 sm:grid-cols-2">
               {questionItems.slice(0, 2).map((item) => (
-                <div key={item.number}>
+                <div key={item.question}>
                   <h3 className="font-display text-2xl tracking-tight text-ivory">
                     {item.question}
                   </h3>

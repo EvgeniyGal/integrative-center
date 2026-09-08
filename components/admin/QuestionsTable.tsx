@@ -126,7 +126,6 @@ export function QuestionsTable({ items }: { items: Question[] }) {
                     <tr className="bg-stone/15">
                       <td colSpan={6} className="px-5 py-5">
                         <QuestionHomePreview
-                          number={numberLabel === "—" ? "1" : numberLabel}
                           question={item.question}
                           answer={item.answer}
                         />

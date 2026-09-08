@@ -74,7 +74,7 @@ export function QuestionEditor({ question }: { question?: Question }) {
       </form>
 
       <div className="xl:sticky xl:top-24 xl:self-start">
-        <QuestionHomePreview number="1" question={q} answer={answer} />
+        <QuestionHomePreview question={q} answer={answer} />
       </div>
     </div>
   );

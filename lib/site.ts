@@ -87,27 +87,39 @@ export const homeQuestions = {
   items: [
     {
       number: "1",
-      question: "1 question",
+      question: "What makes your approach integrative?",
       answer:
-        "1 queation queation queation queation queation queationqueation",
+        "We combine modern functional and traditional therapies with science-backed care. Diagnostic testing helps us identify root causes, then we build a personalized plan that addresses your symptoms and the systems behind them.",
     },
     {
       number: "2",
-      question: "2 question",
+      question: "What should I expect at my first visit?",
       answer:
-        "2 queation queation queation queation queation queationqueation",
+        "Your visit begins with listening carefully to your concerns, followed by a clinical evaluation. When needed, we order targeted labs—blood, urine, or saliva, fasting and after a meal—so your treatment plan reflects how your body actually works.",
     },
     {
       number: "3",
-      question: "3 question",
+      question: "Which services do you offer in Sarasota?",
       answer:
-        "3 queation queation queation queation queation queationqueation",
+        "Care includes tests and diagnostics, IV therapy, hormone balancing, weight management, nutritional analysis and detox, pelvic floor therapies, and aesthetic treatments such as facials, microneedling, and intense pulsed light.",
     },
     {
       number: "4",
-      question: "4 question",
+      question: "Who will I see for care?",
       answer:
-        "4 queation queation queation queation queation queationqueation",
+        "Health & Beauty Integrative Center is led by Elina Belilovskiy, ARNP. Our team cares for patients across a wide range of health and wellness concerns, using the latest diagnostic tools and individualized treatment plans.",
+    },
+    {
+      number: "5",
+      question: "How does hormone balancing work here?",
+      answer:
+        "We start with accurate assessment—often blood, urine, or saliva testing timed to your cycle when needed. Bioidentical hormone therapy is then tailored to your levels, lifestyle, and goals, with ongoing monitoring as your body responds.",
+    },
+    {
+      number: "6",
+      question: "Is IV therapy customized for each patient?",
+      answer:
+        "Yes. After evaluating your needs, we recommend a formula that may include vitamins, minerals, amino acids, and antioxidants delivered directly into the bloodstream. Infusions typically take thirty minutes to an hour and a half in the clinic.",
     },
   ],
 } as const;
@@ -167,6 +179,41 @@ export const reviews = [
     quote:
       "The office is warm and welcoming, the front desk receptionists are helpful and knowledgeable and always happy to give you a cup of coffee, a smile and a next appointment.",
     name: "Tamara F.",
+    source: "Google Review",
+  },
+  {
+    title: "Finally felt heard",
+    quote:
+      "I spent years being told my labs were “normal” while I still felt exhausted. Here they took time to listen, ordered the right tests, and built a plan that actually fits my life. I feel like myself again.",
+    name: "Maria K.",
+    source: "Google Review",
+  },
+  {
+    title: "Clear hormone plan",
+    quote:
+      "Hormone balancing was explained in plain language, not rushed. They monitored my progress and adjusted carefully. Sleep, mood, and energy have all improved more than I expected.",
+    name: "David R.",
+    source: "Google Review",
+  },
+  {
+    title: "Weight care that stuck",
+    quote:
+      "This was not another fad diet. They looked at hormones and nutrition together and gave me a routine I could keep. The weight came off steadily, and more importantly it has stayed off.",
+    name: "Elena M.",
+    source: "Google Review",
+  },
+  {
+    title: "Thorough and kind",
+    quote:
+      "From the front desk to the provider visit, everyone was professional and kind. Diagnostics were thorough, and I left with a clear next step instead of another shrug. Grateful we found this clinic in Sarasota.",
+    name: "James P.",
+    source: "Google Review",
+  },
+  {
+    title: "IV therapy that helped",
+    quote:
+      "I came in wiped out after travel and left with real energy again. The IV was customized, the room was calm, and the staff checked on me throughout. I will be back when I need a reset.",
+    name: "Nina S.",
     source: "Google Review",
   },
 ] as const;

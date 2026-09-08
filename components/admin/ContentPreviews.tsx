@@ -4,23 +4,21 @@ import { PreviewFrame } from "@/components/admin/AdminTable";
 import type { ArticleBlock } from "@/lib/content/blocks";
 
 export function QuestionHomePreview({
-  number,
   question,
   answer,
 }: {
-  number: string;
+  number?: string;
   question: string;
   answer: string;
 }) {
   return (
     <PreviewFrame label="Homepage question card">
-      <div className="mx-auto max-w-xs">
+      <div className="mx-auto max-w-sm">
         <div className="flex h-full flex-col border border-ink/20 bg-ivory/40 p-6">
-          <p className="font-display text-3xl text-brand">{number}</p>
-          <h3 className="mt-5 font-display text-2xl tracking-tight text-ink">
+          <h3 className="font-display text-2xl tracking-tight text-ink">
             {question || "Question title"}
           </h3>
-          <p className="mt-3 text-sm leading-relaxed text-muted">
+          <p className="mt-4 text-sm leading-relaxed text-muted">
             {answer || "Answer preview…"}
           </p>
         </div>
