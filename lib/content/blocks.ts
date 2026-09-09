@@ -40,6 +40,12 @@ export const articleBlockSchema = z.discriminatedUnion("type", [
     text: z.string().min(1),
     attribution: z.string().optional(),
   }),
+  z.object({
+    type: z.literal("video"),
+    provider: z.literal("youtube"),
+    url: z.string().min(1),
+    videoId: z.string().min(1),
+  }),
 ]);
 
 export type ArticleBlock = z.infer<typeof articleBlockSchema>;

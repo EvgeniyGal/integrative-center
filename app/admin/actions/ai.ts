@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import type { ActionState } from "@/app/admin/actions/auth";
 import { requireAdmin } from "@/lib/auth/session";
-import { articleBlockSchema } from "@/lib/content/blocks";
+import { safeParseMarkdown } from "@/lib/content/markdown";
 
 const serviceDraftSchema = z.object({
   title: z.string(),
@@ -25,7 +25,7 @@ const articleDraftSchema = z.object({
   tags: z.array(z.string()),
   seoTitle: z.string(),
   seoDescription: z.string(),
-  blocks: z.array(articleBlockSchema),
+  bodyMarkdown: z.string(),
 });
 
 const system = `You help draft marketing copy for Health & Beauty Integrative Center, a clinical integrative practice in Sarasota, Florida.
@@ -88,13 +88,32 @@ export async function generateArticleDraftAction(
       model: openai("gpt-4o-mini"),
       schema: articleDraftSchema,
       system,
-      prompt: `Draft a news/article entry as structured blocks.
+      prompt: `Draft a news/article entry. Return metadata fields plus bodyMarkdown (NOT JSON blocks).
+
+Markdown dialect for bodyMarkdown:
+- ## / ### for headings
+- Blank-line-separated paragraphs (inline [label](url), **bold**, *italic* allowed)
+- > quote lines; optional final "> — Attribution"
+- ![alt](url) for images; consecutive image lines become a gallery
+- A bare YouTube / youtu.be / shorts URL on its own line for video
+- Optional :::imageText{side=left image="url"} ... :::
+- Do not invent image URLs; only use: ${imageUrls || "(none)"}
+- Do not invent YouTube links unless the admin notes include one
+- Keep body focused and factual; no fake testimonials
+- No JSON block arrays in the response
+
 Title seed: ${title || "(none)"}
 Admin notes:
-${notes || "(none)"}
-Available image URLs (use only these if adding image blocks): ${imageUrls || "(none)"}
-Use heading, paragraph, and optionally image/quote blocks. Do not invent image URLs.`,
+${notes || "(none)"}`,
     });
+
+    const mdCheck = safeParseMarkdown(object.bodyMarkdown);
+    if (!mdCheck.ok) {
+      return {
+        error: `AI returned invalid Markdown: ${mdCheck.error}`,
+      };
+    }
+
     return { success: "Draft generated. Review before saving.", draft: object };
   } catch (error) {
     return {

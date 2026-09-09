@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { PreviewFrame } from "@/components/admin/AdminTable";
+import { ArticleBlocks } from "@/components/content/ArticleBlocks";
 import type { ArticleBlock } from "@/lib/content/blocks";
 
 export function QuestionHomePreview({
@@ -199,8 +200,6 @@ export function ArticleDetailPreview({
   coverImageUrl: string;
   blocks: ArticleBlock[];
 }) {
-  const previewBlocks = blocks.slice(0, 4);
-
   return (
     <PreviewFrame label="Article detail page">
       <div className="space-y-6">
@@ -227,46 +226,13 @@ export function ArticleDetailPreview({
         <p className="text-base leading-relaxed text-muted">
           {excerpt || "Excerpt…"}
         </p>
-        <div className="space-y-4">
-          {previewBlocks.length === 0 ? (
-            <p className="text-sm text-muted">No body blocks yet.</p>
-          ) : (
-            previewBlocks.map((block, index) => {
-              if (block.type === "heading") {
-                return (
-                  <h3
-                    key={index}
-                    className="font-display text-2xl tracking-tight text-ink"
-                  >
-                    {block.text}
-                  </h3>
-                );
-              }
-              if (block.type === "paragraph") {
-                return (
-                  <p key={index} className="text-sm leading-relaxed text-muted">
-                    {block.text}
-                  </p>
-                );
-              }
-              if (block.type === "quote") {
-                return (
-                  <blockquote
-                    key={index}
-                    className="border-l-2 border-brand pl-4 font-display text-xl text-ink"
-                  >
-                    “{block.text}”
-                  </blockquote>
-                );
-              }
-              return (
-                <p key={index} className="text-xs uppercase tracking-[0.16em] text-muted">
-                  [{block.type} block]
-                </p>
-              );
-            })
-          )}
-        </div>
+        {blocks.length === 0 ? (
+          <p className="text-sm text-muted">No body content yet.</p>
+        ) : (
+          <div className="max-h-[28rem] overflow-y-auto pr-1 [&_.space-y-12]:space-y-6">
+            <ArticleBlocks blocks={blocks.slice(0, 8)} />
+          </div>
+        )}
       </div>
     </PreviewFrame>
   );

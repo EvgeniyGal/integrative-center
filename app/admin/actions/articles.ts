@@ -11,6 +11,7 @@ import {
   articleBlocksSchema,
   type ArticleBlock,
 } from "@/lib/content/blocks";
+import { safeParseMarkdown } from "@/lib/content/markdown";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/db/schema";
 
@@ -47,13 +48,29 @@ async function maybeUploadImage(file: File | null, fallback: string) {
   return blob.url;
 }
 
-function parseBlocks(raw: string): ArticleBlock[] {
-  if (!raw.trim()) return [];
-  const json = JSON.parse(raw) as unknown;
-  return articleBlocksSchema.parse(json);
+function resolveBlocksFromForm(
+  formData: FormData,
+): { ok: true; blocks: ArticleBlock[] } | { ok: false; error: string } {
+  const bodyMarkdown = String(formData.get("bodyMarkdown") ?? "");
+  if (bodyMarkdown.trim()) {
+    const parsed = safeParseMarkdown(bodyMarkdown);
+    if (!parsed.ok) {
+      return { ok: false, error: `Invalid Markdown: ${parsed.error}` };
+    }
+    return { ok: true, blocks: parsed.blocks };
+  }
+
+  const raw = String(formData.get("blocks") ?? "[]");
+  if (!raw.trim()) return { ok: true, blocks: [] };
+  try {
+    const json = JSON.parse(raw) as unknown;
+    return { ok: true, blocks: articleBlocksSchema.parse(json) };
+  } catch {
+    return { ok: false, error: "Invalid article blocks." };
+  }
 }
 
-function parseArticleForm(formData: FormData) {
+function parseArticleForm(formData: FormData, blocks: ArticleBlock[]) {
   const title = String(formData.get("title") ?? "");
   const slugInput = String(formData.get("slug") ?? "");
   const tagsRaw = String(formData.get("tags") ?? "");
@@ -71,7 +88,7 @@ function parseArticleForm(formData: FormData) {
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean),
-    blocks: parseBlocks(String(formData.get("blocks") ?? "[]")),
+    blocks,
   });
 }
 
@@ -87,9 +104,13 @@ export async function createArticleAction(
       String(formData.get("coverImageUrl") ?? ""),
     );
     formData.set("coverImageUrl", coverImageUrl);
-    const parsed = parseArticleForm(formData);
+    const blocksResult = resolveBlocksFromForm(formData);
+    if (!blocksResult.ok) {
+      return { error: blocksResult.error };
+    }
+    const parsed = parseArticleForm(formData, blocksResult.blocks);
     if (!parsed.success) {
-      return { error: "Check article fields and blocks JSON." };
+      return { error: "Check article fields and Markdown body." };
     }
 
     await db.insert(articles).values({
@@ -127,9 +148,13 @@ export async function updateArticleAction(
     const coverImageUrl = await maybeUploadImage(file, existing.coverImageUrl);
     formData.set("coverImageUrl", coverImageUrl);
 
-    const parsed = parseArticleForm(formData);
+    const blocksResult = resolveBlocksFromForm(formData);
+    if (!blocksResult.ok) {
+      return { error: blocksResult.error };
+    }
+    const parsed = parseArticleForm(formData, blocksResult.blocks);
     if (!parsed.success) {
-      return { error: "Check article fields and blocks JSON." };
+      return { error: "Check article fields and Markdown body." };
     }
 
     const becomingPublished =
