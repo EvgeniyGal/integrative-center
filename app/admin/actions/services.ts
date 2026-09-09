@@ -1,6 +1,5 @@
 "use server";
 
-import { put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
@@ -9,6 +8,11 @@ import type { ActionState } from "@/app/admin/actions/auth";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { services } from "@/lib/db/schema";
+import {
+  collectServiceImageUrls,
+  deleteOrphanBlobUrls,
+} from "@/lib/media/blob";
+import { uploadImageAsWebp } from "@/lib/media/upload";
 
 function slugify(input: string) {
   return input
@@ -30,15 +34,18 @@ const serviceSchema = z.object({
   sortOrder: z.number().int(),
 });
 
-async function maybeUploadImage(file: File | null, fallback: string) {
-  if (!file || file.size === 0) return fallback;
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
+async function resolveServiceImage(
+  file: File | null,
+  formUrl: string,
+  existingUrl: string,
+) {
+  if (file && file.size > 0) {
+    return uploadImageAsWebp(file, "services");
   }
-  const blob = await put(`services/${Date.now()}-${file.name}`, file, {
-    access: "public",
-  });
-  return blob.url;
+  if (formUrl.startsWith("blob:")) {
+    return existingUrl;
+  }
+  return formUrl || existingUrl;
 }
 
 function parseServiceForm(formData: FormData, existingImage = "") {
@@ -68,7 +75,11 @@ export async function createServiceAction(
   await requireAdmin();
   try {
     const file = formData.get("image") as File | null;
-    const imageUrl = await maybeUploadImage(file, String(formData.get("imageUrl") ?? ""));
+    const imageUrl = await resolveServiceImage(
+      file,
+      String(formData.get("imageUrl") ?? ""),
+      "",
+    );
     formData.set("imageUrl", imageUrl);
     const parsed = parseServiceForm(formData);
     if (!parsed.success) return { error: "Check the service fields and image." };
@@ -100,8 +111,14 @@ export async function updateServiceAction(
     });
     if (!existing) return { error: "Service not found." };
 
+    const previousUrls = collectServiceImageUrls(existing);
+
     const file = formData.get("image") as File | null;
-    const imageUrl = await maybeUploadImage(file, existing.imageUrl);
+    const imageUrl = await resolveServiceImage(
+      file,
+      String(formData.get("imageUrl") ?? ""),
+      existing.imageUrl,
+    );
     formData.set("imageUrl", imageUrl);
     const parsed = parseServiceForm(formData, existing.imageUrl);
     if (!parsed.success) return { error: "Check the service fields." };
@@ -110,6 +127,11 @@ export async function updateServiceAction(
       .update(services)
       .set({ ...parsed.data, updatedAt: new Date() })
       .where(eq(services.id, id));
+
+    const nextUrls = new Set(collectServiceImageUrls(parsed.data));
+    const removed = previousUrls.filter((url) => !nextUrls.has(url));
+    await deleteOrphanBlobUrls(removed, { serviceId: id });
+
     updateTag("services");
     updateTag(`service:${parsed.data.slug}`);
     revalidatePath("/admin/services");
@@ -127,8 +149,19 @@ export async function deleteServiceAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing service id.");
+
+  const existing = await db.query.services.findFirst({
+    where: eq(services.id, id),
+  });
+  if (!existing) throw new Error("Service not found.");
+
+  const urls = collectServiceImageUrls(existing);
+
   await db.delete(services).where(eq(services.id, id));
+  await deleteOrphanBlobUrls(urls, { serviceId: id });
+
   updateTag("services");
+  updateTag(`service:${existing.slug}`);
   revalidatePath("/admin/services");
   revalidatePath("/services");
   revalidatePath("/");

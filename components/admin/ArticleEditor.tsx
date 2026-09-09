@@ -6,7 +6,9 @@ import {
   useMemo,
   useRef,
   useState,
+  useTransition,
 } from "react";
+import { ImageIcon, Link2, Video } from "lucide-react";
 
 import { generateArticleDraftAction } from "@/app/admin/actions/ai";
 import {
@@ -14,6 +16,7 @@ import {
   updateArticleAction,
 } from "@/app/admin/actions/articles";
 import type { ActionState } from "@/app/admin/actions/auth";
+import { uploadAdminImageAction } from "@/app/admin/actions/media";
 import {
   AdminField,
   AdminSection,
@@ -52,6 +55,7 @@ function insertAtCursor(
 export function ArticleEditor({ article }: { article?: Article }) {
   const id = article?.id ?? "new";
   const markdownRef = useRef<HTMLTextAreaElement>(null);
+  const bodyImageRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState(article?.title ?? "");
   const [slug, setSlug] = useState(article?.slug ?? "");
@@ -73,6 +77,8 @@ export function ArticleEditor({ article }: { article?: Article }) {
   const [lastGoodBlocks, setLastGoodBlocks] = useState<ArticleBlock[]>(
     () => article?.blocks ?? [],
   );
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const [imageUploading, startImageUpload] = useTransition();
 
   const action = article ? updateArticleAction : createArticleAction;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
@@ -117,23 +123,24 @@ export function ArticleEditor({ article }: { article?: Article }) {
   }, [aiState.draft]);
 
   function applyInsertion(insertion: string) {
-    const el = markdownRef.current;
-    const start = el?.selectionStart ?? bodyMarkdown.length;
-    const end = el?.selectionEnd ?? bodyMarkdown.length;
-    const { next, caret } = insertAtCursor(bodyMarkdown, start, end, insertion);
-    setBodyMarkdown(next);
-    requestAnimationFrame(() => {
-      if (!markdownRef.current) return;
-      markdownRef.current.focus();
-      markdownRef.current.setSelectionRange(caret, caret);
+    setBodyMarkdown((current) => {
+      const el = markdownRef.current;
+      const start = el?.selectionStart ?? current.length;
+      const end = el?.selectionEnd ?? current.length;
+      const { next, caret } = insertAtCursor(current, start, end, insertion);
+      requestAnimationFrame(() => {
+        if (!markdownRef.current) return;
+        markdownRef.current.focus();
+        markdownRef.current.setSelectionRange(caret, caret);
+      });
+      return next;
     });
   }
 
   function insertLink() {
     const label = window.prompt("Link label", "Read more") ?? "";
     if (!label.trim()) return;
-    const href =
-      window.prompt("Link URL", "https://") ?? "";
+    const href = window.prompt("Link URL", "https://") ?? "";
     if (!href.trim()) return;
     applyInsertion(`[${label.trim()}](${href.trim()})`);
   }
@@ -149,11 +156,28 @@ export function ArticleEditor({ article }: { article?: Article }) {
   }
 
   function insertImage() {
-    const url =
-      window.prompt("Image URL", coverImageUrl || "https://") ?? "";
-    if (!url.trim()) return;
-    const alt = window.prompt("Alt text", "") ?? "";
-    applyInsertion(`\n\n![${alt}](${url.trim()})\n\n`);
+    setImageUploadError(null);
+    bodyImageRef.current?.click();
+  }
+
+  function onBodyImageSelected(file: File | null) {
+    if (!file) return;
+    const alt =
+      window.prompt("Alt text (optional)", file.name.replace(/\.[^.]+$/, "")) ??
+      "";
+
+    startImageUpload(async () => {
+      const formData = new FormData();
+      formData.set("image", file);
+      formData.set("folder", "articles/body");
+      const result = await uploadAdminImageAction(formData);
+      if (result.error || !result.url) {
+        setImageUploadError(result.error ?? "Upload failed.");
+        return;
+      }
+      applyInsertion(`\n\n![${alt.trim()}](${result.url})\n\n`);
+      if (bodyImageRef.current) bodyImageRef.current.value = "";
+    });
   }
 
   const canSave = parseResult.ok;
@@ -322,7 +346,7 @@ export function ArticleEditor({ article }: { article?: Article }) {
 
           <AdminSection
             title="Cover image"
-            description="Used on cards and article header."
+            description="Main image for news cards and the article header."
           >
             <ImageField
               label="Cover image"
@@ -338,27 +362,37 @@ export function ArticleEditor({ article }: { article?: Article }) {
             title="Body"
             description="Write in Markdown. It is converted to structured blocks on save."
           >
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={insertLink}>
+            <div className="flex flex-wrap gap-2 rounded-sm border border-brand/25 bg-brand-light/30 p-2">
+              <Button type="button" size="sm" onClick={insertLink}>
+                <Link2 className="size-3.5" />
                 Link
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={insertYoutube}
-              >
+              <Button type="button" size="sm" onClick={insertYoutube}>
+                <Video className="size-3.5" />
                 YouTube
               </Button>
               <Button
                 type="button"
-                variant="outline"
                 size="sm"
                 onClick={insertImage}
+                disabled={imageUploading}
               >
-                Image
+                <ImageIcon className="size-3.5" />
+                {imageUploading ? "Uploading…" : "Image"}
               </Button>
+              <input
+                ref={bodyImageRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) =>
+                  onBodyImageSelected(event.target.files?.[0] ?? null)
+                }
+              />
             </div>
+            {imageUploadError ? (
+              <p className="text-sm text-red-700">{imageUploadError}</p>
+            ) : null}
             <AdminField label="Markdown" htmlFor={`markdown-${id}`}>
               <Textarea
                 ref={markdownRef}

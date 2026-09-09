@@ -1,6 +1,5 @@
 "use server";
 
-import { put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
@@ -14,6 +13,11 @@ import {
 import { safeParseMarkdown } from "@/lib/content/markdown";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/db/schema";
+import {
+  collectArticleImageUrls,
+  deleteOrphanBlobUrls,
+} from "@/lib/media/blob";
+import { uploadImageAsWebp } from "@/lib/media/upload";
 
 function slugify(input: string) {
   return input
@@ -37,15 +41,19 @@ const articleSchema = z.object({
   blocks: articleBlocksSchema,
 });
 
-async function maybeUploadImage(file: File | null, fallback: string) {
-  if (!file || file.size === 0) return fallback;
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
+async function resolveCoverImage(
+  file: File | null,
+  formUrl: string,
+  existingUrl: string,
+) {
+  if (file && file.size > 0) {
+    return uploadImageAsWebp(file, "articles");
   }
-  const blob = await put(`articles/${Date.now()}-${file.name}`, file, {
-    access: "public",
-  });
-  return blob.url;
+  // Ignore ephemeral object URLs from the browser preview
+  if (formUrl.startsWith("blob:")) {
+    return existingUrl;
+  }
+  return formUrl || existingUrl;
 }
 
 function resolveBlocksFromForm(
@@ -99,9 +107,10 @@ export async function createArticleAction(
   await requireAdmin();
   try {
     const file = formData.get("coverImage") as File | null;
-    const coverImageUrl = await maybeUploadImage(
+    const coverImageUrl = await resolveCoverImage(
       file,
       String(formData.get("coverImageUrl") ?? ""),
+      "",
     );
     formData.set("coverImageUrl", coverImageUrl);
     const blocksResult = resolveBlocksFromForm(formData);
@@ -144,8 +153,17 @@ export async function updateArticleAction(
     });
     if (!existing) return { error: "Article not found." };
 
+    const previousUrls = collectArticleImageUrls({
+      coverImageUrl: existing.coverImageUrl,
+      blocks: existing.blocks as ArticleBlock[],
+    });
+
     const file = formData.get("coverImage") as File | null;
-    const coverImageUrl = await maybeUploadImage(file, existing.coverImageUrl);
+    const coverImageUrl = await resolveCoverImage(
+      file,
+      String(formData.get("coverImageUrl") ?? ""),
+      existing.coverImageUrl,
+    );
     formData.set("coverImageUrl", coverImageUrl);
 
     const blocksResult = resolveBlocksFromForm(formData);
@@ -173,6 +191,15 @@ export async function updateArticleAction(
       })
       .where(eq(articles.id, id));
 
+    const nextUrls = new Set(
+      collectArticleImageUrls({
+        coverImageUrl: parsed.data.coverImageUrl,
+        blocks: parsed.data.blocks,
+      }),
+    );
+    const removed = previousUrls.filter((url) => !nextUrls.has(url));
+    await deleteOrphanBlobUrls(removed, { articleId: id });
+
     updateTag("articles");
     updateTag(`article:${parsed.data.slug}`);
     revalidatePath("/admin/news");
@@ -192,9 +219,24 @@ export async function deleteArticleAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing article id.");
+
+  const existing = await db.query.articles.findFirst({
+    where: eq(articles.id, id),
+  });
+  if (!existing) throw new Error("Article not found.");
+
+  const urls = collectArticleImageUrls({
+    coverImageUrl: existing.coverImageUrl,
+    blocks: existing.blocks as ArticleBlock[],
+  });
+
   await db.delete(articles).where(eq(articles.id, id));
+  await deleteOrphanBlobUrls(urls, { articleId: id });
+
   updateTag("articles");
+  updateTag(`article:${existing.slug}`);
   revalidatePath("/admin/news");
   revalidatePath("/news");
+  revalidatePath(`/news/${existing.slug}`);
   revalidatePath("/");
 }

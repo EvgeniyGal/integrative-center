@@ -173,7 +173,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
             </AdminField>
           </AdminSection>
 
-          <AdminSection title="Media" description="Shown on home cards and detail pages.">
+          <AdminSection
+            title="Media"
+            description="Main image for service cards and detail pages."
+          >
             <ImageField
               label="Service image"
               fileName="image"

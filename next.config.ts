@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Cover/body image uploads go through Server Actions (default 1mb is too small).
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "13mb",
+    },
+  },
   images: {
     remotePatterns: [
       {

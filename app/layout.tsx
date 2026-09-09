@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   category: "health",
   referrer: "origin-when-cross-origin",
   icons: {
-    icon: "/images/icon.png",
+    icon: [{ url: "/images/icon.svg", type: "image/svg+xml" }],
     apple: "/images/icon.png",
   },
   robots: {
