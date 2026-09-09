@@ -126,7 +126,7 @@ export function ImageField({
             <select
               value={selectedLibraryId}
               onChange={(event) => onLibraryPick(event.target.value)}
-              className="h-11 w-full border border-ink/15 bg-ivory px-3 text-sm text-ink outline-none transition hover:border-brand focus:border-brand"
+              className="h-11 w-full border border-ink/20 bg-white px-3 text-sm text-ink outline-none transition hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
               aria-label="Choose from media library"
             >
               <option value="">Select from uploaded media…</option>
@@ -215,7 +215,7 @@ export function ImageField({
               }}
               required={required && !fileLabel}
               placeholder="https://… or /images/…"
-              className="h-11 w-full border-0 border-b border-stone-300 bg-transparent px-0 text-sm text-ink outline-none transition focus:border-brand"
+              className="h-11 w-full border border-ink/20 bg-white px-3 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
             />
             {fileLabel ? (
               <p className="text-xs text-muted">
