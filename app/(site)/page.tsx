@@ -160,7 +160,18 @@ export default async function HomePage() {
             <SectionHeading
               eyebrow="The practice"
               title="Medicine that listens, then looks deeper."
-              body="Elina Belilovskiy, ARNP, leads a practice devoted to the physical and mental health of patients of all ages. We combine holistic therapies with science-backed treatments, using diagnostic testing and personalized plans to target root causes and relieve symptoms."
+              body={
+                <>
+                  <strong className="font-semibold text-ink">
+                    Elina Belilovskiy, ARNP, leads the Health & Beauty
+                    Integrative Center,
+                  </strong>{" "}
+                  where we care for patients with a range of health concerns. We
+                  combine holistic therapies with science-backed treatments,
+                  using diagnostic testing and personalized plans to target root
+                  causes and relieve symptoms.
+                </>
+              }
             />
             <p className="mt-6 max-w-xl text-muted leading-relaxed">
               No matter your concern, our dedicated providers listen to your

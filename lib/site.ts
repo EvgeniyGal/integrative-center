@@ -24,7 +24,7 @@ export const site = {
       { day: "Saturday – Sunday", time: "Closed" },
     ],
   },
-  portalUrl: "https://phr.charmtracker.com/",
+  portalUrl: "https://phr.charmtracker.com/login.sas?serviceurl=%2Fmain.do",
   mapsEmbed:
     "https://www.google.com/maps?q=4370+S+Tamiami+Trail+Suite+151+Sarasota+FL+34231&output=embed",
   mapsLink:
