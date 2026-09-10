@@ -14,6 +14,8 @@ const YOUTUBE_RE =
 
 const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 const LINK_ONLY_RE = /^\[([^\]]+)\]\(([^)\s]+)\)$/;
+const UNORDERED_LIST_RE = /^[-*+]\s+(.+)$/;
+const ORDERED_LIST_RE = /^\d+[.)]\s+(.+)$/;
 
 export function extractYoutubeId(url: string): string | null {
   const trimmed = url.trim();
@@ -141,6 +143,40 @@ function flushGallery(
   images.length = 0;
 }
 
+function flushList(
+  style: "unordered" | "ordered" | null,
+  items: string[],
+  blocks: ArticleBlock[],
+) {
+  if (!style || items.length === 0) {
+    items.length = 0;
+    return;
+  }
+  const cleaned = items.map((item) => item.trim()).filter(Boolean);
+  items.length = 0;
+  if (cleaned.length === 0) return;
+  blocks.push({
+    type: "list",
+    style,
+    items: cleaned,
+  });
+}
+
+function parseListItem(trimmed: string): {
+  style: "unordered" | "ordered";
+  text: string;
+} | null {
+  const unordered = trimmed.match(UNORDERED_LIST_RE);
+  if (unordered?.[1]?.trim()) {
+    return { style: "unordered", text: unordered[1].trim() };
+  }
+  const ordered = trimmed.match(ORDERED_LIST_RE);
+  if (ordered?.[1]?.trim()) {
+    return { style: "ordered", text: ordered[1].trim() };
+  }
+  return null;
+}
+
 export function markdownToBlocks(markdown: string): ArticleBlock[] {
   const source = typeof markdown === "string" ? markdown : "";
   if (source.length > MARKDOWN_MAX_LENGTH) {
@@ -154,6 +190,8 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
   const paragraph: string[] = [];
   const quote: string[] = [];
   const gallery: Array<{ url: string; alt: string }> = [];
+  const listItems: string[] = [];
+  let listStyle: "unordered" | "ordered" | null = null;
 
   let i = 0;
   while (i < lines.length) {
@@ -165,6 +203,8 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
       flushParagraph(paragraph, blocks);
       flushQuote(quote, blocks);
       flushGallery(gallery, blocks);
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
       blocks.push(imageText.block);
       i = imageText.nextIndex;
       continue;
@@ -174,6 +214,8 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
       flushParagraph(paragraph, blocks);
       flushQuote(quote, blocks);
       flushGallery(gallery, blocks);
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
       i += 1;
       continue;
     }
@@ -182,6 +224,8 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
       flushParagraph(paragraph, blocks);
       flushQuote(quote, blocks);
       flushGallery(gallery, blocks);
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
       const text = trimmed.replace(/^###\s+/, "").trim();
       if (!text) throw new Error("Heading cannot be empty");
       blocks.push({ type: "heading", level: 3, text });
@@ -193,6 +237,8 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
       flushParagraph(paragraph, blocks);
       flushQuote(quote, blocks);
       flushGallery(gallery, blocks);
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
       const text = trimmed.replace(/^##\s+/, "").trim();
       if (!text) throw new Error("Heading cannot be empty");
       blocks.push({ type: "heading", level: 2, text });
@@ -203,6 +249,8 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
     if (trimmed.startsWith(">")) {
       flushParagraph(paragraph, blocks);
       flushGallery(gallery, blocks);
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
       quote.push(trimmed);
       i += 1;
       continue;
@@ -210,6 +258,24 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
 
     if (quote.length > 0) {
       flushQuote(quote, blocks);
+    }
+
+    const listItem = parseListItem(trimmed);
+    if (listItem) {
+      flushParagraph(paragraph, blocks);
+      flushGallery(gallery, blocks);
+      if (listStyle && listStyle !== listItem.style) {
+        flushList(listStyle, listItems, blocks);
+      }
+      listStyle = listItem.style;
+      listItems.push(listItem.text);
+      i += 1;
+      continue;
+    }
+
+    if (listItems.length > 0) {
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
     }
 
     const image = parseImageLine(trimmed);
@@ -255,6 +321,7 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
   flushParagraph(paragraph, blocks);
   flushQuote(quote, blocks);
   flushGallery(gallery, blocks);
+  flushList(listStyle, listItems, blocks);
 
   return blocks;
 }
@@ -323,6 +390,20 @@ export function blocksToMarkdown(blocks: ArticleBlock[] | null | undefined): str
       case "video": {
         const url = String(block.url ?? "").trim();
         if (url) parts.push(url);
+        break;
+      }
+      case "list": {
+        const items = Array.isArray(block.items) ? block.items : [];
+        const lines = items
+          .map((item, index) => {
+            const text = String(item ?? "").trim();
+            if (!text) return null;
+            return block.style === "ordered"
+              ? `${index + 1}. ${text}`
+              : `- ${text}`;
+          })
+          .filter(Boolean);
+        if (lines.length) parts.push(lines.join("\n"));
         break;
       }
       default:

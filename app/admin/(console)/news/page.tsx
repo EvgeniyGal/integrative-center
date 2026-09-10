@@ -1,7 +1,5 @@
-import Link from "next/link";
-
 import { ArticlesTable } from "@/components/admin/ArticlesTable";
-import { Button } from "@/components/ui/button";
+import { AddArticleButton } from "@/components/admin/ArticleNav";
 import { getAllArticles } from "@/lib/content/queries";
 
 export const instant = false;
@@ -16,9 +14,7 @@ export default async function AdminNewsPage() {
           Draft, publish, and feature articles on the homepage. Body content uses
           structured blocks.
         </p>
-        <Button asChild variant="outline" className="rounded-none">
-          <Link href="/admin/news/new">New article</Link>
-        </Button>
+        <AddArticleButton className="rounded-none" />
       </div>
       <ArticlesTable items={items} />
     </div>

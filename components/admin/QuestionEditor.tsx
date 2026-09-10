@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   createQuestionAction,
@@ -19,11 +20,19 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Question } from "@/lib/db/schema";
 
 export function QuestionEditor({ question }: { question?: Question }) {
+  const router = useRouter();
   const id = question?.id ?? "new";
   const [q, setQ] = useState(question?.question ?? "");
   const [answer, setAnswer] = useState(question?.answer ?? "");
   const action = question ? updateQuestionAction : createQuestionAction;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
+
+  useEffect(() => {
+    if (!question && state.success) {
+      router.push("/admin/questions");
+      router.refresh();
+    }
+  }, [question, state.success, router]);
 
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">

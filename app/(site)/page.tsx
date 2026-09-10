@@ -201,7 +201,7 @@ export default async function HomePage() {
             {serviceItems.map((service, i) => (
               <Reveal key={service.slug} delay={i * 0.05}>
                 <Link
-                  href={`/services#${service.slug}`}
+                  href={`/services/${service.slug}`}
                   className="group relative block aspect-[4/5] overflow-hidden"
                 >
                   <Image

@@ -46,6 +46,11 @@ export const articleBlockSchema = z.discriminatedUnion("type", [
     url: z.string().min(1),
     videoId: z.string().min(1),
   }),
+  z.object({
+    type: z.literal("list"),
+    style: z.enum(["unordered", "ordered"]),
+    items: z.array(z.string().min(1)).min(1),
+  }),
 ]);
 
 export type ArticleBlock = z.infer<typeof articleBlockSchema>;

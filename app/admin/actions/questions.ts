@@ -83,6 +83,26 @@ export async function deleteQuestionAction(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function setQuestionPublishedAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const field = String(formData.get("field") ?? "");
+  const value = formData.get("value") === "true";
+  if (!id) throw new Error("Missing question id.");
+  if (field !== "published") {
+    throw new Error("Invalid question flag.");
+  }
+
+  await db
+    .update(questions)
+    .set({ published: value, updatedAt: new Date() })
+    .where(eq(questions.id, id));
+
+  updateTag("questions");
+  revalidatePath("/admin/questions");
+  revalidatePath("/");
+}
+
 export async function reorderQuestionsAction(orderedIds: string[]) {
   await requireAdmin();
   if (!Array.isArray(orderedIds) || orderedIds.length === 0) return;

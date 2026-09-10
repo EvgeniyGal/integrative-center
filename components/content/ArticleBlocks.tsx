@@ -3,6 +3,14 @@ import Image from "next/image";
 import { InlineMarkdown } from "@/components/content/InlineMarkdown";
 import type { ArticleBlock } from "@/lib/content/blocks";
 
+function stripOuterQuotes(text: string) {
+  return text
+    .trim()
+    .replace(/^[“"‘']+/, "")
+    .replace(/[”"'’]+$/, "")
+    .trim();
+}
+
 export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
   if (!Array.isArray(blocks) || blocks.length === 0) {
     return null;
@@ -21,14 +29,14 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             return block.level === 2 ? (
               <h2
                 key={key}
-                className="font-display text-4xl tracking-tight text-ink sm:text-5xl"
+                className="max-w-3xl break-words font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl"
               >
                 <InlineMarkdown text={block.text} />
               </h2>
             ) : (
               <h3
                 key={key}
-                className="font-display text-3xl tracking-tight text-ink"
+                className="max-w-3xl break-words font-display text-3xl tracking-tight text-ink text-balance"
               >
                 <InlineMarkdown text={block.text} />
               </h3>
@@ -37,7 +45,7 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             return (
               <p
                 key={key}
-                className="max-w-3xl text-base leading-relaxed text-muted sm:text-lg"
+                className="max-w-3xl break-words text-base leading-relaxed text-muted sm:text-lg"
               >
                 <InlineMarkdown text={block.text} />
               </p>
@@ -45,12 +53,10 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
           case "image":
             if (!block.url) return null;
             return (
-              <figure key={key} className="space-y-3">
+              <figure key={key} className="max-w-4xl space-y-3">
                 <div
                   className={`relative overflow-hidden ${
-                    block.layout === "full"
-                      ? "aspect-[21/9]"
-                      : "aspect-[16/9] max-w-4xl"
+                    block.layout === "full" ? "aspect-[21/9]" : "aspect-[16/9]"
                   }`}
                 >
                   <Image
@@ -58,7 +64,7 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
                     alt={block.alt || ""}
                     fill
                     className="object-cover"
-                    sizes="100vw"
+                    sizes="(min-width: 1280px) 56rem, 100vw"
                   />
                 </div>
                 {block.caption ? (
@@ -73,7 +79,7 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             return (
               <div
                 key={key}
-                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                className="grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3"
               >
                 {block.images.map((image, i) =>
                   image?.url ? (
@@ -98,7 +104,7 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             return (
               <div
                 key={key}
-                className="grid items-center gap-10 lg:grid-cols-2"
+                className="grid max-w-5xl items-center gap-10 lg:grid-cols-2"
               >
                 <div
                   className={`relative aspect-[4/3] overflow-hidden ${
@@ -115,11 +121,11 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
                 </div>
                 <div className={block.side === "right" ? "lg:order-1" : ""}>
                   {block.heading ? (
-                    <h3 className="font-display text-3xl tracking-tight text-ink">
+                    <h3 className="break-words font-display text-3xl tracking-tight text-ink text-balance">
                       <InlineMarkdown text={block.heading} />
                     </h3>
                   ) : null}
-                  <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
+                  <p className="mt-4 break-words text-base leading-relaxed text-muted sm:text-lg">
                     <InlineMarkdown text={block.text} />
                   </p>
                 </div>
@@ -129,10 +135,10 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             return (
               <blockquote
                 key={key}
-                className="border-l-2 border-brand pl-6 font-display text-2xl leading-snug text-ink sm:text-3xl"
+                className="max-w-3xl break-words border-l-2 border-brand pl-6 font-display text-2xl leading-snug text-ink text-pretty sm:text-3xl"
               >
                 “
-                <InlineMarkdown text={block.text} />
+                <InlineMarkdown text={stripOuterQuotes(block.text)} />
                 ”
                 {block.attribution ? (
                   <footer className="mt-4 font-sans text-sm text-muted">
@@ -145,7 +151,7 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             const id = block.videoId?.trim();
             if (!id) return null;
             return (
-              <div key={key} className="mx-auto w-full max-w-4xl">
+              <div key={key} className="w-full max-w-4xl">
                 <div className="relative aspect-video overflow-hidden bg-ink">
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`}
@@ -158,6 +164,26 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
                   />
                 </div>
               </div>
+            );
+          }
+          case "list": {
+            if (!block.items?.length) return null;
+            const ListTag = block.style === "ordered" ? "ol" : "ul";
+            return (
+              <ListTag
+                key={key}
+                className={
+                  block.style === "ordered"
+                    ? "max-w-3xl list-decimal space-y-2 break-words pl-6 text-base leading-relaxed text-muted sm:text-lg"
+                    : "max-w-3xl list-disc space-y-2 break-words pl-6 text-base leading-relaxed text-muted sm:text-lg"
+                }
+              >
+                {block.items.map((item, itemIndex) => (
+                  <li key={`${key}-${itemIndex}`}>
+                    <InlineMarkdown text={item} />
+                  </li>
+                ))}
+              </ListTag>
             );
           }
           default:

@@ -8,12 +8,15 @@ import {
   useState,
   useTransition,
 } from "react";
-import { ImageIcon, Link2, Video } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { ImageIcon, Link2, Video, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { generateArticleDraftAction } from "@/app/admin/actions/ai";
 import {
   createArticleAction,
   updateArticleAction,
+  type ArticleActionState,
 } from "@/app/admin/actions/articles";
 import type { ActionState } from "@/app/admin/actions/auth";
 import { uploadAdminImageAction } from "@/app/admin/actions/media";
@@ -52,7 +55,81 @@ function insertAtCursor(
   };
 }
 
+function InsertDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  onConfirm,
+  confirmLabel,
+  confirmDisabled,
+  onCancel,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  confirmLabel: string;
+  confirmDisabled?: boolean;
+  onCancel?: () => void;
+}) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 border border-ink/10 bg-ivory p-6 shadow-2xl focus:outline-none">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Dialog.Title className="font-display text-2xl text-ink">
+                {title}
+              </Dialog.Title>
+              <Dialog.Description className="mt-1 text-sm text-muted">
+                {description}
+              </Dialog.Description>
+            </div>
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                className="rounded-full p-1 text-muted transition hover:bg-ink/5 hover:text-ink"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </Dialog.Close>
+          </div>
+          <div className="mt-4 space-y-4">{children}</div>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onCancel?.();
+                onOpenChange(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={confirmDisabled}
+              onClick={onConfirm}
+            >
+              {confirmLabel}
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
 export function ArticleEditor({ article }: { article?: Article }) {
+  const router = useRouter();
   const id = article?.id ?? "new";
   const markdownRef = useRef<HTMLTextAreaElement>(null);
   const bodyImageRef = useRef<HTMLInputElement>(null);
@@ -79,9 +156,22 @@ export function ArticleEditor({ article }: { article?: Article }) {
   );
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [imageUploading, startImageUpload] = useTransition();
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
+  const [imageAlt, setImageAlt] = useState("");
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linkLabel, setLinkLabel] = useState("Read more");
+  const [linkHref, setLinkHref] = useState("https://");
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState(
+    "https://www.youtube.com/watch?v=",
+  );
+  const imageAltOpen = Boolean(pendingImage);
 
   const action = article ? updateArticleAction : createArticleAction;
-  const [state, formAction, pending] = useActionState(action, {} as ActionState);
+  const [state, formAction, pending] = useActionState(
+    action,
+    {} as ArticleActionState,
+  );
   const [aiState, aiAction, aiPending] = useActionState(
     generateArticleDraftAction,
     {} as ActionState & {
@@ -122,6 +212,19 @@ export function ArticleEditor({ article }: { article?: Article }) {
     }
   }, [aiState.draft]);
 
+  useEffect(() => {
+    if (!article && state.success) {
+      router.push("/admin/news");
+      router.refresh();
+    }
+  }, [article, state.success, router]);
+
+  useEffect(() => {
+    if (state.coverImageUrl) {
+      setCoverImageUrl(state.coverImageUrl);
+    }
+  }, [state.coverImageUrl]);
+
   function applyInsertion(insertion: string) {
     setBodyMarkdown((current) => {
       const el = markdownRef.current;
@@ -137,22 +240,27 @@ export function ArticleEditor({ article }: { article?: Article }) {
     });
   }
 
-  function insertLink() {
-    const label = window.prompt("Link label", "Read more") ?? "";
-    if (!label.trim()) return;
-    const href = window.prompt("Link URL", "https://") ?? "";
-    if (!href.trim()) return;
-    applyInsertion(`[${label.trim()}](${href.trim()})`);
+  function openLinkModal() {
+    setLinkLabel("Read more");
+    setLinkHref("https://");
+    setLinkOpen(true);
   }
 
-  function insertYoutube() {
-    const url =
-      window.prompt(
-        "YouTube URL",
-        "https://www.youtube.com/watch?v=",
-      ) ?? "";
-    if (!url.trim()) return;
-    applyInsertion(`\n\n${url.trim()}\n\n`);
+  function confirmLink() {
+    if (!linkLabel.trim() || !linkHref.trim()) return;
+    applyInsertion(`[${linkLabel.trim()}](${linkHref.trim()})`);
+    setLinkOpen(false);
+  }
+
+  function openYoutubeModal() {
+    setYoutubeUrl("https://www.youtube.com/watch?v=");
+    setYoutubeOpen(true);
+  }
+
+  function confirmYoutube() {
+    if (!youtubeUrl.trim()) return;
+    applyInsertion(`\n\n${youtubeUrl.trim()}\n\n`);
+    setYoutubeOpen(false);
   }
 
   function insertImage() {
@@ -160,11 +268,23 @@ export function ArticleEditor({ article }: { article?: Article }) {
     bodyImageRef.current?.click();
   }
 
+  function clearPendingImage() {
+    setPendingImage(null);
+    setImageAlt("");
+    if (bodyImageRef.current) bodyImageRef.current.value = "";
+  }
+
   function onBodyImageSelected(file: File | null) {
     if (!file) return;
-    const alt =
-      window.prompt("Alt text (optional)", file.name.replace(/\.[^.]+$/, "")) ??
-      "";
+    setPendingImage(file);
+    setImageAlt(file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "));
+  }
+
+  function confirmBodyImage() {
+    if (!pendingImage) return;
+    const file = pendingImage;
+    const alt = imageAlt;
+    clearPendingImage();
 
     startImageUpload(async () => {
       const formData = new FormData();
@@ -176,7 +296,6 @@ export function ArticleEditor({ article }: { article?: Article }) {
         return;
       }
       applyInsertion(`\n\n![${alt.trim()}](${result.url})\n\n`);
-      if (bodyImageRef.current) bodyImageRef.current.value = "";
     });
   }
 
@@ -189,40 +308,42 @@ export function ArticleEditor({ article }: { article?: Article }) {
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,400px)]">
       <div className="space-y-5">
-        <form
-          action={aiAction}
-          className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
-        >
-          <div className="space-y-1">
-            <h3 className="font-display text-xl text-ink">AI draft assist</h3>
-            <p className="text-sm text-muted">
-              Provide notes. AI drafts the article fields and Markdown body —
-              review before saving.
-            </p>
-          </div>
-          <input type="hidden" name="title" value={title} />
-          <input type="hidden" name="imageUrls" value={coverImageUrl} />
-          <AdminField label="Notes" htmlFor={`notes-${id}`}>
-            <Textarea
-              id={`notes-${id}`}
-              name="notes"
-              variant="box"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              placeholder="Article outline, key points, what patients should know…"
-            />
-          </AdminField>
-          {aiState.error ? (
-            <p className="text-sm text-red-700">{aiState.error}</p>
-          ) : null}
-          {aiState.success ? (
-            <p className="text-sm text-brand-dark">{aiState.success}</p>
-          ) : null}
-          <Button type="submit" variant="outline" size="sm" disabled={aiPending}>
-            {aiPending ? "Generating…" : "Generate draft"}
-          </Button>
-        </form>
+        {!article ? (
+          <form
+            action={aiAction}
+            className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
+          >
+            <div className="space-y-1">
+              <h3 className="font-display text-xl text-ink">AI draft assist</h3>
+              <p className="text-sm text-muted">
+                Provide notes. AI drafts the article fields and Markdown body —
+                review before saving.
+              </p>
+            </div>
+            <input type="hidden" name="title" value={title} />
+            <input type="hidden" name="imageUrls" value={coverImageUrl} />
+            <AdminField label="Notes" htmlFor={`notes-${id}`}>
+              <Textarea
+                id={`notes-${id}`}
+                name="notes"
+                variant="box"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+                placeholder="Article outline, key points, what patients should know…"
+              />
+            </AdminField>
+            {aiState.error ? (
+              <p className="text-sm text-red-700">{aiState.error}</p>
+            ) : null}
+            {aiState.success ? (
+              <p className="text-sm text-brand-dark">{aiState.success}</p>
+            ) : null}
+            <Button type="submit" disabled={aiPending}>
+              {aiPending ? "Generating…" : "Generate draft"}
+            </Button>
+          </form>
+        ) : null}
 
         <form action={formAction} className="space-y-5">
           {article ? <input type="hidden" name="id" value={article.id} /> : null}
@@ -256,7 +377,14 @@ export function ArticleEditor({ article }: { article?: Article }) {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="article-slug"
+                  aria-invalid={
+                    Boolean(state.error && /slug/i.test(state.error)) ||
+                    undefined
+                  }
                 />
+                {state.error && /slug/i.test(state.error) ? (
+                  <p className="text-sm text-red-700">{state.error}</p>
+                ) : null}
               </AdminField>
             </div>
             <AdminField label="Excerpt" htmlFor={`excerpt-${id}`}>
@@ -363,11 +491,11 @@ export function ArticleEditor({ article }: { article?: Article }) {
             description="Write in Markdown. It is converted to structured blocks on save."
           >
             <div className="flex flex-wrap gap-2 rounded-sm border border-brand/25 bg-brand-light/30 p-2">
-              <Button type="button" size="sm" onClick={insertLink}>
+              <Button type="button" size="sm" onClick={openLinkModal}>
                 <Link2 className="size-3.5" />
                 Link
               </Button>
-              <Button type="button" size="sm" onClick={insertYoutube}>
+              <Button type="button" size="sm" onClick={openYoutubeModal}>
                 <Video className="size-3.5" />
                 YouTube
               </Button>
@@ -393,6 +521,102 @@ export function ArticleEditor({ article }: { article?: Article }) {
             {imageUploadError ? (
               <p className="text-sm text-red-700">{imageUploadError}</p>
             ) : null}
+
+            <InsertDialog
+              open={linkOpen}
+              onOpenChange={setLinkOpen}
+              title="Insert link"
+              description="Add a label and destination URL."
+              onConfirm={confirmLink}
+              confirmLabel="Insert link"
+              confirmDisabled={!linkLabel.trim() || !linkHref.trim()}
+            >
+              <AdminField label="Label" htmlFor={`link-label-${id}`}>
+                <Input
+                  id={`link-label-${id}`}
+                  variant="box"
+                  value={linkLabel}
+                  onChange={(e) => setLinkLabel(e.target.value)}
+                  placeholder="Read more"
+                  autoFocus
+                />
+              </AdminField>
+              <AdminField label="URL" htmlFor={`link-href-${id}`}>
+                <Input
+                  id={`link-href-${id}`}
+                  variant="box"
+                  value={linkHref}
+                  onChange={(e) => setLinkHref(e.target.value)}
+                  placeholder="https://"
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      confirmLink();
+                    }
+                  }}
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
+              open={youtubeOpen}
+              onOpenChange={setYoutubeOpen}
+              title="Insert YouTube video"
+              description="Paste a YouTube watch or share URL."
+              onConfirm={confirmYoutube}
+              confirmLabel="Insert video"
+              confirmDisabled={!youtubeUrl.trim()}
+            >
+              <AdminField label="YouTube URL" htmlFor={`youtube-url-${id}`}>
+                <Input
+                  id={`youtube-url-${id}`}
+                  variant="box"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v="
+                  autoFocus
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      confirmYoutube();
+                    }
+                  }}
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
+              open={imageAltOpen}
+              onOpenChange={(open) => {
+                if (!open) clearPendingImage();
+              }}
+              title="Image alt text"
+              description="Describe the image for accessibility. Optional but recommended."
+              onConfirm={confirmBodyImage}
+              confirmLabel="Insert image"
+              onCancel={clearPendingImage}
+            >
+              {pendingImage ? (
+                <p className="truncate text-xs text-muted">{pendingImage.name}</p>
+              ) : null}
+              <AdminField label="Alt text" htmlFor={`image-alt-${id}`}>
+                <Input
+                  id={`image-alt-${id}`}
+                  variant="box"
+                  value={imageAlt}
+                  onChange={(e) => setImageAlt(e.target.value)}
+                  placeholder="Short description of the image"
+                  autoFocus
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      confirmBodyImage();
+                    }
+                  }}
+                />
+              </AdminField>
+            </InsertDialog>
+
             <AdminField label="Markdown" htmlFor={`markdown-${id}`}>
               <Textarea
                 ref={markdownRef}
@@ -402,20 +626,54 @@ export function ArticleEditor({ article }: { article?: Article }) {
                 onChange={(e) => setBodyMarkdown(e.target.value)}
                 rows={18}
                 className="min-h-72 font-mono text-sm"
-                placeholder={`## Section title\n\nParagraph with a [link](/services).\n\n> A short quote\n> — Attribution\n\n![Alt text](https://example.com/image.jpg)\n\nhttps://www.youtube.com/watch?v=VIDEO_ID`}
+                placeholder={`## Section title\n\nParagraph with a [link](/services).\n\n- First point\n- Second point\n\n1. Step one\n2. Step two\n\n> A short quote\n> — Attribution\n\n![Alt text](https://example.com/image.jpg)\n\nhttps://www.youtube.com/watch?v=VIDEO_ID`}
               />
             </AdminField>
-            <p className="text-xs leading-relaxed text-muted">
-              Use <code className="text-ink">##</code> /{" "}
-              <code className="text-ink">###</code> headings, blank lines between
-              paragraphs, <code className="text-ink">&gt; quote</code>,{" "}
-              <code className="text-ink">![alt](url)</code>,{" "}
-              <code className="text-ink">[label](url)</code>, and paste a YouTube
-              URL on its own line. Optional:{" "}
-              <code className="text-ink">
-                :::imageText{"{"}side=left image=&quot;url&quot;{"}"}
-              </code>
-            </p>
+            <div className="space-y-3 border border-ink/10 bg-white/70 px-4 py-3 text-xs leading-relaxed text-muted">
+              <p className="font-medium uppercase tracking-[0.14em] text-ink/70">
+                How to write
+              </p>
+              <ul className="space-y-2">
+                <li>
+                  <span className="text-ink">Headings:</span> start a line with{" "}
+                  <code className="text-ink">## Title</code> or{" "}
+                  <code className="text-ink">### Smaller title</code>
+                </li>
+                <li>
+                  <span className="text-ink">Paragraphs:</span> write normally;
+                  leave a blank line between them
+                </li>
+                <li>
+                  <span className="text-ink">Quotes:</span>{" "}
+                  <code className="text-ink">&gt; Quote text</code> (optional
+                  second line{" "}
+                  <code className="text-ink">&gt; — Name</code>)
+                </li>
+                <li>
+                  <span className="text-ink">Lists:</span>{" "}
+                  <code className="text-ink">- Bullet item</code> or{" "}
+                  <code className="text-ink">1. Numbered item</code> (one item
+                  per line; blank line ends the list)
+                </li>
+                <li>
+                  <span className="text-ink">Link / YouTube / Image:</span> use
+                  the toolbar buttons above — they insert the correct format
+                  for you
+                </li>
+                <li>
+                  <span className="text-ink">Side-by-side image + text:</span>
+                  <pre className="mt-1 overflow-x-auto bg-stone/40 px-3 py-2 font-mono text-[11px] leading-snug text-ink">
+{`:::imageText{side=left image="https://…/photo.jpg"}
+Optional heading
+Body paragraph here.
+:::`}
+                  </pre>
+                  Use <code className="text-ink">side=right</code> to flip the
+                  layout. Close with a line that is only{" "}
+                  <code className="text-ink">:::</code>
+                </li>
+              </ul>
+            </div>
             {!parseResult.ok ? (
               <p className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 Markdown error: {parseResult.error}

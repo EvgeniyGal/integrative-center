@@ -50,6 +50,7 @@ export function ServicesTable({ items }: { items: Service[] }) {
         <AdminTableElement>
           <AdminTableHead>
             <tr>
+              <AdminTableHeaderCell>Order</AdminTableHeaderCell>
               <AdminTableHeaderCell className="w-16">Image</AdminTableHeaderCell>
               <AdminTableHeaderCell>Service</AdminTableHeaderCell>
               <AdminTableHeaderCell className="hidden lg:table-cell">
@@ -57,7 +58,6 @@ export function ServicesTable({ items }: { items: Service[] }) {
               </AdminTableHeaderCell>
               <AdminTableHeaderCell>Home</AdminTableHeaderCell>
               <AdminTableHeaderCell>Visible</AdminTableHeaderCell>
-              <AdminTableHeaderCell>Order</AdminTableHeaderCell>
               <AdminTableHeaderCell className="text-right">
                 Actions
               </AdminTableHeaderCell>
@@ -79,6 +79,11 @@ export function ServicesTable({ items }: { items: Service[] }) {
                   <SortableAdminTableRow id={item.id} selected={open}>
                     {({ attributes, listeners }) => (
                       <>
+                        <OrderDragCell
+                          order={item.sortOrder}
+                          attributes={attributes}
+                          listeners={listeners}
+                        />
                         <AdminTableCell>
                           <div className="relative size-12 overflow-hidden bg-stone">
                             {item.imageUrl ? (
@@ -127,11 +132,6 @@ export function ServicesTable({ items }: { items: Service[] }) {
                             offTone="danger"
                           />
                         </AdminTableCell>
-                        <OrderDragCell
-                          order={item.sortOrder}
-                          attributes={attributes}
-                          listeners={listeners}
-                        />
                         <AdminTableCell>
                           <div className="flex justify-end gap-1.5">
                             <PreviewToggle

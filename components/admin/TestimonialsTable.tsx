@@ -48,6 +48,7 @@ export function TestimonialsTable({ items }: { items: Testimonial[] }) {
         <AdminTableElement>
           <AdminTableHead>
             <tr>
+              <AdminTableHeaderCell>Order</AdminTableHeaderCell>
               <AdminTableHeaderCell>Title</AdminTableHeaderCell>
               <AdminTableHeaderCell className="hidden md:table-cell">
                 Quote
@@ -56,7 +57,6 @@ export function TestimonialsTable({ items }: { items: Testimonial[] }) {
               <AdminTableHeaderCell className="hidden sm:table-cell">
                 Source
               </AdminTableHeaderCell>
-              <AdminTableHeaderCell>Order</AdminTableHeaderCell>
               <AdminTableHeaderCell>Status</AdminTableHeaderCell>
               <AdminTableHeaderCell className="text-right">
                 Actions
@@ -78,6 +78,11 @@ export function TestimonialsTable({ items }: { items: Testimonial[] }) {
                   <SortableAdminTableRow id={item.id} selected={open}>
                     {({ attributes, listeners }) => (
                       <>
+                        <OrderDragCell
+                          order={item.sortOrder}
+                          attributes={attributes}
+                          listeners={listeners}
+                        />
                         <AdminTableCell>
                           <p className="font-medium text-ink">{item.title}</p>
                         </AdminTableCell>
@@ -90,11 +95,6 @@ export function TestimonialsTable({ items }: { items: Testimonial[] }) {
                         <AdminTableCell className="hidden sm:table-cell">
                           {item.source}
                         </AdminTableCell>
-                        <OrderDragCell
-                          order={item.sortOrder}
-                          attributes={attributes}
-                          listeners={listeners}
-                        />
                         <AdminTableCell>
                           <StatusBadge
                             tone={item.published ? "success" : "neutral"}

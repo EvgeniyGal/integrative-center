@@ -41,6 +41,17 @@ function slugTakenMessage(slug: string) {
   return `Slug “${slug}” is already in use. Choose a different slug.`;
 }
 
+export type ArticleActionState = ActionState & {
+  /** Persisted Blob URL returned after upload so retries keep the cover. */
+  coverImageUrl?: string;
+};
+
+function readArticleSlug(formData: FormData) {
+  const title = String(formData.get("title") ?? "");
+  const slugInput = String(formData.get("slug") ?? "");
+  return slugify(slugInput || title);
+}
+
 const articleSchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
@@ -115,29 +126,46 @@ function parseArticleForm(formData: FormData, blocks: ArticleBlock[]) {
 }
 
 export async function createArticleAction(
-  _prev: ActionState,
+  _prev: ArticleActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<ArticleActionState> {
   await requireAdmin();
+  let coverImageUrl = "";
   try {
+    const slug = readArticleSlug(formData);
+    if (!slug) {
+      return { error: "Add a title or slug before saving." };
+    }
+
+    if (await isArticleSlugTaken(slug)) {
+      const existingUrl = String(formData.get("coverImageUrl") ?? "");
+      return {
+        error: slugTakenMessage(slug),
+        ...(existingUrl && !existingUrl.startsWith("blob:")
+          ? { coverImageUrl: existingUrl }
+          : {}),
+      };
+    }
+
     const file = formData.get("coverImage") as File | null;
-    const coverImageUrl = await resolveCoverImage(
+    coverImageUrl = await resolveCoverImage(
       file,
       String(formData.get("coverImageUrl") ?? ""),
       "",
     );
     formData.set("coverImageUrl", coverImageUrl);
+    const persistCover = coverImageUrl ? { coverImageUrl } : {};
+
     const blocksResult = resolveBlocksFromForm(formData);
     if (!blocksResult.ok) {
-      return { error: blocksResult.error };
+      return { error: blocksResult.error, ...persistCover };
     }
     const parsed = parseArticleForm(formData, blocksResult.blocks);
     if (!parsed.success) {
-      return { error: "Check article fields and Markdown body." };
-    }
-
-    if (await isArticleSlugTaken(parsed.data.slug)) {
-      return { error: slugTakenMessage(parsed.data.slug) };
+      return {
+        error: "Check article fields and Markdown body.",
+        ...persistCover,
+      };
     }
 
     await db.insert(articles).values({
@@ -154,25 +182,48 @@ export async function createArticleAction(
     const message =
       error instanceof Error ? error.message : "Could not create article.";
     if (/unique|duplicate/i.test(message)) {
-      return { error: "That slug is already in use. Choose a different slug." };
+      return {
+        error: "That slug is already in use. Choose a different slug.",
+        ...(coverImageUrl ? { coverImageUrl } : {}),
+      };
     }
-    return { error: message };
+    return {
+      error: message,
+      ...(coverImageUrl ? { coverImageUrl } : {}),
+    };
   }
 }
 
 export async function updateArticleAction(
-  _prev: ActionState,
+  _prev: ArticleActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<ArticleActionState> {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Missing article id." };
 
+  let coverImageUrl = "";
   try {
     const existing = await db.query.articles.findFirst({
       where: eq(articles.id, id),
     });
     if (!existing) return { error: "Article not found." };
+
+    const slug = readArticleSlug(formData);
+    if (!slug) {
+      return { error: "Add a title or slug before saving." };
+    }
+    if (await isArticleSlugTaken(slug, id)) {
+      const existingUrl = String(formData.get("coverImageUrl") ?? "");
+      return {
+        error: slugTakenMessage(slug),
+        ...(existingUrl && !existingUrl.startsWith("blob:")
+          ? { coverImageUrl: existingUrl }
+          : existing.coverImageUrl
+            ? { coverImageUrl: existing.coverImageUrl }
+            : {}),
+      };
+    }
 
     const previousUrls = collectArticleImageUrls({
       coverImageUrl: existing.coverImageUrl,
@@ -180,24 +231,24 @@ export async function updateArticleAction(
     });
 
     const file = formData.get("coverImage") as File | null;
-    const coverImageUrl = await resolveCoverImage(
+    coverImageUrl = await resolveCoverImage(
       file,
       String(formData.get("coverImageUrl") ?? ""),
       existing.coverImageUrl,
     );
     formData.set("coverImageUrl", coverImageUrl);
+    const persistCover = coverImageUrl ? { coverImageUrl } : {};
 
     const blocksResult = resolveBlocksFromForm(formData);
     if (!blocksResult.ok) {
-      return { error: blocksResult.error };
+      return { error: blocksResult.error, ...persistCover };
     }
     const parsed = parseArticleForm(formData, blocksResult.blocks);
     if (!parsed.success) {
-      return { error: "Check article fields and Markdown body." };
-    }
-
-    if (await isArticleSlugTaken(parsed.data.slug, id)) {
-      return { error: slugTakenMessage(parsed.data.slug) };
+      return {
+        error: "Check article fields and Markdown body.",
+        ...persistCover,
+      };
     }
 
     const becomingPublished =
@@ -237,9 +288,15 @@ export async function updateArticleAction(
     const message =
       error instanceof Error ? error.message : "Could not update article.";
     if (/unique|duplicate/i.test(message)) {
-      return { error: "That slug is already in use. Choose a different slug." };
+      return {
+        error: "That slug is already in use. Choose a different slug.",
+        ...(coverImageUrl ? { coverImageUrl } : {}),
+      };
     }
-    return { error: message };
+    return {
+      error: message,
+      ...(coverImageUrl ? { coverImageUrl } : {}),
+    };
   }
 }
 
@@ -266,5 +323,51 @@ export async function deleteArticleAction(formData: FormData) {
   revalidatePath("/admin/news");
   revalidatePath("/news");
   revalidatePath(`/news/${existing.slug}`);
+  revalidatePath("/");
+}
+
+export async function setArticleFlagAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const field = String(formData.get("field") ?? "");
+  const value = formData.get("value") === "true";
+  if (!id) throw new Error("Missing article id.");
+  if (field !== "featuredOnHome" && field !== "status") {
+    throw new Error("Invalid article flag.");
+  }
+
+  const existing = await db.query.articles.findFirst({
+    where: eq(articles.id, id),
+  });
+  if (!existing) throw new Error("Article not found.");
+
+  if (field === "featuredOnHome") {
+    await db
+      .update(articles)
+      .set({ featuredOnHome: value, updatedAt: new Date() })
+      .where(eq(articles.id, id));
+  } else {
+    const status = value ? "published" : "draft";
+    const becomingPublished =
+      status === "published" && existing.status !== "published";
+    await db
+      .update(articles)
+      .set({
+        status,
+        publishedAt: becomingPublished
+          ? new Date()
+          : status === "published"
+            ? (existing.publishedAt ?? new Date())
+            : existing.publishedAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(articles.id, id));
+  }
+
+  updateTag("articles");
+  updateTag(`article:${existing.slug}`);
+  revalidatePath("/admin/news");
+  revalidatePath(`/news/${existing.slug}`);
+  revalidatePath("/news");
   revalidatePath("/");
 }

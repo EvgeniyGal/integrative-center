@@ -1,17 +1,19 @@
-import Link from "next/link";
-
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { Button } from "@/components/ui/button";
+import { BackToNewsLink } from "@/components/admin/ArticleNav";
 
 export const instant = false;
 
-export default function NewArticlePage() {
+export default async function NewArticlePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ t?: string }>;
+}) {
+  const { t } = await searchParams;
+
   return (
     <div className="space-y-6">
-      <Button asChild variant="outline" size="sm" className="rounded-none">
-        <Link href="/admin/news">← Back to news</Link>
-      </Button>
-      <ArticleEditor />
+      <BackToNewsLink />
+      <ArticleEditor key={t ?? "new"} />
     </div>
   );
 }

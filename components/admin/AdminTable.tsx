@@ -166,7 +166,7 @@ export function StatusToggle({
       <button
         type="submit"
         className={cn(
-          "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] transition hover:ring-2 hover:ring-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50",
+          "inline-flex cursor-pointer items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] transition hover:ring-2 hover:ring-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50",
           statusToneClass[tone],
         )}
         title={`Switch to ${next ? onLabel : offLabel}`}

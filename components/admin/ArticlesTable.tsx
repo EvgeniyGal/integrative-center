@@ -3,7 +3,10 @@
 import { Fragment } from "react";
 import Image from "next/image";
 
-import { deleteArticleAction } from "@/app/admin/actions/articles";
+import {
+  deleteArticleAction,
+  setArticleFlagAction,
+} from "@/app/admin/actions/articles";
 import {
   AdminTable,
   AdminTableBody,
@@ -12,7 +15,7 @@ import {
   AdminTableHead,
   AdminTableHeaderCell,
   AdminTableRow,
-  StatusBadge,
+  StatusToggle,
 } from "@/components/admin/AdminTable";
 import {
   ArticleDetailPreview,
@@ -25,12 +28,6 @@ import {
   usePreviewId,
 } from "@/components/admin/TableActions";
 import type { Article } from "@/lib/db/schema";
-
-function statusTone(status: string) {
-  if (status === "published") return "success" as const;
-  if (status === "draft") return "warning" as const;
-  return "neutral" as const;
-}
 
 export function ArticlesTable({ items }: { items: Article[] }) {
   const { toggle, isOpen } = usePreviewId();
@@ -65,6 +62,7 @@ export function ArticlesTable({ items }: { items: Article[] }) {
           ) : (
             items.map((item) => {
               const open = isOpen(item.id);
+              const isPublished = item.status === "published";
               return (
                 <Fragment key={item.id}>
                   <AdminTableRow selected={open}>
@@ -89,14 +87,32 @@ export function ArticlesTable({ items }: { items: Article[] }) {
                       {item.category}
                     </AdminTableCell>
                     <AdminTableCell>
-                      <StatusBadge tone={statusTone(item.status)}>
-                        {item.status}
-                      </StatusBadge>
+                      <StatusToggle
+                        action={setArticleFlagAction}
+                        id={item.id}
+                        field="status"
+                        value={isPublished}
+                        onLabel="Published"
+                        offLabel={
+                          item.status === "archived" ? "Archived" : "Draft"
+                        }
+                        onTone="success"
+                        offTone={
+                          item.status === "archived" ? "neutral" : "warning"
+                        }
+                      />
                     </AdminTableCell>
                     <AdminTableCell className="hidden lg:table-cell">
-                      <StatusBadge tone={item.featuredOnHome ? "info" : "neutral"}>
-                        {item.featuredOnHome ? "Featured" : "Not featured"}
-                      </StatusBadge>
+                      <StatusToggle
+                        action={setArticleFlagAction}
+                        id={item.id}
+                        field="featuredOnHome"
+                        value={item.featuredOnHome}
+                        onLabel="Featured"
+                        offLabel="Not featured"
+                        onTone="info"
+                        offTone="neutral"
+                      />
                     </AdminTableCell>
                     <AdminTableCell className="hidden xl:table-cell text-muted">
                       {new Date(item.updatedAt).toLocaleDateString()}

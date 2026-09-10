@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { ActionState } from "@/app/admin/actions/auth";
 import {
@@ -23,6 +24,7 @@ export function TestimonialEditor({
 }: {
   testimonial?: Testimonial;
 }) {
+  const router = useRouter();
   const id = testimonial?.id ?? "new";
   const [title, setTitle] = useState(testimonial?.title ?? "");
   const [quote, setQuote] = useState(testimonial?.quote ?? "");
@@ -32,6 +34,13 @@ export function TestimonialEditor({
     ? updateTestimonialAction
     : createTestimonialAction;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
+
+  useEffect(() => {
+    if (!testimonial && state.success) {
+      router.push("/admin/testimonials");
+      router.refresh();
+    }
+  }, [testimonial, state.success, router]);
 
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,400px)]">

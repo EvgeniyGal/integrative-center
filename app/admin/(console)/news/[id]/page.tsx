@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
-import { Button } from "@/components/ui/button";
+import { BackToNewsLink } from "@/components/admin/ArticleNav";
 import { db } from "@/lib/db";
 import { articles } from "@/lib/db/schema";
 
@@ -22,9 +21,7 @@ export default async function EditArticlePage({
 
   return (
     <div className="space-y-6">
-      <Button asChild variant="outline" size="sm" className="rounded-none">
-        <Link href="/admin/news">← Back to news</Link>
-      </Button>
+      <BackToNewsLink />
       <ArticleEditor article={article} />
     </div>
   );

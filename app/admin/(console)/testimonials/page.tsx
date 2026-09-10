@@ -1,7 +1,5 @@
-import Link from "next/link";
-
 import { TestimonialsTable } from "@/components/admin/TestimonialsTable";
-import { Button } from "@/components/ui/button";
+import { AddTestimonialButton } from "@/components/admin/TestimonialNav";
 import { getAllTestimonials } from "@/lib/content/queries";
 
 export const instant = false;
@@ -15,9 +13,7 @@ export default async function AdminTestimonialsPage() {
         <p className="max-w-2xl text-muted">
           Quotes for “What people are saying”. Do not generate these with AI.
         </p>
-        <Button asChild variant="outline" className="rounded-none">
-          <Link href="/admin/testimonials/new">Add testimonial</Link>
-        </Button>
+        <AddTestimonialButton className="rounded-none" />
       </div>
       <TestimonialsTable items={items} />
     </div>

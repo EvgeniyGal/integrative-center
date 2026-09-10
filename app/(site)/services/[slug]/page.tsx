@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { ConsultCta } from "@/components/ConsultCta";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
 import { getServiceBySlug, getVisibleServices } from "@/lib/content/queries";
@@ -90,11 +89,6 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           </Reveal>
         </div>
       </section>
-
-      <ConsultCta
-        title="Ready to talk about this service?"
-        body="Tell us what you would like to address. We will listen first, then outline the next step."
-      />
     </>
   );
 }

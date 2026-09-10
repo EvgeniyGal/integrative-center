@@ -92,10 +92,12 @@ export async function generateArticleDraftAction(
 Markdown dialect for bodyMarkdown:
 - ## / ### for headings
 - Blank-line-separated paragraphs (inline [label](url), **bold**, *italic* allowed)
+- Unordered lists with "- item" (or * / +); ordered lists with "1. item"
 - > quote lines; optional final "> — Attribution"
 - ![alt](url) for images; consecutive image lines become a gallery
 - A bare YouTube / youtu.be / shorts URL on its own line for video
 - Optional :::imageText{side=left image="url"} ... :::
+- Prefer short bullet or numbered lists when notes include steps, benefits, or takeaways
 - Do not invent image URLs; only use: ${imageUrls || "(none)"}
 - Do not invent YouTube links unless the admin notes include one
 - Keep body focused and factual; no fake testimonials
