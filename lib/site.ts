@@ -81,6 +81,14 @@ export const practiceIntro = {
   ],
 } as const;
 
+export const servicesIntro = {
+  title: "Feel and look your best at any age.",
+  paragraphs: [
+    "Maintaining our health means providing our body with the care it needs, so we can feel and look our best at any age. Since each person is unique, at Health & Beauty Integrative Center, we provide personalized health and wellness care tailored to your specific needs, offering a wide range of health and wellness services to improve your physical, mental, and emotional well-being.",
+    "Improving your health begins with you. Taking the next step begins with us. Access our experienced team of health and wellness experts—using the latest technology and innovative therapies, we offer patients a customized care experience, addressing your individual concerns to help you achieve your health goals.",
+  ],
+} as const;
+
 export const homeQuestions = {
   eyebrow: "Questions",
   title: "Functional and traditional medicine, held to a clinical standard.",
@@ -255,6 +263,31 @@ export const team = [
     bio: "Yelena brings more than three decades of skincare expertise to the practice. She has trained other professionals on IPL, RF, and related treatments, and works with an individual approach to restore skin health with precision and care.",
   },
 ] as const;
+
+export const aboutPolicies = {
+  eyebrow: "Policies",
+  title: "Clear policies for respectful, efficient care.",
+  body: "To help us stay on schedule and provide appropriate care to every patient, please review these key practice policies.",
+  readMoreHref: "/patient-resources",
+  items: [
+    {
+      title: "Late arrivals",
+      body: "Patients arriving more than 15 minutes late may have their appointment canceled and may need to reschedule.",
+    },
+    {
+      title: "No-shows",
+      body: "Missed appointments without prior notice may result in a charge according to the practice’s cancellation and no-show policy.",
+    },
+    {
+      title: "Portal messages",
+      body: "Patient portal messages are intended for brief, limited questions. Questions requiring medical assessment, detailed advice, or treatment recommendations may be considered a consultation and billed accordingly.",
+    },
+    {
+      title: "Appointments & cancellations",
+      body: "Please notify the office as early as possible if you need to cancel or reschedule your appointment.",
+    },
+  ],
+} as const;
 
 export const modalities = [
   "Hormone balancing for men and women",

@@ -350,8 +350,8 @@ export function ArticleEditor({ article }: { article?: Article }) {
           >
             <ImageField
               label="Cover image"
-              fileName="coverImage"
               urlName="coverImageUrl"
+              uploadFolder="articles"
               value={coverImageUrl}
               onChange={setCoverImageUrl}
               required={!article}

@@ -14,7 +14,6 @@ const serviceDraftSchema = z.object({
   eyebrow: z.string(),
   summary: z.string(),
   body: z.array(z.string()),
-  imageAlt: z.string().optional(),
 });
 
 const articleDraftSchema = z.object({

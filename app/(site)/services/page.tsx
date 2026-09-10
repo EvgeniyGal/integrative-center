@@ -2,24 +2,37 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import { ConsultCta } from "@/components/ConsultCta";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
-import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
-import {
-  getPublishedTestimonials,
-  getVisibleServices,
-} from "@/lib/content/queries";
+import { getVisibleServices } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
+import { servicesIntro } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.services);
 
+/** First 2–3 body sentences, ending with … to show more follows. */
+function serviceCardExcerpt(body: string[] | null | undefined, fallback: string) {
+  const source = (body ?? []).map((p) => p.trim()).filter(Boolean).join(" ");
+  const text = (source || fallback).trim();
+  if (!text) return "";
+
+  const sentences =
+    text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)?.map((s) => s.trim()) ?? [
+      text,
+    ];
+
+  let count = Math.min(2, sentences.length);
+  if (sentences.length >= 3 && sentences.slice(0, 2).join(" ").length < 180) {
+    count = 3;
+  }
+
+  const excerpt = sentences.slice(0, count).join(" ").trim();
+  return `${excerpt.replace(/[.…]+$/, "")}…`;
+}
+
 export default async function ServicesPage() {
-  const [wellnessServices, reviews] = await Promise.all([
-    getVisibleServices(),
-    getPublishedTestimonials(),
-  ]);
+  const wellnessServices = await getVisibleServices();
 
   return (
     <>
@@ -46,48 +59,36 @@ export default async function ServicesPage() {
       </section>
 
       <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <Reveal>
-            <SectionHeading
-              title="Feel and look your best at any age."
-              body="Maintaining our health means providing the body with the care it needs. Since each person is unique, we provide personalized health and wellness care — a wide range of services for physical, mental, and emotional well-being."
-            />
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-12 lg:gap-16 lg:px-10">
+          <Reveal className="lg:col-span-5">
+            <SectionHeading title={servicesIntro.title} />
           </Reveal>
-          <Reveal delay={0.1}>
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted">
-              Improving your health begins with you. Taking the next step
-              begins with us. Access our team of health and wellness experts —
-              using the latest technology and innovative therapies — for a
-              customized care experience that addresses your individual concerns.
-            </p>
-          </Reveal>
-          <nav className="mt-14 flex flex-wrap gap-3">
-            {wellnessServices.map((service) => (
-              <a
-                key={service.slug}
-                href={`#${service.slug}`}
-                className="rounded-full border border-ink/15 px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-ink/80 transition hover:border-brand hover:text-brand"
-              >
-                {service.title}
-              </a>
+          <Reveal
+            className="space-y-6 text-base leading-relaxed text-muted sm:text-lg lg:col-span-7"
+            delay={0.08}
+          >
+            {servicesIntro.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
             ))}
-          </nav>
+          </Reveal>
         </div>
       </section>
 
       {wellnessServices.map((service, index) => {
-        const reverse = index % 2 === 1;
-        const body = service.body ?? [];
+        const imageRight = index % 2 === 1;
+        const excerpt = serviceCardExcerpt(service.body, service.summary);
         return (
           <section
             key={service.slug}
             id={service.slug}
-            className={`scroll-mt-36 ${index % 2 === 0 ? "bg-ivory" : "bg-stone/30"}`}
+            className={`scroll-mt-36 ${
+              index % 2 === 0 ? "bg-stone/30" : "bg-ivory"
+            }`}
           >
-            <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
+            <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-12 lg:gap-14 lg:px-10 lg:py-24">
               <Reveal
                 className={
-                  reverse
+                  imageRight
                     ? "relative aspect-[4/3] overflow-hidden lg:col-span-6 lg:order-2"
                     : "relative aspect-[4/3] overflow-hidden lg:col-span-6"
                 }
@@ -102,51 +103,27 @@ export default async function ServicesPage() {
               </Reveal>
               <Reveal
                 className={
-                  reverse ? "lg:col-span-6 lg:order-1" : "lg:col-span-6"
+                  imageRight ? "lg:col-span-6 lg:order-1" : "lg:col-span-6"
                 }
                 delay={0.08}
               >
-                <p className="text-[11px] uppercase tracking-[0.28em] text-brand">
+                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-brand">
                   {service.eyebrow}
                 </p>
-                <h2 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
+                <h2 className="mt-4 font-display text-4xl tracking-tight text-ink sm:text-5xl">
                   {service.title}
                 </h2>
-                <p className="mt-4 text-lg text-ink/80">{service.summary}</p>
-                <div className="mt-6 space-y-4 text-muted leading-relaxed">
-                  {body.map((para) => (
-                    <p key={para.slice(0, 24)}>{para}</p>
-                  ))}
-                </div>
-                <Button asChild variant="outline" className="mt-8">
-                  <Link href="/contact">Request this consult</Link>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+                  {excerpt}
+                </p>
+                <Button asChild className="mt-8">
+                  <Link href={`/services/${service.slug}`}>Read more</Link>
                 </Button>
               </Reveal>
             </div>
           </section>
         );
       })}
-
-      <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <SectionHeading eyebrow="Patients" title="What people are saying" />
-          <div className="mt-14">
-            <TestimonialCarousel
-              reviews={reviews.map((review) => ({
-                title: review.title,
-                quote: review.quote,
-                name: review.name,
-                source: review.source,
-              }))}
-            />
-          </div>
-        </div>
-      </section>
-
-      <ConsultCta
-        title="Improving your health begins with you."
-        body="The next step begins with us. Tell us what you would like to address."
-      />
     </>
   );
 }

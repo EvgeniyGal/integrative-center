@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -25,6 +25,20 @@ function slugify(input: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+async function isArticleSlugTaken(slug: string, exceptId?: string) {
+  const existing = await db.query.articles.findFirst({
+    where: exceptId
+      ? and(eq(articles.slug, slug), ne(articles.id, exceptId))
+      : eq(articles.slug, slug),
+    columns: { id: true },
+  });
+  return Boolean(existing);
+}
+
+function slugTakenMessage(slug: string) {
+  return `Slug “${slug}” is already in use. Choose a different slug.`;
 }
 
 const articleSchema = z.object({
@@ -122,6 +136,10 @@ export async function createArticleAction(
       return { error: "Check article fields and Markdown body." };
     }
 
+    if (await isArticleSlugTaken(parsed.data.slug)) {
+      return { error: slugTakenMessage(parsed.data.slug) };
+    }
+
     await db.insert(articles).values({
       ...parsed.data,
       publishedAt:
@@ -133,9 +151,12 @@ export async function createArticleAction(
     revalidatePath("/");
     return { success: "Article created." };
   } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : "Could not create article.",
-    };
+    const message =
+      error instanceof Error ? error.message : "Could not create article.";
+    if (/unique|duplicate/i.test(message)) {
+      return { error: "That slug is already in use. Choose a different slug." };
+    }
+    return { error: message };
   }
 }
 
@@ -175,6 +196,10 @@ export async function updateArticleAction(
       return { error: "Check article fields and Markdown body." };
     }
 
+    if (await isArticleSlugTaken(parsed.data.slug, id)) {
+      return { error: slugTakenMessage(parsed.data.slug) };
+    }
+
     const becomingPublished =
       parsed.data.status === "published" && existing.status !== "published";
 
@@ -209,9 +234,12 @@ export async function updateArticleAction(
     revalidatePath("/");
     return { success: "Article updated." };
   } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : "Could not update article.",
-    };
+    const message =
+      error instanceof Error ? error.message : "Could not update article.";
+    if (/unique|duplicate/i.test(message)) {
+      return { error: "That slug is already in use. Choose a different slug." };
+    }
+    return { error: message };
   }
 }
 

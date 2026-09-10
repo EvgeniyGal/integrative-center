@@ -1,25 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
 
-import { ConsultCta } from "@/components/ConsultCta";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
-import { TestimonialCarousel } from "@/components/TestimonialCarousel";
-import { getPublishedTestimonials } from "@/lib/content/queries";
+import { Button } from "@/components/ui/button";
 import { pageMetadata, pages } from "@/lib/seo";
-import { modalities, site, team } from "@/lib/site";
+import { aboutPolicies, practiceIntro, team } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.about);
 
-export default async function AboutPage() {
-  const reviews = await getPublishedTestimonials();
-
+export default function AboutPage() {
   return (
     <>
       <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
         <Image
           src="/images/generated/about.jpg"
-          alt="The HBI practice"
+          alt="The Health & Beauty Integrative Center practice"
           fill
           priority
           className="object-cover"
@@ -39,65 +36,52 @@ export default async function AboutPage() {
       </section>
 
       <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-12 lg:px-10">
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-12 lg:gap-16 lg:px-10">
           <Reveal className="lg:col-span-5">
             <SectionHeading
-              eyebrow="Our practice"
-              title="Functional and traditional medicine, held to a clinical standard."
+              eyebrow="About us"
+              title={practiceIntro.title}
             />
           </Reveal>
-          <Reveal className="space-y-6 text-lg leading-relaxed text-muted lg:col-span-7" delay={0.1}>
-            <p>{site.description}</p>
-            <p>
-              Using a variety of modalities, we address the root causes of our
-              patients’ issues while helping to reduce their symptoms. Every
-              patient is unique. Our dedicated providers listen, then use the
-              latest diagnostic testing to identify the source of your issues.
-            </p>
-            <p>
-              Once we assess your health factors, we develop comprehensive
-              treatment plans personalized to your needs. During your treatments,
-              we monitor your progress and adjust the process based on your
-              body’s response.
-            </p>
+          <Reveal
+            className="space-y-6 text-base leading-relaxed text-muted sm:text-lg lg:col-span-7"
+            delay={0.08}
+          >
+            {practiceIntro.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+            ))}
           </Reveal>
         </div>
       </section>
 
-      <section className="bg-stone/30 py-24 lg:py-32">
+      <section className="bg-stone/40 py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <Reveal>
-            <SectionHeading
-              eyebrow="Founder"
-              title="Elina Belilovskiy, ARNP"
-              body="Family Medicine Nurse Practitioner. Autonomous license. A practice built on diagnosis first."
-            />
-          </Reveal>
-          <div className="mt-16 grid items-center gap-12 lg:grid-cols-12">
-            <Reveal className="relative aspect-[4/5] overflow-hidden lg:col-span-5">
-              <Image
-                src={team[0].image}
-                alt={team[0].name}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 40vw, 100vw"
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+              <SectionHeading
+                eyebrow={aboutPolicies.eyebrow}
+                title={aboutPolicies.title}
+                body={aboutPolicies.body}
               />
-            </Reveal>
-            <Reveal className="lg:col-span-7" delay={0.1}>
-              <p className="text-lg leading-relaxed text-muted">{team[0].bio}</p>
-              <ul className="mt-10 grid gap-3 sm:grid-cols-2">
-                {["Integrative Medicine", "Women’s Health", "Urology", "Anti-aging protocols"].map(
-                  (item) => (
-                    <li
-                      key={item}
-                      className="border-l border-brand pl-4 text-sm uppercase tracking-[0.16em] text-ink"
-                    >
-                      {item}
-                    </li>
-                  ),
-                )}
-              </ul>
-            </Reveal>
+              <Button asChild className="shrink-0 self-start lg:self-auto">
+                <Link href={aboutPolicies.readMoreHref}>Read more</Link>
+              </Button>
+            </div>
+          </Reveal>
+
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {aboutPolicies.items.map((policy, index) => (
+              <Reveal key={policy.title} delay={index * 0.06}>
+                <article className="h-full border border-brand/35 bg-ivory/40 px-5 py-6">
+                  <h3 className="text-[12px] font-medium uppercase tracking-[0.2em] text-brand">
+                    {policy.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-relaxed text-muted">
+                    {policy.body}
+                  </p>
+                </article>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -108,30 +92,30 @@ export default async function AboutPage() {
             <SectionHeading
               eyebrow="The team"
               title="Meet the people who will know your name."
-              body="Health & Beauty Integrative Center is led by Elina Belilovskiy, ARNP, and serves patients across a wide range of concerns with personalized, results-driven care."
             />
           </Reveal>
-          <div className="mt-16 grid gap-10 lg:grid-cols-2">
-            {team.map((member, i) => (
-              <Reveal key={member.name} delay={i * 0.08}>
-                <article className="grid gap-6 sm:grid-cols-5 sm:items-start">
-                  <div className="relative aspect-[4/5] overflow-hidden sm:col-span-2">
+
+          <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-16">
+            {[team[0], team[0]].map((member, index) => (
+              <Reveal key={`${member.name}-${index}`} delay={index * 0.08}>
+                <article className="grid gap-6 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:items-start lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-stone/40">
                     <Image
                       src={member.image}
                       alt={member.name}
                       fill
                       className="object-cover"
-                      sizes="(min-width: 640px) 20vw, 100vw"
+                      sizes="(min-width: 1024px) 13rem, (min-width: 640px) 11rem, 100vw"
                     />
                   </div>
-                  <div className="sm:col-span-3 sm:pt-2">
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-brand">
+                  <div className="sm:pt-1">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-brand">
                       {member.role}
                     </p>
-                    <h3 className="mt-2 font-display text-3xl text-ink">
+                    <h3 className="mt-3 font-display text-2xl tracking-tight text-ink sm:text-3xl">
                       {member.name}
                     </h3>
-                    <p className="mt-4 text-sm leading-relaxed text-muted">
+                    <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
                       {member.bio}
                     </p>
                   </div>
@@ -139,59 +123,8 @@ export default async function AboutPage() {
               </Reveal>
             ))}
           </div>
-
-          <Reveal className="relative mt-16 aspect-[21/9] overflow-hidden">
-            <Image
-              src="/images/staff/team.jpg"
-              alt="The Health & Beauty Integrative Center team"
-              fill
-              className="object-cover object-top"
-              sizes="100vw"
-            />
-          </Reveal>
         </div>
       </section>
-
-      <section className="bg-ink py-24 text-ivory lg:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <Reveal>
-            <SectionHeading
-              light
-              eyebrow="Modalities"
-              title="Inside and out, designed as one plan."
-              body="From our experience in medicine and cosmetology, we know most skin issues begin underneath. We combine aesthetic and health therapies so you feel — and look — your best."
-            />
-          </Reveal>
-          <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {modalities.map((item) => (
-              <li
-                key={item}
-                className="border border-white/10 px-6 py-5 text-sm tracking-wide text-ivory/85"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <SectionHeading eyebrow="Patients" title="What people are saying" />
-          <div className="mt-14">
-            <TestimonialCarousel
-              reviews={reviews.map((review) => ({
-                title: review.title,
-                quote: review.quote,
-                name: review.name,
-                source: review.source,
-              }))}
-            />
-          </div>
-        </div>
-      </section>
-
-      <ConsultCta />
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -22,6 +22,20 @@ function slugify(input: string) {
     .replace(/^-|-$/g, "");
 }
 
+async function isServiceSlugTaken(slug: string, exceptId?: string) {
+  const existing = await db.query.services.findFirst({
+    where: exceptId
+      ? and(eq(services.slug, slug), ne(services.id, exceptId))
+      : eq(services.slug, slug),
+    columns: { id: true },
+  });
+  return Boolean(existing);
+}
+
+function slugTakenMessage(slug: string) {
+  return `Slug “${slug}” is already in use. Choose a different slug.`;
+}
+
 const serviceSchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
@@ -33,6 +47,11 @@ const serviceSchema = z.object({
   visible: z.boolean(),
   sortOrder: z.number().int(),
 });
+
+export type ServiceActionState = ActionState & {
+  /** Persisted Blob URL returned after upload so retries keep the image. */
+  imageUrl?: string;
+};
 
 async function resolveServiceImage(
   file: File | null,
@@ -68,60 +87,123 @@ function parseServiceForm(formData: FormData, existingImage = "") {
   });
 }
 
+function readServiceSlug(formData: FormData) {
+  const title = String(formData.get("title") ?? "");
+  const slugInput = String(formData.get("slug") ?? "");
+  return slugify(slugInput || title);
+}
+
 export async function createServiceAction(
-  _prev: ActionState,
+  _prev: ServiceActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<ServiceActionState> {
   await requireAdmin();
+  let uploadedImageUrl = "";
   try {
-    const file = formData.get("image") as File | null;
-    const imageUrl = await resolveServiceImage(
-      file,
-      String(formData.get("imageUrl") ?? ""),
+    const slug = readServiceSlug(formData);
+    if (!slug) {
+      return { error: "Add a title or slug before saving." };
+    }
+
+    const file = formData.get("image");
+    const formUrl = String(formData.get("imageUrl") ?? "");
+    uploadedImageUrl = await resolveServiceImage(
+      file instanceof File ? file : null,
+      formUrl,
       "",
     );
-    formData.set("imageUrl", imageUrl);
+    const persistImage = uploadedImageUrl
+      ? { imageUrl: uploadedImageUrl }
+      : {};
+
+    if (await isServiceSlugTaken(slug)) {
+      return { error: slugTakenMessage(slug), ...persistImage };
+    }
+
+    if (!uploadedImageUrl) {
+      return { error: "Add a service image before saving." };
+    }
+    formData.set("imageUrl", uploadedImageUrl);
+
     const parsed = parseServiceForm(formData);
-    if (!parsed.success) return { error: "Check the service fields and image." };
+    if (!parsed.success) {
+      return {
+        error: "Check the service fields and image.",
+        ...persistImage,
+      };
+    }
 
     await db.insert(services).values(parsed.data);
     updateTag("services");
     revalidatePath("/admin/services");
     revalidatePath("/services");
+    revalidatePath(`/services/${parsed.data.slug}`);
     revalidatePath("/");
     return { success: "Service created." };
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Could not create service.";
+    if (/unique|duplicate/i.test(message)) {
+      return {
+        error: "That slug is already in use. Choose a different slug.",
+        ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
+      };
+    }
     return {
-      error: error instanceof Error ? error.message : "Could not create service.",
+      error: message,
+      ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
     };
   }
 }
 
 export async function updateServiceAction(
-  _prev: ActionState,
+  _prev: ServiceActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<ServiceActionState> {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Missing service id." };
 
+  let uploadedImageUrl = "";
   try {
     const existing = await db.query.services.findFirst({
       where: eq(services.id, id),
     });
     if (!existing) return { error: "Service not found." };
 
-    const previousUrls = collectServiceImageUrls(existing);
+    const slug = readServiceSlug(formData);
+    if (!slug) {
+      return { error: "Add a title or slug before saving." };
+    }
 
-    const file = formData.get("image") as File | null;
-    const imageUrl = await resolveServiceImage(
-      file,
-      String(formData.get("imageUrl") ?? ""),
+    const previousUrls = collectServiceImageUrls(existing);
+    const file = formData.get("image");
+    const formUrl = String(formData.get("imageUrl") ?? "");
+    uploadedImageUrl = await resolveServiceImage(
+      file instanceof File ? file : null,
+      formUrl,
       existing.imageUrl,
     );
-    formData.set("imageUrl", imageUrl);
+    const persistImage = uploadedImageUrl
+      ? { imageUrl: uploadedImageUrl }
+      : {};
+
+    if (await isServiceSlugTaken(slug, id)) {
+      return { error: slugTakenMessage(slug), ...persistImage };
+    }
+
+    if (!uploadedImageUrl) {
+      return { error: "Add a service image before saving." };
+    }
+    formData.set("imageUrl", uploadedImageUrl);
+
     const parsed = parseServiceForm(formData, existing.imageUrl);
-    if (!parsed.success) return { error: "Check the service fields." };
+    if (!parsed.success) {
+      return {
+        error: "Check the service fields.",
+        ...persistImage,
+      };
+    }
 
     await db
       .update(services)
@@ -136,11 +218,24 @@ export async function updateServiceAction(
     updateTag(`service:${parsed.data.slug}`);
     revalidatePath("/admin/services");
     revalidatePath("/services");
+    revalidatePath(`/services/${parsed.data.slug}`);
+    if (existing.slug !== parsed.data.slug) {
+      revalidatePath(`/services/${existing.slug}`);
+    }
     revalidatePath("/");
     return { success: "Service updated." };
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Could not update service.";
+    if (/unique|duplicate/i.test(message)) {
+      return {
+        error: "That slug is already in use. Choose a different slug.",
+        ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
+      };
+    }
     return {
-      error: error instanceof Error ? error.message : "Could not update service.",
+      error: message,
+      ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
     };
   }
 }

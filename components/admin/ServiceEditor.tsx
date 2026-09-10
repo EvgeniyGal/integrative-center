@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { generateServiceDraftAction } from "@/app/admin/actions/ai";
 import {
   createServiceAction,
   updateServiceAction,
+  type ServiceActionState,
 } from "@/app/admin/actions/services";
 import type { ActionState } from "@/app/admin/actions/auth";
 import {
@@ -24,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Service } from "@/lib/db/schema";
 
 export function ServiceEditor({ service }: { service?: Service }) {
+  const router = useRouter();
   const id = service?.id ?? "new";
   const [title, setTitle] = useState(service?.title ?? "");
   const [slug, setSlug] = useState(service?.slug ?? "");
@@ -34,7 +37,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
   const [imageUrl, setImageUrl] = useState(service?.imageUrl ?? "");
 
   const action = service ? updateServiceAction : createServiceAction;
-  const [state, formAction, pending] = useActionState(action, {} as ActionState);
+  const [state, formAction, pending] = useActionState(
+    action,
+    {} as ServiceActionState,
+  );
   const [aiState, aiAction, aiPending] = useActionState(
     generateServiceDraftAction,
     {} as ActionState & {
@@ -58,42 +64,60 @@ export function ServiceEditor({ service }: { service?: Service }) {
     }
   }, [aiState.draft]);
 
+  useEffect(() => {
+    if (state.imageUrl) {
+      setImageUrl(state.imageUrl);
+    }
+  }, [state.imageUrl]);
+
+  useEffect(() => {
+    if (!service && state.success) {
+      router.push("/admin/services");
+      router.refresh();
+    }
+  }, [service, state.success, router]);
+
+  const imageReady =
+    Boolean(imageUrl) && !imageUrl.startsWith("blob:");
+
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
       <div className="space-y-5">
-        <form
-          action={aiAction}
-          className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
-        >
-          <div className="space-y-1">
-            <h3 className="font-display text-xl text-ink">AI draft assist</h3>
-            <p className="text-sm text-muted">
-              Provide notes. The draft fills the form below — review before
-              saving.
-            </p>
-          </div>
-          <input type="hidden" name="title" value={title} />
-          <AdminField label="Notes" htmlFor={`notes-${id}`}>
-            <Textarea
-              id={`notes-${id}`}
-              name="notes"
-              variant="box"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              placeholder="What this service includes, who it is for…"
-            />
-          </AdminField>
-          {aiState.error ? (
-            <p className="text-sm text-red-700">{aiState.error}</p>
-          ) : null}
-          {aiState.success ? (
-            <p className="text-sm text-brand-dark">{aiState.success}</p>
-          ) : null}
-          <Button type="submit" variant="outline" size="sm" disabled={aiPending}>
-            {aiPending ? "Generating…" : "Generate draft"}
-          </Button>
-        </form>
+        {!service ? (
+          <form
+            action={aiAction}
+            className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
+          >
+            <div className="space-y-1">
+              <h3 className="font-display text-xl text-ink">AI draft assist</h3>
+              <p className="text-sm text-muted">
+                Provide notes. The draft fills the form below — review before
+                saving.
+              </p>
+            </div>
+            <input type="hidden" name="title" value={title} />
+            <AdminField label="Notes" htmlFor={`notes-${id}`}>
+              <Textarea
+                id={`notes-${id}`}
+                name="notes"
+                variant="box"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+                placeholder="What this service includes, who it is for…"
+              />
+            </AdminField>
+            {aiState.error ? (
+              <p className="text-sm text-red-700">{aiState.error}</p>
+            ) : null}
+            {aiState.success ? (
+              <p className="text-sm text-brand-dark">{aiState.success}</p>
+            ) : null}
+            <Button type="submit" variant="outline" size="sm" disabled={aiPending}>
+              {aiPending ? "Generating…" : "Generate draft"}
+            </Button>
+          </form>
+        ) : null}
 
         <form action={formAction} className="space-y-5">
           {service ? <input type="hidden" name="id" value={service.id} /> : null}
@@ -179,8 +203,8 @@ export function ServiceEditor({ service }: { service?: Service }) {
           >
             <ImageField
               label="Service image"
-              fileName="image"
               urlName="imageUrl"
+              uploadFolder="services"
               value={imageUrl}
               onChange={setImageUrl}
               required={!service}
@@ -226,9 +250,16 @@ export function ServiceEditor({ service }: { service?: Service }) {
 
           <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 border border-ink/10 bg-ivory/95 px-4 py-3 shadow-[0_-8px_24px_rgba(28,27,25,0.06)] backdrop-blur">
             <p className="text-xs text-muted">
-              Changes apply after you save.
+              {!service && imageUrl.startsWith("blob:")
+                ? "Wait for the image upload to finish…"
+                : !service && !imageReady
+                  ? "Add a service image before saving."
+                  : "Changes apply after you save."}
             </p>
-            <Button type="submit" disabled={pending}>
+            <Button
+              type="submit"
+              disabled={pending || (!service && !imageReady)}
+            >
               {pending
                 ? "Saving…"
                 : service
