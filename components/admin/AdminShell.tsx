@@ -7,6 +7,8 @@ import {
   LogOut,
   Menu,
   MessageSquareQuote,
+  Package,
+  Pill,
   Sparkles,
   Users,
   X,
@@ -25,6 +27,8 @@ const contentLinks = [
   { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/news", label: "News", icon: FileText },
+  { href: "/admin/supplement-brands", label: "Brands", icon: Pill },
+  { href: "/admin/recommended-products", label: "Products", icon: Package },
 ];
 
 const systemLinks = [
@@ -131,6 +135,22 @@ function pageTitle(pathname: string) {
     return "Edit article";
   }
   if (pathname.startsWith("/admin/news")) return "News";
+  if (pathname === "/admin/supplement-brands/new") return "New brand";
+  if (
+    pathname.startsWith("/admin/supplement-brands/") &&
+    pathname !== "/admin/supplement-brands"
+  ) {
+    return "Edit brand";
+  }
+  if (pathname.startsWith("/admin/supplement-brands")) return "Brands";
+  if (pathname === "/admin/recommended-products/new") return "New product";
+  if (
+    pathname.startsWith("/admin/recommended-products/") &&
+    pathname !== "/admin/recommended-products"
+  ) {
+    return "Edit product";
+  }
+  if (pathname.startsWith("/admin/recommended-products")) return "Products";
   if (pathname.startsWith("/admin/users/") && pathname !== "/admin/users") {
     return "Edit admin";
   }

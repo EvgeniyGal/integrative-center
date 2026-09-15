@@ -14,7 +14,9 @@ async function main() {
   const {
     articles,
     questions,
+    recommendedProducts,
     services,
+    supplementBrands,
     testimonials,
     users,
   } = await import("../lib/db/schema");
@@ -200,11 +202,129 @@ async function main() {
     console.log(`Seeded ${homeNews.items.length} articles`);
   }
 
+  async function seedSupplementBrands() {
+    const existing = await db.select().from(supplementBrands).limit(1);
+    if (existing.length > 0) {
+      console.log("Supplement brands already seeded");
+      return;
+    }
+
+    const brands = [
+      {
+        logoUrl: "/images/logo.png",
+        title: "EVEXIAS Hormone Support",
+        description: "Personalized hormone support formulations",
+        discountText: null,
+        referralLink: "https://hbintegrative.com/",
+        ctaLabel: "VISIT EVEXIAS",
+      },
+      {
+        logoUrl: "/images/logo.png",
+        title: "Designs for Health",
+        description: "Practitioner-grade nutraceuticals",
+        discountText: "10% OFF with code HBIC10",
+        referralLink: "https://hbintegrative.com/",
+        ctaLabel: "VISIT DESIGNS FOR HEALTH",
+      },
+      {
+        logoUrl: "/images/logo.png",
+        title: "Pure Encapsulations",
+        description: "Pure, hypoallergenic supplements",
+        discountText: "10% OFF with code HBIC10",
+        referralLink: "https://hbintegrative.com/",
+        ctaLabel: "VISIT PURE ENCAPSULATIONS",
+      },
+      {
+        logoUrl: "/images/logo.png",
+        title: "BEAM Minerals",
+        description: "Plant-based liquid mineral formulas",
+        discountText: "20% OFF with code BEAM20",
+        referralLink: "https://hbintegrative.com/",
+        ctaLabel: "VISIT BEAM MINERALS",
+      },
+      {
+        logoUrl: "/images/logo.png",
+        title: "CellCore Biosciences Detox",
+        description: "Advanced detoxification protocols",
+        discountText: null,
+        referralLink: "https://hbintegrative.com/",
+        ctaLabel: "VISIT CELLCORE",
+      },
+    ];
+
+    await db.insert(supplementBrands).values(
+      brands.map((brand, index) => ({
+        ...brand,
+        sortOrder: index,
+        published: true,
+      })),
+    );
+    console.log(`Seeded ${brands.length} supplement brands`);
+  }
+
+  async function seedRecommendedProducts() {
+    const existing = await db.select().from(recommendedProducts).limit(1);
+    if (existing.length > 0) {
+      console.log("Recommended products already seeded");
+      return;
+    }
+
+    const products = [
+      {
+        category: "Daily Wellness",
+        imageUrl: "/images/generated/nutrition.jpg",
+        title: "Magnesium Glycinate",
+        description: "Gentle magnesium for relaxation and muscle support",
+        referralLink: "https://www.amazon.com/",
+        storeLogoUrl: "/images/amazon.svg",
+        ctaLabel: "VIEW ON AMAZON",
+      },
+      {
+        category: "Recovery & Hydration",
+        imageUrl: "/images/generated/iv.jpg",
+        title: "Electrolyte Drops",
+        description: "Hydration support for daily energy and recovery",
+        referralLink: "https://www.amazon.com/",
+        storeLogoUrl: "/images/amazon.svg",
+        ctaLabel: "VIEW ON AMAZON",
+      },
+      {
+        category: "Daily Wellness",
+        imageUrl: "/images/generated/care.jpg",
+        title: "Pill Organizer",
+        description: "Stay consistent with your supplement routine",
+        referralLink: "https://www.amazon.com/",
+        storeLogoUrl: "/images/amazon.svg",
+        ctaLabel: "VIEW ON AMAZON",
+      },
+      {
+        category: "Daily Wellness",
+        imageUrl: "/images/generated/weight.jpg",
+        title: "Digital Body Weight Scale",
+        description: "Track progress as part of your wellness plan",
+        referralLink: "https://www.amazon.com/",
+        storeLogoUrl: "/images/amazon.svg",
+        ctaLabel: "VIEW ON AMAZON",
+      },
+    ];
+
+    await db.insert(recommendedProducts).values(
+      products.map((product, index) => ({
+        ...product,
+        sortOrder: index,
+        published: true,
+      })),
+    );
+    console.log(`Seeded ${products.length} recommended products`);
+  }
+
   await seedAdmin();
   await seedQuestions();
   await seedServices();
   await seedTestimonials();
   await seedArticles();
+  await seedSupplementBrands();
+  await seedRecommendedProducts();
   console.log("Seed complete");
 }
 

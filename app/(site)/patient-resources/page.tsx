@@ -183,13 +183,7 @@ export default function PatientResourcesPage() {
               {supplements.body}
             </p>
             <Button asChild className="mt-8">
-              <a
-                href={supplements.ctaHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {supplements.ctaLabel}
-              </a>
+              <Link href={supplements.ctaHref}>{supplements.ctaLabel}</Link>
             </Button>
           </Reveal>
 

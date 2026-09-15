@@ -5,7 +5,9 @@ import { db } from "@/lib/db";
 import {
   articles,
   questions,
+  recommendedProducts,
   services,
+  supplementBrands,
   testimonials,
 } from "@/lib/db/schema";
 
@@ -140,12 +142,58 @@ export async function getAllArticles() {
     .orderBy(desc(articles.updatedAt));
 }
 
+export async function getPublishedSupplementBrands() {
+  "use cache";
+  cacheTag("supplement-brands");
+  cacheLife("hours");
+
+  return db
+    .select()
+    .from(supplementBrands)
+    .where(eq(supplementBrands.published, true))
+    .orderBy(asc(supplementBrands.sortOrder), asc(supplementBrands.createdAt));
+}
+
+export async function getAllSupplementBrands() {
+  return db
+    .select()
+    .from(supplementBrands)
+    .orderBy(asc(supplementBrands.sortOrder), asc(supplementBrands.createdAt));
+}
+
+export async function getPublishedRecommendedProducts() {
+  "use cache";
+  cacheTag("recommended-products");
+  cacheLife("hours");
+
+  return db
+    .select()
+    .from(recommendedProducts)
+    .where(eq(recommendedProducts.published, true))
+    .orderBy(
+      asc(recommendedProducts.sortOrder),
+      asc(recommendedProducts.createdAt),
+    );
+}
+
+export async function getAllRecommendedProducts() {
+  return db
+    .select()
+    .from(recommendedProducts)
+    .orderBy(
+      asc(recommendedProducts.sortOrder),
+      asc(recommendedProducts.createdAt),
+    );
+}
+
 export async function getDashboardCounts() {
-  const [q, s, t, a] = await Promise.all([
+  const [q, s, t, a, brands, products] = await Promise.all([
     db.select({ value: count() }).from(questions),
     db.select({ value: count() }).from(services),
     db.select({ value: count() }).from(testimonials),
     db.select({ value: count() }).from(articles),
+    db.select({ value: count() }).from(supplementBrands),
+    db.select({ value: count() }).from(recommendedProducts),
   ]);
 
   return {
@@ -153,5 +201,7 @@ export async function getDashboardCounts() {
     services: s[0]?.value ?? 0,
     testimonials: t[0]?.value ?? 0,
     articles: a[0]?.value ?? 0,
+    supplementBrands: brands[0]?.value ?? 0,
+    recommendedProducts: products[0]?.value ?? 0,
   };
 }

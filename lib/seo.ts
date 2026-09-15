@@ -151,6 +151,20 @@ export const pages = {
     image: "/images/generated/care.jpg",
     imageAlt: "Office policies at Health & Beauty Integrative Center",
   },
+  supplements: {
+    title: "Supplements & Recommended Products | HBI Sarasota",
+    description:
+      "Explore HBIC-recommended supplements, trusted wellness brands, and curated Amazon products selected to support your personalized care plan.",
+    keywords: [
+      "HBIC recommended supplements",
+      "integrative medicine supplements Sarasota",
+      "practitioner recommended brands",
+      "wellness products Amazon",
+    ],
+    path: "/patient-resources/supplements",
+    image: "/images/generated/supplements-hero.jpg",
+    imageAlt: "Supplement recommendations at Health & Beauty Integrative Center",
+  },
   news: {
     title: "News & Updates | Health & Beauty Integrative Center",
     description:

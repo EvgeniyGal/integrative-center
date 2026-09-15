@@ -322,13 +322,40 @@ export const patientResources = {
     title: "Carefully selected for your wellness routine.",
     body: "Browse HBIC-recommended supplements, practitioner-preferred brands, and selected wellness products available through trusted partners and Amazon.",
     ctaLabel: "Explore recommendations",
-    ctaHref: "https://hbintegrative.com/our-shop/",
+    ctaHref: "/patient-resources/supplements",
   },
   portal: {
     eyebrow: "Online access",
     title: "Patient portal",
     body: "View records, messages, and appointment details through our secure patient portal.",
     ctaLabel: "Open patient portal",
+  },
+} as const;
+
+export const supplementsPage = {
+  hero: {
+    eyebrow: "Supplements & Recommended Products",
+    title: "Carefully selected to support your wellness routine.",
+    body: "Explore practitioner-recommended supplements, trusted wellness brands, and selected products curated by the HBIC team. This page is designed to help you easily access products and resources that may support your health goals as part of a personalized care plan.",
+    image: "/images/generated/supplements-hero.jpg",
+    imageAlt:
+      "Curated supplement bottles, fresh citrus, and hydration on a marble surface",
+  },
+  brands: {
+    eyebrow: "Supplements & Recommended Products",
+    title: "HBIC Recommended Supplements",
+    body: "These supplement resources include brands and platforms recommended by the HBIC team. Patients may be directed to these options as part of their individualized wellness plan.",
+  },
+  products: {
+    eyebrow: "Recommended on Amazon",
+    title: "Convenient products for everyday wellness support.",
+    body: "These are curated Amazon recommendations for commonly used wellness products. Availability, pricing, and product details are managed by Amazon and may change. Click to view product details on Amazon.",
+    script: "Wellness Within Reach",
+  },
+  info: {
+    eyebrow: "Info About Supplements",
+    title: "Helpful guidance before you begin.",
+    body: "Supplements can support your wellness, but they are not one-size-fits-all. What is appropriate for one patient may not be right for another. Please speak with your HBIC provider before starting any new supplement to ensure it is safe and appropriate for you.",
   },
 } as const;
 

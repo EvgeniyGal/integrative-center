@@ -3,6 +3,8 @@ import {
   FileText,
   HelpCircle,
   MessageSquareQuote,
+  Package,
+  Pill,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -43,18 +45,32 @@ export default async function AdminDashboardPage() {
       hint: "News & insights",
       icon: FileText,
     },
+    {
+      href: "/admin/supplement-brands",
+      label: "Brands",
+      value: counts.supplementBrands,
+      hint: "HBIC supplement brands",
+      icon: Pill,
+    },
+    {
+      href: "/admin/recommended-products",
+      label: "Products",
+      value: counts.recommendedProducts,
+      hint: "Store recommendations",
+      icon: Package,
+    },
   ];
 
   return (
     <div className="space-y-10">
       <div>
         <p className="text-muted">
-          Manage homepage questions, services, patient quotes, and news. Changes
-          go live after you save.
+          Manage homepage questions, services, patient quotes, news, and
+          supplement recommendations. Changes go live after you save.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
@@ -97,7 +113,10 @@ export default async function AdminDashboardPage() {
           <h2 className="font-display text-2xl">Quick tips</h2>
           <ul className="mt-3 space-y-2 text-sm text-muted">
             <li>Hide services without deleting them using the Visible toggle.</li>
-            <li>Use AI draft assist on services and articles, then review before publishing.</li>
+            <li>
+              Use AI draft assist on services and articles, then review before
+              publishing.
+            </li>
             <li>Only published / visible items appear on the public site.</li>
           </ul>
         </div>
