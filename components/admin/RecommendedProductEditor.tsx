@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -19,14 +20,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { ProductCategory, RecommendedProduct } from "@/lib/db/schema";
+import type {
+  ProductCategory,
+  RecommendedProduct,
+  StoreBrand,
+} from "@/lib/db/schema";
 
 export function RecommendedProductEditor({
   product,
   categories,
+  storeBrands,
 }: {
   product?: RecommendedProduct;
   categories: ProductCategory[];
+  storeBrands: StoreBrand[];
 }) {
   const router = useRouter();
   const id = product?.id ?? "new";
@@ -37,11 +44,8 @@ export function RecommendedProductEditor({
   const [referralLink, setReferralLink] = useState(
     product?.referralLink ?? "",
   );
-  const [storeLogoUrl, setStoreLogoUrl] = useState(
-    product?.storeLogoUrl ?? "/images/amazon.svg",
-  );
-  const [ctaLabel, setCtaLabel] = useState(
-    product?.ctaLabel ?? "VIEW ON AMAZON",
+  const [storeBrandId, setStoreBrandId] = useState(
+    product?.storeBrandId ?? "",
   );
   const action = product
     ? updateRecommendedProductAction
@@ -56,6 +60,11 @@ export function RecommendedProductEditor({
   }, [product, state.success, router]);
 
   const hasCategories = categories.length > 0;
+  const hasStoreBrands = storeBrands.length > 0;
+  const selectedStore = useMemo(
+    () => storeBrands.find((item) => item.id === storeBrandId) ?? null,
+    [storeBrandId, storeBrands],
+  );
 
   return (
     <form action={formAction} className="mx-auto max-w-3xl space-y-5">
@@ -134,7 +143,7 @@ export function RecommendedProductEditor({
 
       <AdminSection
         title="Store button"
-        description="Referral link and store logo shown on the CTA."
+        description="Pick a shared store style. Manage logos under Store buttons."
       >
         <AdminField label="Referral link" htmlFor={`link-${id}`}>
           <Input
@@ -148,24 +157,65 @@ export function RecommendedProductEditor({
             placeholder="https://www.amazon.com/"
           />
         </AdminField>
-        <ImageField
-          label="Store logo"
-          urlName="storeLogoUrl"
-          uploadFolder="store-logos"
-          value={storeLogoUrl}
-          onChange={setStoreLogoUrl}
-          required
-        />
-        <AdminField label="Button label" htmlFor={`cta-${id}`}>
-          <Input
-            id={`cta-${id}`}
-            name="ctaLabel"
-            variant="box"
-            value={ctaLabel}
-            onChange={(e) => setCtaLabel(e.target.value)}
-            required
-            placeholder="VIEW ON AMAZON"
-          />
+        <AdminField
+          label="Store button"
+          htmlFor={`store-${id}`}
+          hint="One logo/label is reused across many products."
+        >
+          {hasStoreBrands ? (
+            <div className="space-y-3">
+              <Select
+                id={`store-${id}`}
+                name="storeBrandId"
+                variant="box"
+                value={storeBrandId}
+                onChange={(e) => setStoreBrandId(e.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Select a store button
+                </option>
+                {storeBrands.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                    {!item.published ? " (hidden)" : ""}
+                  </option>
+                ))}
+              </Select>
+              {selectedStore ? (
+                <div className="flex items-center gap-3 border border-ink/10 bg-ivory px-3 py-2.5">
+                  <div className="relative h-6 w-16 shrink-0">
+                    <Image
+                      src={selectedStore.logoUrl}
+                      alt=""
+                      fill
+                      className="object-contain object-left"
+                      sizes="64px"
+                    />
+                  </div>
+                  <p className="text-sm text-ink">{selectedStore.ctaLabel}</p>
+                </div>
+              ) : null}
+              <p className="text-xs text-muted">
+                Need another store?{" "}
+                <Link
+                  href="/admin/store-brands/new"
+                  className="text-brand hover:underline"
+                >
+                  Add store button
+                </Link>
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                No store buttons yet. Create Amazon (or another store) first.
+              </p>
+              <Button asChild variant="outline" size="sm" className="rounded-none">
+                <Link href="/admin/store-brands/new">Add store button</Link>
+              </Button>
+            </div>
+          )}
         </AdminField>
       </AdminSection>
 
@@ -202,7 +252,10 @@ export function RecommendedProductEditor({
 
       <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 border border-ink/10 bg-ivory/95 px-4 py-3 shadow-[0_-8px_24px_rgba(28,27,25,0.06)] backdrop-blur">
         <p className="text-xs text-muted">Changes apply after you save.</p>
-        <Button type="submit" disabled={pending || !hasCategories}>
+        <Button
+          type="submit"
+          disabled={pending || !hasCategories || !hasStoreBrands}
+        >
           {pending
             ? "Saving…"
             : product

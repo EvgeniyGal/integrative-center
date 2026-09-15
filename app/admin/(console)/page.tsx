@@ -6,6 +6,7 @@ import {
   Package,
   Pill,
   Sparkles,
+  Store,
   Tags,
   Users,
 } from "lucide-react";
@@ -59,6 +60,13 @@ export default async function AdminDashboardPage() {
       value: counts.productCategories,
       hint: "Product filter categories",
       icon: Tags,
+    },
+    {
+      href: "/admin/store-brands",
+      label: "Store buttons",
+      value: counts.storeBrands,
+      hint: "Shared product CTA logos",
+      icon: Store,
     },
     {
       href: "/admin/recommended-products",

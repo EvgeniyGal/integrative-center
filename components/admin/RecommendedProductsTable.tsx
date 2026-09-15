@@ -27,12 +27,12 @@ import {
   DeleteButton,
   EditLink,
 } from "@/components/admin/TableActions";
-import type { RecommendedProduct } from "@/lib/db/schema";
+import type { RecommendedProductCard } from "@/lib/content/queries";
 
 export function RecommendedProductsTable({
   items,
 }: {
-  items: RecommendedProduct[];
+  items: RecommendedProductCard[];
 }) {
   const { rows, handleDragEnd } = useSortableRows(
     items,
@@ -50,7 +50,9 @@ export function RecommendedProductsTable({
           <AdminTableHead>
             <tr>
               <AdminTableHeaderCell>Order</AdminTableHeaderCell>
-              <AdminTableHeaderCell>Product</AdminTableHeaderCell>
+              <AdminTableHeaderCell className="w-[min(100%,28rem)] max-w-md">
+                Product
+              </AdminTableHeaderCell>
               <AdminTableHeaderCell className="hidden sm:table-cell">
                 Category
               </AdminTableHeaderCell>
@@ -77,8 +79,8 @@ export function RecommendedProductsTable({
                         attributes={attributes}
                         listeners={listeners}
                       />
-                      <AdminTableCell>
-                        <div className="flex items-center gap-3">
+                      <AdminTableCell className="max-w-md">
+                        <div className="flex max-w-md items-center gap-3">
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden bg-stone/40">
                             <Image
                               src={item.imageUrl}
@@ -88,8 +90,10 @@ export function RecommendedProductsTable({
                               sizes="48px"
                             />
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-ink">{item.title}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium text-ink">
+                              {item.title}
+                            </p>
                             <p className="truncate text-sm text-muted">
                               {item.description}
                             </p>
@@ -97,7 +101,8 @@ export function RecommendedProductsTable({
                         </div>
                       </AdminTableCell>
                       <AdminTableCell className="hidden sm:table-cell">
-                        {item.category}
+                        <p>{item.category}</p>
+                        <p className="text-xs text-muted">{item.storeBrandName}</p>
                       </AdminTableCell>
                       <AdminTableCell>
                         <StatusToggle

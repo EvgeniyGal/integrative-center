@@ -1,7 +1,10 @@
 import { RecommendedProductEditor } from "@/components/admin/RecommendedProductEditor";
 import { BackToRecommendedProductsLink } from "@/components/admin/RecommendedProductNav";
 import { Button } from "@/components/ui/button";
-import { getAllProductCategories } from "@/lib/content/queries";
+import {
+  getAllProductCategories,
+  getAllStoreBrands,
+} from "@/lib/content/queries";
 
 export const instant = false;
 
@@ -11,7 +14,10 @@ export default async function NewRecommendedProductPage({
   searchParams: Promise<{ t?: string }>;
 }) {
   const { t } = await searchParams;
-  const categories = await getAllProductCategories();
+  const [categories, storeBrands] = await Promise.all([
+    getAllProductCategories(),
+    getAllStoreBrands(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -20,7 +26,11 @@ export default async function NewRecommendedProductPage({
           ← Back to products
         </BackToRecommendedProductsLink>
       </Button>
-      <RecommendedProductEditor key={t ?? "new"} categories={categories} />
+      <RecommendedProductEditor
+        key={t ?? "new"}
+        categories={categories}
+        storeBrands={storeBrands}
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   Package,
   Pill,
   Sparkles,
+  Store,
   Tags,
   Users,
   X,
@@ -30,6 +31,7 @@ const contentLinks = [
   { href: "/admin/news", label: "News", icon: FileText },
   { href: "/admin/supplement-brands", label: "Brands", icon: Pill },
   { href: "/admin/product-categories", label: "Categories", icon: Tags },
+  { href: "/admin/store-brands", label: "Store buttons", icon: Store },
   { href: "/admin/recommended-products", label: "Products", icon: Package },
 ];
 
@@ -153,6 +155,14 @@ function pageTitle(pathname: string) {
     return "Edit category";
   }
   if (pathname.startsWith("/admin/product-categories")) return "Categories";
+  if (pathname === "/admin/store-brands/new") return "New store button";
+  if (
+    pathname.startsWith("/admin/store-brands/") &&
+    pathname !== "/admin/store-brands"
+  ) {
+    return "Edit store button";
+  }
+  if (pathname.startsWith("/admin/store-brands")) return "Store buttons";
   if (pathname === "/admin/recommended-products/new") return "New product";
   if (
     pathname.startsWith("/admin/recommended-products/") &&

@@ -17,6 +17,7 @@ async function main() {
     questions,
     recommendedProducts,
     services,
+    storeBrands,
     supplementBrands,
     testimonials,
     users,
@@ -289,6 +290,23 @@ async function main() {
     console.log(`Seeded ${names.length} product categories`);
   }
 
+  async function seedStoreBrands() {
+    const existing = await db.select().from(storeBrands).limit(1);
+    if (existing.length > 0) {
+      console.log("Store brands already seeded");
+      return;
+    }
+
+    await db.insert(storeBrands).values({
+      name: "Amazon",
+      logoUrl: "/images/amazon.svg",
+      ctaLabel: "VIEW ON AMAZON",
+      sortOrder: 0,
+      published: true,
+    });
+    console.log("Seeded Amazon store brand");
+  }
+
   async function seedRecommendedProducts() {
     const existing = await db.select().from(recommendedProducts).limit(1);
     if (existing.length > 0) {
@@ -302,6 +320,13 @@ async function main() {
       return;
     }
 
+    const storeRows = await db.select().from(storeBrands).limit(1);
+    const amazon = storeRows[0];
+    if (!amazon) {
+      console.warn("Skipping products seed: no store brands available");
+      return;
+    }
+
     const products = [
       {
         category: "Daily Wellness",
@@ -309,8 +334,7 @@ async function main() {
         title: "Magnesium Glycinate",
         description: "Gentle magnesium for relaxation and muscle support",
         referralLink: "https://www.amazon.com/",
-        storeLogoUrl: "/images/amazon.svg",
-        ctaLabel: "VIEW ON AMAZON",
+        storeBrandId: amazon.id,
       },
       {
         category: "Recovery & Hydration",
@@ -318,8 +342,7 @@ async function main() {
         title: "Electrolyte Drops",
         description: "Hydration support for daily energy and recovery",
         referralLink: "https://www.amazon.com/",
-        storeLogoUrl: "/images/amazon.svg",
-        ctaLabel: "VIEW ON AMAZON",
+        storeBrandId: amazon.id,
       },
       {
         category: "Daily Wellness",
@@ -327,8 +350,7 @@ async function main() {
         title: "Pill Organizer",
         description: "Stay consistent with your supplement routine",
         referralLink: "https://www.amazon.com/",
-        storeLogoUrl: "/images/amazon.svg",
-        ctaLabel: "VIEW ON AMAZON",
+        storeBrandId: amazon.id,
       },
       {
         category: "Daily Wellness",
@@ -336,8 +358,7 @@ async function main() {
         title: "Digital Body Weight Scale",
         description: "Track progress as part of your wellness plan",
         referralLink: "https://www.amazon.com/",
-        storeLogoUrl: "/images/amazon.svg",
-        ctaLabel: "VIEW ON AMAZON",
+        storeBrandId: amazon.id,
       },
     ];
 
@@ -358,6 +379,7 @@ async function main() {
   await seedArticles();
   await seedSupplementBrands();
   await seedProductCategories();
+  await seedStoreBrands();
   await seedRecommendedProducts();
   console.log("Seed complete");
 }

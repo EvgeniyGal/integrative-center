@@ -186,6 +186,19 @@ export const productCategories = pgTable("product_categories", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const storeBrands = pgTable("store_brands", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+  logoUrl: text("logoUrl").notNull(),
+  ctaLabel: text("ctaLabel").notNull(),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  published: boolean("published").notNull().default(true),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const recommendedProducts = pgTable("recommended_products", {
   id: text("id")
     .primaryKey()
@@ -195,8 +208,9 @@ export const recommendedProducts = pgTable("recommended_products", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   referralLink: text("referralLink").notNull(),
-  storeLogoUrl: text("storeLogoUrl").notNull(),
-  ctaLabel: text("ctaLabel").notNull(),
+  storeBrandId: text("storeBrandId")
+    .notNull()
+    .references(() => storeBrands.id, { onDelete: "restrict" }),
   sortOrder: integer("sortOrder").notNull().default(0),
   published: boolean("published").notNull().default(true),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
@@ -229,5 +243,6 @@ export type Testimonial = typeof testimonials.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type SupplementBrand = typeof supplementBrands.$inferSelect;
 export type ProductCategory = typeof productCategories.$inferSelect;
+export type StoreBrand = typeof storeBrands.$inferSelect;
 export type RecommendedProduct = typeof recommendedProducts.$inferSelect;
 export type AdminInvite = typeof adminInvites.$inferSelect;

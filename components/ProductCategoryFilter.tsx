@@ -5,14 +5,15 @@ import { useMemo, useState } from "react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
-import type { ProductCategory, RecommendedProduct } from "@/lib/db/schema";
+import type { RecommendedProductCard } from "@/lib/content/queries";
+import type { ProductCategory } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
 export function ProductCategoryFilter({
   products,
   categories,
 }: {
-  products: RecommendedProduct[];
+  products: RecommendedProductCard[];
   categories: ProductCategory[];
 }) {
   const [active, setActive] = useState("All Products");
@@ -52,8 +53,8 @@ export function ProductCategoryFilter({
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((product, index) => (
-            <Reveal key={product.id} delay={0.04 * index}>
-              <article className="flex h-full flex-col border border-ink/10 bg-ivory p-5 shadow-[0_12px_30px_-24px_rgba(28,27,25,0.35)]">
+            <Reveal key={product.id} delay={0.04 * index} className="min-w-0">
+              <article className="flex h-full min-w-0 flex-col border border-ink/10 bg-ivory p-5 shadow-[0_12px_30px_-24px_rgba(28,27,25,0.35)]">
                 <div className="relative mx-auto aspect-square w-full max-w-[11rem]">
                   <Image
                     src={product.imageUrl}
@@ -63,29 +64,30 @@ export function ProductCategoryFilter({
                     sizes="176px"
                   />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-ink">
+                <h3 className="mt-5 min-w-0 text-lg font-semibold break-words text-ink [overflow-wrap:anywhere]">
                   {product.title}
                 </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+                <p className="mt-2 min-w-0 flex-1 text-sm leading-relaxed break-words text-muted [overflow-wrap:anywhere]">
                   {product.description}
                 </p>
                 <Button
                   asChild
                   variant="outline"
-                  className="mt-5 w-full border-brand text-brand hover:bg-brand hover:text-white"
+                  className="mt-5 w-full min-w-0 border-brand text-brand hover:bg-brand hover:text-white"
                 >
                   <a
                     href={product.referralLink}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="max-w-full"
                   >
-                    <span>{product.ctaLabel}</span>
+                    <span className="min-w-0 truncate">{product.ctaLabel}</span>
                     {product.storeLogoUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={product.storeLogoUrl}
                         alt=""
-                        className="h-4 w-auto"
+                        className="h-4 w-auto shrink-0"
                       />
                     ) : null}
                   </a>

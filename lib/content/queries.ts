@@ -8,9 +8,25 @@ import {
   questions,
   recommendedProducts,
   services,
+  storeBrands,
   supplementBrands,
   testimonials,
 } from "@/lib/db/schema";
+
+export type RecommendedProductCard = {
+  id: string;
+  category: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  referralLink: string;
+  storeBrandId: string;
+  storeBrandName: string;
+  storeLogoUrl: string;
+  ctaLabel: string;
+  sortOrder: number;
+  published: boolean;
+};
 
 export async function getPublishedQuestions() {
   "use cache";
@@ -162,14 +178,31 @@ export async function getAllSupplementBrands() {
     .orderBy(asc(supplementBrands.sortOrder), asc(supplementBrands.createdAt));
 }
 
-export async function getPublishedRecommendedProducts() {
+export async function getPublishedRecommendedProducts(): Promise<
+  RecommendedProductCard[]
+> {
   "use cache";
   cacheTag("recommended-products");
+  cacheTag("store-brands");
   cacheLife("hours");
 
   return db
-    .select()
+    .select({
+      id: recommendedProducts.id,
+      category: recommendedProducts.category,
+      imageUrl: recommendedProducts.imageUrl,
+      title: recommendedProducts.title,
+      description: recommendedProducts.description,
+      referralLink: recommendedProducts.referralLink,
+      storeBrandId: recommendedProducts.storeBrandId,
+      storeBrandName: storeBrands.name,
+      storeLogoUrl: storeBrands.logoUrl,
+      ctaLabel: storeBrands.ctaLabel,
+      sortOrder: recommendedProducts.sortOrder,
+      published: recommendedProducts.published,
+    })
     .from(recommendedProducts)
+    .innerJoin(storeBrands, eq(recommendedProducts.storeBrandId, storeBrands.id))
     .where(eq(recommendedProducts.published, true))
     .orderBy(
       asc(recommendedProducts.sortOrder),
@@ -179,8 +212,24 @@ export async function getPublishedRecommendedProducts() {
 
 export async function getAllRecommendedProducts() {
   return db
-    .select()
+    .select({
+      id: recommendedProducts.id,
+      category: recommendedProducts.category,
+      imageUrl: recommendedProducts.imageUrl,
+      title: recommendedProducts.title,
+      description: recommendedProducts.description,
+      referralLink: recommendedProducts.referralLink,
+      storeBrandId: recommendedProducts.storeBrandId,
+      storeBrandName: storeBrands.name,
+      storeLogoUrl: storeBrands.logoUrl,
+      ctaLabel: storeBrands.ctaLabel,
+      sortOrder: recommendedProducts.sortOrder,
+      published: recommendedProducts.published,
+      createdAt: recommendedProducts.createdAt,
+      updatedAt: recommendedProducts.updatedAt,
+    })
     .from(recommendedProducts)
+    .innerJoin(storeBrands, eq(recommendedProducts.storeBrandId, storeBrands.id))
     .orderBy(
       asc(recommendedProducts.sortOrder),
       asc(recommendedProducts.createdAt),
@@ -206,8 +255,15 @@ export async function getAllProductCategories() {
     .orderBy(asc(productCategories.sortOrder), asc(productCategories.createdAt));
 }
 
+export async function getAllStoreBrands() {
+  return db
+    .select()
+    .from(storeBrands)
+    .orderBy(asc(storeBrands.sortOrder), asc(storeBrands.createdAt));
+}
+
 export async function getDashboardCounts() {
-  const [q, s, t, a, brands, products, categories] = await Promise.all([
+  const [q, s, t, a, brands, products, categories, stores] = await Promise.all([
     db.select({ value: count() }).from(questions),
     db.select({ value: count() }).from(services),
     db.select({ value: count() }).from(testimonials),
@@ -215,6 +271,7 @@ export async function getDashboardCounts() {
     db.select({ value: count() }).from(supplementBrands),
     db.select({ value: count() }).from(recommendedProducts),
     db.select({ value: count() }).from(productCategories),
+    db.select({ value: count() }).from(storeBrands),
   ]);
 
   return {
@@ -225,5 +282,6 @@ export async function getDashboardCounts() {
     supplementBrands: brands[0]?.value ?? 0,
     recommendedProducts: products[0]?.value ?? 0,
     productCategories: categories[0]?.value ?? 0,
+    storeBrands: stores[0]?.value ?? 0,
   };
 }

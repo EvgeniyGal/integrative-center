@@ -7,7 +7,11 @@ import { z } from "zod";
 import type { ActionState } from "@/app/admin/actions/auth";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { productCategories, recommendedProducts } from "@/lib/db/schema";
+import {
+  productCategories,
+  recommendedProducts,
+  storeBrands,
+} from "@/lib/db/schema";
 
 const schema = z.object({
   category: z.string().min(1),
@@ -15,8 +19,7 @@ const schema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   referralLink: z.string().url(),
-  storeLogoUrl: z.string().min(1),
-  ctaLabel: z.string().min(1),
+  storeBrandId: z.string().min(1),
   sortOrder: z.coerce.number().int(),
   published: z.boolean(),
 });
@@ -28,8 +31,7 @@ function parseProduct(formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     referralLink: formData.get("referralLink"),
-    storeLogoUrl: formData.get("storeLogoUrl"),
-    ctaLabel: formData.get("ctaLabel"),
+    storeBrandId: String(formData.get("storeBrandId") ?? "").trim(),
     sortOrder: formData.get("sortOrder") || 0,
     published: formData.get("published") === "on",
   });
@@ -40,6 +42,15 @@ async function assertKnownCategory(name: string) {
     .select({ id: productCategories.id })
     .from(productCategories)
     .where(eq(productCategories.name, name))
+    .limit(1);
+  return rows.length > 0;
+}
+
+async function assertKnownStoreBrand(id: string) {
+  const rows = await db
+    .select({ id: storeBrands.id })
+    .from(storeBrands)
+    .where(eq(storeBrands.id, id))
     .limit(1);
   return rows.length > 0;
 }
@@ -61,6 +72,9 @@ export async function createRecommendedProductAction(
   if (!(await assertKnownCategory(parsed.data.category))) {
     return { error: "Choose a category from the list." };
   }
+  if (!(await assertKnownStoreBrand(parsed.data.storeBrandId))) {
+    return { error: "Choose a store button from the list." };
+  }
 
   await db.insert(recommendedProducts).values(parsed.data);
   revalidateProductPaths();
@@ -79,6 +93,9 @@ export async function updateRecommendedProductAction(
   if (!parsed.success) return { error: "Check the product fields." };
   if (!(await assertKnownCategory(parsed.data.category))) {
     return { error: "Choose a category from the list." };
+  }
+  if (!(await assertKnownStoreBrand(parsed.data.storeBrandId))) {
+    return { error: "Choose a store button from the list." };
   }
 
   await db
