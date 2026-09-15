@@ -4,6 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/lib/db";
 import {
   articles,
+  productCategories,
   questions,
   recommendedProducts,
   services,
@@ -186,14 +187,34 @@ export async function getAllRecommendedProducts() {
     );
 }
 
+export async function getPublishedProductCategories() {
+  "use cache";
+  cacheTag("product-categories");
+  cacheLife("hours");
+
+  return db
+    .select()
+    .from(productCategories)
+    .where(eq(productCategories.published, true))
+    .orderBy(asc(productCategories.sortOrder), asc(productCategories.createdAt));
+}
+
+export async function getAllProductCategories() {
+  return db
+    .select()
+    .from(productCategories)
+    .orderBy(asc(productCategories.sortOrder), asc(productCategories.createdAt));
+}
+
 export async function getDashboardCounts() {
-  const [q, s, t, a, brands, products] = await Promise.all([
+  const [q, s, t, a, brands, products, categories] = await Promise.all([
     db.select({ value: count() }).from(questions),
     db.select({ value: count() }).from(services),
     db.select({ value: count() }).from(testimonials),
     db.select({ value: count() }).from(articles),
     db.select({ value: count() }).from(supplementBrands),
     db.select({ value: count() }).from(recommendedProducts),
+    db.select({ value: count() }).from(productCategories),
   ]);
 
   return {
@@ -203,5 +224,6 @@ export async function getDashboardCounts() {
     articles: a[0]?.value ?? 0,
     supplementBrands: brands[0]?.value ?? 0,
     recommendedProducts: products[0]?.value ?? 0,
+    productCategories: categories[0]?.value ?? 0,
   };
 }

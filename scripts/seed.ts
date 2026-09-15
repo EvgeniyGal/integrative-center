@@ -13,6 +13,7 @@ async function main() {
   const { db } = await import("../lib/db");
   const {
     articles,
+    productCategories,
     questions,
     recommendedProducts,
     services,
@@ -262,10 +263,42 @@ async function main() {
     console.log(`Seeded ${brands.length} supplement brands`);
   }
 
+  async function seedProductCategories() {
+    const existing = await db.select().from(productCategories).limit(1);
+    if (existing.length > 0) {
+      console.log("Product categories already seeded");
+      return;
+    }
+
+    const names = [
+      "Daily Wellness",
+      "Sleep Support",
+      "Digestion & Gut Health",
+      "Immune Support",
+      "Energy & Focus",
+      "Recovery & Hydration",
+    ];
+
+    await db.insert(productCategories).values(
+      names.map((name, index) => ({
+        name,
+        sortOrder: index,
+        published: true,
+      })),
+    );
+    console.log(`Seeded ${names.length} product categories`);
+  }
+
   async function seedRecommendedProducts() {
     const existing = await db.select().from(recommendedProducts).limit(1);
     if (existing.length > 0) {
       console.log("Recommended products already seeded");
+      return;
+    }
+
+    const categoryRows = await db.select().from(productCategories);
+    if (categoryRows.length === 0) {
+      console.warn("Skipping products seed: no categories available");
       return;
     }
 
@@ -324,6 +357,7 @@ async function main() {
   await seedTestimonials();
   await seedArticles();
   await seedSupplementBrands();
+  await seedProductCategories();
   await seedRecommendedProducts();
   console.log("Seed complete");
 }

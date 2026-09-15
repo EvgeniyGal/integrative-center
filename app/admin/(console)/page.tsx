@@ -6,6 +6,7 @@ import {
   Package,
   Pill,
   Sparkles,
+  Tags,
   Users,
 } from "lucide-react";
 
@@ -51,6 +52,13 @@ export default async function AdminDashboardPage() {
       value: counts.supplementBrands,
       hint: "HBIC supplement brands",
       icon: Pill,
+    },
+    {
+      href: "/admin/product-categories",
+      label: "Categories",
+      value: counts.productCategories,
+      hint: "Product filter categories",
+      icon: Tags,
     },
     {
       href: "/admin/recommended-products",

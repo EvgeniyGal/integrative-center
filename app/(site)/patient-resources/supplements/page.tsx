@@ -7,6 +7,7 @@ import { ProductCategoryFilter } from "@/components/ProductCategoryFilter";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
 import {
+  getPublishedProductCategories,
   getPublishedRecommendedProducts,
   getPublishedSupplementBrands,
 } from "@/lib/content/queries";
@@ -44,9 +45,10 @@ function LeafAccent({ className }: { className?: string }) {
 }
 
 export default async function SupplementsPage() {
-  const [brands, products] = await Promise.all([
+  const [brands, products, categories] = await Promise.all([
     getPublishedSupplementBrands(),
     getPublishedRecommendedProducts(),
+    getPublishedProductCategories(),
   ]);
   const { hero, brands: brandsCopy, products: productsCopy, info } =
     supplementsPage;
@@ -179,7 +181,7 @@ export default async function SupplementsPage() {
             </Reveal>
           </div>
 
-          <ProductCategoryFilter products={products} />
+          <ProductCategoryFilter products={products} categories={categories} />
         </div>
       </section>
 

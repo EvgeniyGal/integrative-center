@@ -2,14 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 
-import { SupplementBrandEditor } from "@/components/admin/SupplementBrandEditor";
+import { ProductCategoryEditor } from "@/components/admin/ProductCategoryEditor";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
-import { supplementBrands } from "@/lib/db/schema";
+import { productCategories } from "@/lib/db/schema";
 
 export const instant = false;
 
-export default async function EditSupplementBrandPage({
+export default async function EditProductCategoryPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -17,18 +17,18 @@ export default async function EditSupplementBrandPage({
   const { id } = await params;
   const rows = await db
     .select()
-    .from(supplementBrands)
-    .where(eq(supplementBrands.id, id))
+    .from(productCategories)
+    .where(eq(productCategories.id, id))
     .limit(1);
-  const brand = rows[0];
-  if (!brand) notFound();
+  const category = rows[0];
+  if (!category) notFound();
 
   return (
     <div className="space-y-6">
       <Button asChild variant="outline" size="sm" className="rounded-none">
-        <Link href="/admin/supplement-brands">← Back to brands</Link>
+        <Link href="/admin/product-categories">← Back to categories</Link>
       </Button>
-      <SupplementBrandEditor brand={brand} />
+      <ProductCategoryEditor category={category} />
     </div>
   );
 }

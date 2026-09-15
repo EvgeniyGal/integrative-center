@@ -175,6 +175,17 @@ export const supplementBrands = pgTable("supplement_brands", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const productCategories = pgTable("product_categories", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  published: boolean("published").notNull().default(true),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const recommendedProducts = pgTable("recommended_products", {
   id: text("id")
     .primaryKey()
@@ -217,5 +228,6 @@ export type Service = typeof services.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type SupplementBrand = typeof supplementBrands.$inferSelect;
+export type ProductCategory = typeof productCategories.$inferSelect;
 export type RecommendedProduct = typeof recommendedProducts.$inferSelect;
 export type AdminInvite = typeof adminInvites.$inferSelect;

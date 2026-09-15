@@ -7,7 +7,7 @@ import { z } from "zod";
 import type { ActionState } from "@/app/admin/actions/auth";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { recommendedProducts } from "@/lib/db/schema";
+import { productCategories, recommendedProducts } from "@/lib/db/schema";
 
 const schema = z.object({
   category: z.string().min(1),
@@ -23,7 +23,7 @@ const schema = z.object({
 
 function parseProduct(formData: FormData) {
   return schema.safeParse({
-    category: formData.get("category"),
+    category: String(formData.get("category") ?? "").trim(),
     imageUrl: formData.get("imageUrl"),
     title: formData.get("title"),
     description: formData.get("description"),
@@ -33,6 +33,15 @@ function parseProduct(formData: FormData) {
     sortOrder: formData.get("sortOrder") || 0,
     published: formData.get("published") === "on",
   });
+}
+
+async function assertKnownCategory(name: string) {
+  const rows = await db
+    .select({ id: productCategories.id })
+    .from(productCategories)
+    .where(eq(productCategories.name, name))
+    .limit(1);
+  return rows.length > 0;
 }
 
 function revalidateProductPaths() {
@@ -49,6 +58,9 @@ export async function createRecommendedProductAction(
   await requireAdmin();
   const parsed = parseProduct(formData);
   if (!parsed.success) return { error: "Check the product fields." };
+  if (!(await assertKnownCategory(parsed.data.category))) {
+    return { error: "Choose a category from the list." };
+  }
 
   await db.insert(recommendedProducts).values(parsed.data);
   revalidateProductPaths();
@@ -65,6 +77,9 @@ export async function updateRecommendedProductAction(
 
   const parsed = parseProduct(formData);
   if (!parsed.success) return { error: "Check the product fields." };
+  if (!(await assertKnownCategory(parsed.data.category))) {
+    return { error: "Choose a category from the list." };
+  }
 
   await db
     .update(recommendedProducts)

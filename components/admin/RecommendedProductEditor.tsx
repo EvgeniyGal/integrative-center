@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import type { ActionState } from "@/app/admin/actions/auth";
@@ -16,13 +17,16 @@ import {
 import { ImageField } from "@/components/admin/ImageField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { RecommendedProduct } from "@/lib/db/schema";
+import type { ProductCategory, RecommendedProduct } from "@/lib/db/schema";
 
 export function RecommendedProductEditor({
   product,
+  categories,
 }: {
   product?: RecommendedProduct;
+  categories: ProductCategory[];
 }) {
   const router = useRouter();
   const id = product?.id ?? "new";
@@ -51,6 +55,8 @@ export function RecommendedProductEditor({
     }
   }, [product, state.success, router]);
 
+  const hasCategories = categories.length > 0;
+
   return (
     <form action={formAction} className="mx-auto max-w-3xl space-y-5">
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
@@ -62,17 +68,37 @@ export function RecommendedProductEditor({
         <AdminField
           label="Category"
           htmlFor={`category-${id}`}
-          hint="Used for filter pills on the public page."
+          hint="Managed under Categories in the admin menu."
         >
-          <Input
-            id={`category-${id}`}
-            name="category"
-            variant="box"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-            placeholder="Daily Wellness"
-          />
+          {hasCategories ? (
+            <Select
+              id={`category-${id}`}
+              name="category"
+              variant="box"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select a category
+              </option>
+              {categories.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {item.name}
+                  {!item.published ? " (hidden)" : ""}
+                </option>
+              ))}
+            </Select>
+          ) : (
+            <div className="space-y-2">
+              <p className="border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                No categories yet. Create one before adding products.
+              </p>
+              <Button asChild variant="outline" size="sm" className="rounded-none">
+                <Link href="/admin/product-categories/new">Add category</Link>
+              </Button>
+            </div>
+          )}
         </AdminField>
         <ImageField
           label="Product image"
@@ -176,7 +202,7 @@ export function RecommendedProductEditor({
 
       <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 border border-ink/10 bg-ivory/95 px-4 py-3 shadow-[0_-8px_24px_rgba(28,27,25,0.06)] backdrop-blur">
         <p className="text-xs text-muted">Changes apply after you save.</p>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || !hasCategories}>
           {pending
             ? "Saving…"
             : product

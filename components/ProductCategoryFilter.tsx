@@ -5,21 +5,16 @@ import { useMemo, useState } from "react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
-import type { RecommendedProduct } from "@/lib/db/schema";
+import type { ProductCategory, RecommendedProduct } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
 export function ProductCategoryFilter({
   products,
+  categories,
 }: {
   products: RecommendedProduct[];
+  categories: ProductCategory[];
 }) {
-  const categories = useMemo(() => {
-    const unique = Array.from(
-      new Set(products.map((product) => product.category).filter(Boolean)),
-    );
-    return unique;
-  }, [products]);
-
   const [active, setActive] = useState("All Products");
 
   const filtered = useMemo(() => {
@@ -27,10 +22,12 @@ export function ProductCategoryFilter({
     return products.filter((product) => product.category === active);
   }, [active, products]);
 
+  const pills = ["All Products", ...categories.map((item) => item.name)];
+
   return (
     <div className="mt-10 space-y-10">
       <div className="flex flex-wrap gap-2">
-        {["All Products", ...categories].map((category) => {
+        {pills.map((category) => {
           const isActive = active === category;
           return (
             <button

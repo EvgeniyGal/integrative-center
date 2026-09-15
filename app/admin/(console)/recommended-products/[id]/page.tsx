@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { RecommendedProductEditor } from "@/components/admin/RecommendedProductEditor";
 import { Button } from "@/components/ui/button";
+import { getAllProductCategories } from "@/lib/content/queries";
 import { db } from "@/lib/db";
 import { recommendedProducts } from "@/lib/db/schema";
 
@@ -15,9 +16,15 @@ export default async function EditRecommendedProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await db.query.recommendedProducts.findFirst({
-    where: eq(recommendedProducts.id, id),
-  });
+  const [productRows, categories] = await Promise.all([
+    db
+      .select()
+      .from(recommendedProducts)
+      .where(eq(recommendedProducts.id, id))
+      .limit(1),
+    getAllProductCategories(),
+  ]);
+  const product = productRows[0];
   if (!product) notFound();
 
   return (
@@ -25,7 +32,7 @@ export default async function EditRecommendedProductPage({
       <Button asChild variant="outline" size="sm" className="rounded-none">
         <Link href="/admin/recommended-products">← Back to products</Link>
       </Button>
-      <RecommendedProductEditor product={product} />
+      <RecommendedProductEditor product={product} categories={categories} />
     </div>
   );
 }
