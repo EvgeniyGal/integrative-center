@@ -125,16 +125,31 @@ export const pages = {
   patientResources: {
     title: "Patient Resources | Forms & Portal | HBI Sarasota",
     description:
-      "Patient resources for Health & Beauty Integrative Center in Sarasota: portal access, visit preparation, and guidance before your consult.",
+      "Patient resources for Health & Beauty Integrative Center: office policies, patient forms, supplement recommendations, and secure portal access.",
     keywords: [
       "patient portal HBI Sarasota",
       "patient resources integrative medicine",
       "prepare for consult Sarasota",
       "Health and Beauty Integrative Center forms",
+      "HBIC office policies",
     ],
     path: "/patient-resources",
-    image: "/images/generated/about.jpg",
+    image: "/images/generated/reception.jpg",
     imageAlt: "Patient resources at Health & Beauty Integrative Center",
+  },
+  officePolicies: {
+    title: "Office Policies & Patient Guidelines | HBI Sarasota",
+    description:
+      "Review Health & Beauty Integrative Center office policies: appointments, cancellations, patient portal etiquette, and guidelines before your visit.",
+    keywords: [
+      "HBIC office policies",
+      "patient guidelines Sarasota",
+      "appointment cancellation policy",
+      "patient portal messaging",
+    ],
+    path: "/patient-resources/office-policies",
+    image: "/images/generated/care.jpg",
+    imageAlt: "Office policies at Health & Beauty Integrative Center",
   },
   news: {
     title: "News & Updates | Health & Beauty Integrative Center",

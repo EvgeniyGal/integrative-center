@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import { ConsultCta } from "@/components/ConsultCta";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
@@ -100,11 +99,6 @@ export default async function NewsPage() {
           )}
         </div>
       </section>
-
-      <ConsultCta
-        title="Ready to start a conversation?"
-        body="Request a consult and tell us what you would like to address."
-      />
     </>
   );
 }
