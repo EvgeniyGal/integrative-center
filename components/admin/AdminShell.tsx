@@ -24,12 +24,15 @@ import { logoutAction } from "@/app/admin/actions/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const contentLinks = [
+const siteLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/questions", label: "Questions", icon: HelpCircle },
   { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/news", label: "News", icon: FileText },
+];
+
+const storeLinks = [
   { href: "/admin/supplement-brands", label: "Brands", icon: Pill },
   { href: "/admin/product-categories", label: "Categories", icon: Tags },
   { href: "/admin/store-brands", label: "Store buttons", icon: Store },
@@ -41,22 +44,33 @@ const systemLinks = [
   { href: "/admin/users", label: "Admins", icon: Users },
 ];
 
-function NavLinks({
+type NavLink = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+};
+
+function NavSection({
+  title,
+  links,
   pathname,
   onNavigate,
-  showUserManagement,
+  className,
 }: {
+  title: string;
+  links: NavLink[];
   pathname: string;
   onNavigate?: () => void;
-  showUserManagement: boolean;
+  className?: string;
 }) {
   return (
-    <>
+    <div className={className}>
       <p className="mb-2 px-3 text-[10px] font-medium uppercase tracking-[0.22em] text-ivory/40">
-        Content
+        {title}
       </p>
       <ul className="space-y-1">
-        {contentLinks.map((link) => {
+        {links.map((link) => {
           const active = link.exact
             ? pathname === link.href
             : pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -80,37 +94,42 @@ function NavLinks({
           );
         })}
       </ul>
+    </div>
+  );
+}
 
+function NavLinks({
+  pathname,
+  onNavigate,
+  showUserManagement,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  showUserManagement: boolean;
+}) {
+  return (
+    <>
+      <NavSection
+        title="Site"
+        links={siteLinks}
+        pathname={pathname}
+        onNavigate={onNavigate}
+      />
+      <NavSection
+        title="Store"
+        links={storeLinks}
+        pathname={pathname}
+        onNavigate={onNavigate}
+        className="mt-8"
+      />
       {showUserManagement ? (
-        <>
-          <p className="mb-2 mt-8 px-3 text-[10px] font-medium uppercase tracking-[0.22em] text-ivory/40">
-            System
-          </p>
-          <ul className="space-y-1">
-            {systemLinks.map((link) => {
-              const active =
-                pathname === link.href || pathname.startsWith(`${link.href}/`);
-              const Icon = link.icon;
-              return (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    onClick={onNavigate}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition",
-                      active
-                        ? "bg-brand text-white"
-                        : "text-ivory/75 hover:bg-white/8 hover:text-ivory",
-                    )}
-                  >
-                    <Icon className="size-4 shrink-0 opacity-90" />
-                    {link.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </>
+        <NavSection
+          title="System"
+          links={systemLinks}
+          pathname={pathname}
+          onNavigate={onNavigate}
+          className="mt-8"
+        />
       ) : null}
     </>
   );
