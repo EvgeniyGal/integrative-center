@@ -1,5 +1,6 @@
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { JsonLd } from "@/components/JsonLd";
 
 export default function SiteLayout({
@@ -15,6 +16,7 @@ export default function SiteLayout({
         {children}
       </main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }
