@@ -3,8 +3,10 @@
 import {
   FileText,
   HelpCircle,
+  Inbox,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   MessageSquareQuote,
   Package,
@@ -37,6 +39,11 @@ const storeLinks = [
   { href: "/admin/product-categories", label: "Categories", icon: Tags },
   { href: "/admin/store-brands", label: "Store buttons", icon: Store },
   { href: "/admin/recommended-products", label: "Products", icon: Package },
+];
+
+const inboxLinks = [
+  { href: "/admin/contact-requests", label: "Requests", icon: Inbox },
+  { href: "/admin/subscribers", label: "Subscribers", icon: Mail },
 ];
 
 const systemLinks = [
@@ -116,6 +123,13 @@ function NavLinks({
         onNavigate={onNavigate}
       />
       <NavSection
+        title="Inbox"
+        links={inboxLinks}
+        pathname={pathname}
+        onNavigate={onNavigate}
+        className="mt-8"
+      />
+      <NavSection
         title="Store"
         links={storeLinks}
         pathname={pathname}
@@ -160,6 +174,8 @@ function pageTitle(pathname: string) {
     return "Edit article";
   }
   if (pathname.startsWith("/admin/news")) return "News";
+  if (pathname.startsWith("/admin/contact-requests")) return "Requests";
+  if (pathname.startsWith("/admin/subscribers")) return "Subscribers";
   if (pathname === "/admin/supplement-brands/new") return "New brand";
   if (
     pathname.startsWith("/admin/supplement-brands/") &&

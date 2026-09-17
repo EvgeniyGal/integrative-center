@@ -1,6 +1,8 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import type { ActionState } from "@/app/admin/actions/auth";
@@ -8,6 +10,8 @@ import {
   sendContactRequestEmail,
   sendNewsletterSignupEmail,
 } from "@/lib/email";
+import { db } from "@/lib/db";
+import { contactSubmissions, newsletterSubscribers } from "@/lib/db/schema";
 import { getRecipientEmails } from "@/lib/notifications";
 
 const WINDOW_MS = 60 * 60 * 1000;
@@ -46,6 +50,64 @@ async function takeFormLimit(kind: string) {
   return true;
 }
 
+function revalidateInquiries() {
+  revalidatePath("/admin");
+  revalidatePath("/admin/contact-requests");
+  revalidatePath("/admin/subscribers");
+}
+
+async function notifyContact(params: {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  message: string;
+}) {
+  try {
+    const to = await getRecipientEmails("contact");
+    if (to.length === 0) return;
+    await sendContactRequestEmail({
+      to,
+      firstName: params.firstName,
+      lastName: params.lastName,
+      phone: params.phone,
+      email: params.email,
+      message: params.message,
+    });
+    await db
+      .update(contactSubmissions)
+      .set({ emailSent: true, updatedAt: new Date() })
+      .where(eq(contactSubmissions.id, params.id));
+  } catch (error) {
+    console.error("Contact notification failed", error);
+  }
+}
+
+async function notifyNewsletter(params: {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+}) {
+  try {
+    const to = await getRecipientEmails("newsletter");
+    if (to.length === 0) return;
+    await sendNewsletterSignupEmail({
+      to,
+      firstName: params.firstName,
+      lastName: params.lastName,
+      email: params.email,
+    });
+    await db
+      .update(newsletterSubscribers)
+      .set({ emailSent: true, updatedAt: new Date() })
+      .where(eq(newsletterSubscribers.id, params.id));
+  } catch (error) {
+    console.error("Newsletter notification failed", error);
+  }
+}
+
 export async function submitContactAction(
   _prev: ActionState,
   formData: FormData,
@@ -65,23 +127,37 @@ export async function submitContactAction(
     return { error: "Please complete every field with a valid email so we can reach you." };
   }
 
-  const to = await getRecipientEmails("contact");
-  if (to.length === 0) {
-    return { error: "We could not send your message. Please call the office." };
+  let saved: { id: string } | undefined;
+  try {
+    const inserted = await db
+      .insert(contactSubmissions)
+      .values({
+        firstName: parsed.data.first,
+        lastName: parsed.data.last,
+        phone: parsed.data.phone,
+        email: parsed.data.email.toLowerCase(),
+        message: parsed.data.message,
+      })
+      .returning({ id: contactSubmissions.id });
+    saved = inserted[0];
+  } catch (error) {
+    console.error("Contact save failed", error);
+    return { error: "We could not save your message. Please try again or call the office." };
   }
 
-  try {
-    await sendContactRequestEmail({
-      to,
-      firstName: parsed.data.first,
-      lastName: parsed.data.last,
-      phone: parsed.data.phone,
-      email: parsed.data.email,
-      message: parsed.data.message,
-    });
-  } catch {
-    return { error: "We could not send your message. Please try again or call the office." };
+  if (!saved) {
+    return { error: "We could not save your message. Please try again or call the office." };
   }
+
+  await notifyContact({
+    id: saved.id,
+    firstName: parsed.data.first,
+    lastName: parsed.data.last,
+    phone: parsed.data.phone,
+    email: parsed.data.email,
+    message: parsed.data.message,
+  });
+  revalidateInquiries();
 
   return { success: "Message sent." };
 }
@@ -103,21 +179,62 @@ export async function submitNewsletterAction(
     return { error: "Enter a valid email." };
   }
 
-  const to = await getRecipientEmails("newsletter");
-  if (to.length === 0) {
-    return { error: "We could not complete your signup. Please try again later." };
-  }
+  const email = parsed.data.email.toLowerCase();
+  const firstName = parsed.data.firstName ?? null;
+  const lastName = parsed.data.lastName ?? null;
 
   try {
-    await sendNewsletterSignupEmail({
-      to,
-      firstName: parsed.data.firstName,
-      lastName: parsed.data.lastName,
-      email: parsed.data.email,
-    });
-  } catch {
+    const existing = await db
+      .select()
+      .from(newsletterSubscribers)
+      .where(eq(newsletterSubscribers.email, email))
+      .limit(1);
+    const current = existing[0];
+
+    if (current) {
+      const wasInactive = current.status !== "active";
+      await db
+        .update(newsletterSubscribers)
+        .set({
+          firstName: firstName ?? current.firstName,
+          lastName: lastName ?? current.lastName,
+          status: "active",
+          updatedAt: new Date(),
+        })
+        .where(eq(newsletterSubscribers.id, current.id));
+
+      if (wasInactive) {
+        await notifyNewsletter({
+          id: current.id,
+          firstName: firstName ?? current.firstName ?? undefined,
+          lastName: lastName ?? current.lastName ?? undefined,
+          email,
+        });
+      }
+    } else {
+      const inserted = await db
+        .insert(newsletterSubscribers)
+        .values({
+          email,
+          firstName,
+          lastName,
+        })
+        .returning({ id: newsletterSubscribers.id });
+      const saved = inserted[0];
+      if (saved) {
+        await notifyNewsletter({
+          id: saved.id,
+          firstName: firstName ?? undefined,
+          lastName: lastName ?? undefined,
+          email,
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Newsletter save failed", error);
     return { error: "We could not complete your signup. Please try again later." };
   }
 
+  revalidateInquiries();
   return { success: "Subscribed." };
 }

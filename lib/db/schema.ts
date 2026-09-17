@@ -244,6 +244,34 @@ export const notificationRecipients = pgTable("notification_recipients", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  firstName: text("firstName").notNull(),
+  lastName: text("lastName").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"),
+  emailSent: boolean("emailSent").notNull().default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  email: text("email").notNull().unique(),
+  firstName: text("firstName"),
+  lastName: text("lastName"),
+  status: text("status").notNull().default("active"),
+  emailSent: boolean("emailSent").notNull().default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
@@ -275,3 +303,5 @@ export type RecommendedProduct = typeof recommendedProducts.$inferSelect;
 export type AdminInvite = typeof adminInvites.$inferSelect;
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type NotificationRecipient = typeof notificationRecipients.$inferSelect;
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;

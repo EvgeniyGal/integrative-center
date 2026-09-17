@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   FileText,
   HelpCircle,
+  Inbox,
+  Mail,
   MessageSquareQuote,
   Package,
   Pill,
@@ -12,13 +14,34 @@ import {
 } from "lucide-react";
 
 import { getDashboardCounts } from "@/lib/content/queries";
+import { getInquiryCounts } from "@/lib/inquiries";
 
 export const instant = false;
 
 export default async function AdminDashboardPage() {
-  const counts = await getDashboardCounts();
+  const [counts, inquiries] = await Promise.all([
+    getDashboardCounts(),
+    getInquiryCounts(),
+  ]);
 
   const cards = [
+    {
+      href: "/admin/contact-requests",
+      label: "Requests",
+      value: inquiries.unreadContactRequests,
+      hint:
+        inquiries.contactRequests === 0
+          ? "Contact form submissions"
+          : `${inquiries.contactRequests} total · unread shown`,
+      icon: Inbox,
+    },
+    {
+      href: "/admin/subscribers",
+      label: "Subscribers",
+      value: inquiries.subscribers,
+      hint: "Active newsletter signups",
+      icon: Mail,
+    },
     {
       href: "/admin/questions",
       label: "Questions",
@@ -81,8 +104,9 @@ export default async function AdminDashboardPage() {
     <div className="space-y-10">
       <div>
         <p className="text-muted">
-          Manage homepage questions, services, patient quotes, news, and
-          supplement recommendations. Changes go live after you save.
+          Review contact requests and newsletter signups, then manage
+          homepage questions, services, patient quotes, news, and supplement
+          recommendations. Changes go live after you save.
         </p>
       </div>
 
