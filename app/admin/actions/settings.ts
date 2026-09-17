@@ -13,7 +13,7 @@ import {
   DEFAULT_SYSTEM_PROMPT,
 } from "@/lib/ai/defaults";
 import { encryptSecret } from "@/lib/ai/encrypt";
-import { SITE_SETTINGS_ID } from "@/lib/ai/settings";
+import { SITE_SETTINGS_ID, getAiSettings } from "@/lib/ai/settings";
 import { requireUserManager } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { siteSettings } from "@/lib/db/schema";
@@ -104,4 +104,13 @@ export async function saveAiSettingsAction(
   revalidatePath("/");
 
   return { success: "AI settings saved." };
+}
+
+export async function revealOpenAiApiKeyAction() {
+  await requireUserManager();
+  const settings = await getAiSettings();
+  if (!settings.apiKey) {
+    return { error: "No API key is saved." as const };
+  }
+  return { key: settings.apiKey };
 }

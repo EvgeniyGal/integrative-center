@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useState } from "react";
 
-import { saveAiSettingsAction } from "@/app/admin/actions/settings";
+import { revealOpenAiApiKeyAction, saveAiSettingsAction } from "@/app/admin/actions/settings";
 import type { ActionState } from "@/app/admin/actions/auth";
 import {
   AdminField,
@@ -51,18 +52,11 @@ export function AiSettingsForm({
           htmlFor="openaiApiKey"
           hint={
             hasStoredKey
-              ? "A key is saved. Leave blank to keep it."
+              ? "A key is saved. Leave blank to keep it, or show it to review."
               : "Required for the chat widget and AI drafts."
           }
         >
-          <Input
-            id="openaiApiKey"
-            name="openaiApiKey"
-            variant="box"
-            type="password"
-            autoComplete="off"
-            placeholder={hasStoredKey ? "••••••••••••••••" : "sk-..."}
-          />
+          <ApiKeyField hasStoredKey={hasStoredKey} />
         </AdminField>
         {hasStoredKey ? (
           <AdminToggle
@@ -153,6 +147,67 @@ export function AiSettingsForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+function ApiKeyField({ hasStoredKey }: { hasStoredKey: boolean }) {
+  const [visible, setVisible] = useState(false);
+  const [value, setValue] = useState("");
+  const [revealed, setRevealed] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function toggleVisibility() {
+    if (visible) {
+      if (revealed && value === revealed) setValue("");
+      setVisible(false);
+      return;
+    }
+
+    if (!value && hasStoredKey && !revealed) {
+      setBusy(true);
+      setError(null);
+      const result = await revealOpenAiApiKeyAction();
+      setBusy(false);
+      if ("error" in result) {
+        setError(result.error);
+        return;
+      }
+      setRevealed(result.key);
+      setValue(result.key);
+    }
+
+    setVisible(true);
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="relative">
+        <Input
+          id="openaiApiKey"
+          name="openaiApiKey"
+          variant="box"
+          type={visible ? "text" : "password"}
+          autoComplete="off"
+          spellCheck={false}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder={hasStoredKey ? "••••••••••••••••" : "sk-..."}
+          className="pr-24"
+        />
+        <button
+          type="button"
+          onClick={() => void toggleVisibility()}
+          disabled={busy || (!value && !hasStoredKey)}
+          aria-label={visible ? "Hide API key" : "Show API key"}
+          className="absolute right-1.5 top-1/2 inline-flex h-9 -translate-y-1/2 items-center gap-1.5 px-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted transition hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+        >
+          {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          {busy ? "…" : visible ? "Hide" : "Show"}
+        </button>
+      </div>
+      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+    </div>
   );
 }
 
