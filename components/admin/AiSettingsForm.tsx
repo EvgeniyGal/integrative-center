@@ -3,7 +3,11 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useActionState, useState } from "react";
 
-import { revealOpenAiApiKeyAction, saveAiSettingsAction } from "@/app/admin/actions/settings";
+import {
+  revealOpenAiApiKeyAction,
+  saveKnowledgeSettingsAction,
+  saveOpenAiSettingsAction,
+} from "@/app/admin/actions/settings";
 import type { ActionState } from "@/app/admin/actions/auth";
 import {
   AdminField,
@@ -15,11 +19,38 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-export function AiSettingsForm({
+function FormStatus({ state }: { state: ActionState }) {
+  if (state.error) {
+    return (
+      <p className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        {state.error}
+      </p>
+    );
+  }
+  if (state.success) {
+    return (
+      <p className="border border-brand/20 bg-brand-light/40 px-3 py-2 text-sm text-brand-dark">
+        {state.success}
+      </p>
+    );
+  }
+  return null;
+}
+
+function SaveBar({ pending }: { pending: boolean }) {
+  return (
+    <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 border border-ink/10 bg-ivory/95 px-4 py-3 shadow-[0_-8px_24px_rgba(28,27,25,0.06)] backdrop-blur">
+      <p className="text-xs text-muted">Changes apply after you save.</p>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Saving…" : "Save"}
+      </Button>
+    </div>
+  );
+}
+
+export function OpenAiSettingsForm({
   enabled,
   hasStoredKey,
-  systemPrompt,
-  knowledgeBase,
   chatModel,
   contentModel,
   productModel,
@@ -27,18 +58,15 @@ export function AiSettingsForm({
 }: {
   enabled: boolean;
   hasStoredKey: boolean;
-  systemPrompt: string;
-  knowledgeBase: string;
   chatModel: string;
   contentModel: string;
   productModel: string;
   models: string[];
 }) {
   const [state, formAction, pending] = useActionState(
-    saveAiSettingsAction,
+    saveOpenAiSettingsAction,
     {} as ActionState,
   );
-
   const options = uniqueModels(models, [chatModel, contentModel, productModel]);
 
   return (
@@ -96,6 +124,26 @@ export function AiSettingsForm({
         />
       </AdminSection>
 
+      <FormStatus state={state} />
+      <SaveBar pending={pending} />
+    </form>
+  );
+}
+
+export function KnowledgeSettingsForm({
+  systemPrompt,
+  knowledgeBase,
+}: {
+  systemPrompt: string;
+  knowledgeBase: string;
+}) {
+  const [state, formAction, pending] = useActionState(
+    saveKnowledgeSettingsAction,
+    {} as ActionState,
+  );
+
+  return (
+    <form action={formAction} className="mx-auto max-w-3xl space-y-5">
       <AdminSection
         title="Chat knowledge"
         description="The assistant uses this prompt and knowledge base, plus live services, hours, and contact details from the site."
@@ -122,23 +170,8 @@ export function AiSettingsForm({
         </AdminField>
       </AdminSection>
 
-      {state.error ? (
-        <p className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {state.error}
-        </p>
-      ) : null}
-      {state.success ? (
-        <p className="border border-brand/20 bg-brand-light/40 px-3 py-2 text-sm text-brand-dark">
-          {state.success}
-        </p>
-      ) : null}
-
-      <div className="sticky bottom-4 z-10 flex items-center justify-between gap-3 border border-ink/10 bg-ivory/95 px-4 py-3 shadow-[0_-8px_24px_rgba(28,27,25,0.06)] backdrop-blur">
-        <p className="text-xs text-muted">Changes apply after you save.</p>
-        <Button type="submit" disabled={pending}>
-          {pending ? "Saving…" : "Save settings"}
-        </Button>
-      </div>
+      <FormStatus state={state} />
+      <SaveBar pending={pending} />
     </form>
   );
 }

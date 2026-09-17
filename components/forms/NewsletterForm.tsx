@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 
+import { submitNewsletterAction } from "@/app/(site)/actions/inquiries";
+import type { ActionState } from "@/app/admin/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -15,19 +17,12 @@ export function NewsletterForm({
   light?: boolean;
   footer?: boolean;
 }) {
-  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
+  const [state, formAction, pending] = useActionState(
+    submitNewsletterAction,
+    {} as ActionState,
+  );
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const email = String(new FormData(e.currentTarget).get("email") ?? "").trim();
-    if (!email.includes("@")) {
-      setStatus("error");
-      return;
-    }
-    setStatus("success");
-  }
-
-  if (status === "success") {
+  if (state.success) {
     return (
       <p className={cn("text-sm", light || footer ? "text-ivory/80" : "text-muted")}>
         You are on the list. Welcome.
@@ -37,7 +32,7 @@ export function NewsletterForm({
 
   if (footer) {
     return (
-      <form onSubmit={onSubmit} className="w-full" noValidate>
+      <form action={formAction} className="w-full" noValidate>
         <div className="grid gap-8 sm:grid-cols-3 sm:gap-10">
           <div>
             <label
@@ -87,11 +82,16 @@ export function NewsletterForm({
           </div>
         </div>
         <div className="mt-10 flex flex-col items-center gap-3">
-          <Button type="submit" variant="inverted" className="min-w-[12rem] uppercase tracking-[0.18em]">
-            Subscribe
+          <Button
+            type="submit"
+            variant="inverted"
+            className="min-w-[12rem] uppercase tracking-[0.18em]"
+            disabled={pending}
+          >
+            {pending ? "Sending…" : "Subscribe"}
           </Button>
-          {status === "error" ? (
-            <p className="text-xs text-red-300">Enter a valid email.</p>
+          {state.error ? (
+            <p className="text-xs text-red-300">{state.error}</p>
           ) : null}
         </div>
       </form>
@@ -100,7 +100,7 @@ export function NewsletterForm({
 
   return (
     <form
-      onSubmit={onSubmit}
+      action={formAction}
       className={cn("flex flex-col gap-3", compact ? "" : "sm:flex-row sm:items-end")}
       noValidate
     >
@@ -128,11 +128,18 @@ export function NewsletterForm({
           )}
         />
       </div>
-      <Button type="submit" variant={light ? "inverted" : "default"} size={compact ? "sm" : "default"}>
-        Subscribe
+      <Button
+        type="submit"
+        variant={light ? "inverted" : "default"}
+        size={compact ? "sm" : "default"}
+        disabled={pending}
+      >
+        {pending ? "Sending…" : "Subscribe"}
       </Button>
-      {status === "error" ? (
-        <p className="text-xs text-red-600">Enter a valid email.</p>
+      {state.error ? (
+        <p className={cn("text-xs", light ? "text-red-300" : "text-red-600")}>
+          {state.error}
+        </p>
       ) : null}
     </form>
   );

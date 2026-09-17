@@ -232,6 +232,18 @@ export const recommendedProducts = pgTable("recommended_products", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const notificationRecipients = pgTable("notification_recipients", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  email: text("email").notNull().unique(),
+  label: text("label"),
+  receiveContact: boolean("receiveContact").notNull().default(true),
+  receiveNewsletter: boolean("receiveNewsletter").notNull().default(true),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
@@ -262,3 +274,4 @@ export type StoreBrand = typeof storeBrands.$inferSelect;
 export type RecommendedProduct = typeof recommendedProducts.$inferSelect;
 export type AdminInvite = typeof adminInvites.$inferSelect;
 export type SiteSettings = typeof siteSettings.$inferSelect;
+export type NotificationRecipient = typeof notificationRecipients.$inferSelect;

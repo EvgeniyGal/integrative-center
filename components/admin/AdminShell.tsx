@@ -177,7 +177,7 @@ function pageTitle(pathname: string) {
     return "Edit admin";
   }
   if (pathname.startsWith("/admin/users")) return "Admins";
-  if (pathname.startsWith("/admin/settings")) return "AI settings";
+  if (pathname.startsWith("/admin/settings")) return "Settings";
   return "Admin";
 }
 

@@ -38,6 +38,79 @@ export async function sendAdminInviteEmail(params: {
   });
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+async function sendToRecipients(params: {
+  to: string[];
+  subject: string;
+  html: string;
+  replyTo?: string;
+}) {
+  if (params.to.length === 0) {
+    throw new Error("No notification recipients are configured.");
+  }
+  const resend = getResend();
+  const { error } = await resend.emails.send({
+    from: fromAddress(),
+    to: params.to,
+    replyTo: params.replyTo,
+    subject: params.subject,
+    html: params.html,
+  });
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function sendContactRequestEmail(params: {
+  to: string[];
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  message: string;
+}) {
+  const name = `${params.firstName} ${params.lastName}`.trim();
+  await sendToRecipients({
+    to: params.to,
+    replyTo: params.email,
+    subject: `New consult request from ${name}`,
+    html: `
+      <p>A visitor submitted the contact form on ${site.name}.</p>
+      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(params.email)}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(params.phone)}</p>
+      <p><strong>Message:</strong></p>
+      <p>${escapeHtml(params.message).replaceAll("\n", "<br />")}</p>
+    `,
+  });
+}
+
+export async function sendNewsletterSignupEmail(params: {
+  to: string[];
+  firstName?: string;
+  lastName?: string;
+  email: string;
+}) {
+  const name = `${params.firstName ?? ""} ${params.lastName ?? ""}`.trim();
+  await sendToRecipients({
+    to: params.to,
+    replyTo: params.email,
+    subject: `New newsletter signup: ${params.email}`,
+    html: `
+      <p>Someone subscribed to the ${site.name} newsletter.</p>
+      ${name ? `<p><strong>Name:</strong> ${escapeHtml(name)}</p>` : ""}
+      <p><strong>Email:</strong> ${escapeHtml(params.email)}</p>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(params: {
   to: string;
   token: string;
