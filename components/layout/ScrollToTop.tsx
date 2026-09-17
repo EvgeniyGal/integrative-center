@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ScrollToTop({
-  raised = false,
+  besideChat = false,
   hidden = false,
 }: {
-  raised?: boolean;
+  besideChat?: boolean;
   hidden?: boolean;
 }) {
   const [scrolled, setScrolled] = useState(false);
@@ -36,10 +36,10 @@ export function ScrollToTop({
         window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
       }}
       className={cn(
-        "fixed z-40 right-[max(1.5rem,env(safe-area-inset-right))] lg:right-10",
-        raised
-          ? "bottom-[max(5rem,calc(env(safe-area-inset-bottom)+3.5rem))] lg:bottom-24"
-          : "bottom-[max(1.5rem,env(safe-area-inset-bottom))] lg:bottom-10",
+        "fixed z-40 bottom-[max(1.5rem,env(safe-area-inset-bottom))] lg:bottom-10",
+        besideChat
+          ? "right-[max(5rem,calc(env(safe-area-inset-right)+3.5rem))] lg:right-24"
+          : "right-[max(1.5rem,env(safe-area-inset-right))] lg:right-10",
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-2 opacity-0",

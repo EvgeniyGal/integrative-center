@@ -10,7 +10,7 @@ export function FloatingActions({ chatEnabled }: { chatEnabled: boolean }) {
 
   return (
     <>
-      <ScrollToTop raised={chatEnabled} hidden={chatOpen} />
+      <ScrollToTop besideChat={chatEnabled} hidden={chatOpen} />
       {chatEnabled ? <ChatWidget onOpenChange={setChatOpen} /> : null}
     </>
   );

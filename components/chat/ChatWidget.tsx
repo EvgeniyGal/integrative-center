@@ -258,8 +258,8 @@ export function ChatWidget({
           className={cn(
             "fixed z-50 flex min-h-0 flex-col overflow-hidden border border-ink/10 bg-ivory shadow-[0_24px_60px_-24px_rgba(28,27,25,0.45)]",
             "left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] top-[max(5.5rem,env(safe-area-inset-top))] bottom-[max(0.75rem,env(safe-area-inset-bottom))]",
-            "sm:left-auto sm:right-[max(1.5rem,env(safe-area-inset-right))] sm:top-auto sm:bottom-[max(5.5rem,env(safe-area-inset-bottom))] sm:h-[min(36rem,calc(100dvh-7.5rem))] sm:w-[22rem]",
-            "lg:right-10 lg:bottom-24",
+            "sm:left-auto sm:right-[max(1.5rem,env(safe-area-inset-right))] sm:top-auto sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:h-[min(36rem,calc(100dvh-4rem))] sm:w-[22rem]",
+            "lg:right-10 lg:bottom-10",
           )}
         >
           <header className="flex shrink-0 items-start justify-between gap-3 border-b border-ink/10 bg-brand px-4 py-3 text-white">
