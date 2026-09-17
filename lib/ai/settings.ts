@@ -38,11 +38,6 @@ async function getSettingsRow() {
   return rows[0] ?? null;
 }
 
-function envApiKey() {
-  const value = process.env.OPENAI_API_KEY?.trim();
-  return value ? value : null;
-}
-
 function storedApiKey(row: SettingsRow | null) {
   if (!row?.openaiApiKeyEncrypted) return null;
   try {
@@ -56,7 +51,6 @@ function storedApiKey(row: SettingsRow | null) {
 export async function getAiSettings(): Promise<AiSettings> {
   const row = await getSettingsRow();
   const stored = storedApiKey(row);
-  const envKey = envApiKey();
 
   return {
     enabled: row?.enabled ?? true,
@@ -66,7 +60,7 @@ export async function getAiSettings(): Promise<AiSettings> {
     contentModel: row?.contentModel || DEFAULT_CONTENT_MODEL,
     productModel: row?.productModel || DEFAULT_PRODUCT_MODEL,
     hasStoredKey: Boolean(stored),
-    apiKey: stored ?? envKey,
+    apiKey: stored,
   };
 }
 

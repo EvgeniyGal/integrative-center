@@ -17,7 +17,6 @@ import { Textarea } from "@/components/ui/textarea";
 export function AiSettingsForm({
   enabled,
   hasStoredKey,
-  envKeyFallback,
   systemPrompt,
   knowledgeBase,
   chatModel,
@@ -27,7 +26,6 @@ export function AiSettingsForm({
 }: {
   enabled: boolean;
   hasStoredKey: boolean;
-  envKeyFallback: boolean;
   systemPrompt: string;
   knowledgeBase: string;
   chatModel: string;
@@ -46,7 +44,7 @@ export function AiSettingsForm({
     <form action={formAction} className="mx-auto max-w-3xl space-y-5">
       <AdminSection
         title="OpenAI"
-        description="The key is stored encrypted and never sent to the public site. If no admin key is saved, the server falls back to OPENAI_API_KEY in the environment."
+        description="The key is stored encrypted and never sent to the public site. Chat and AI drafts use only the key saved here."
       >
         <AdminField
           label="API key"
@@ -54,9 +52,7 @@ export function AiSettingsForm({
           hint={
             hasStoredKey
               ? "A key is saved. Leave blank to keep it."
-              : envKeyFallback
-                ? "Using the environment key until you save one here."
-                : "Required for the chat widget and AI drafts."
+              : "Required for the chat widget and AI drafts."
           }
         >
           <Input
@@ -72,7 +68,7 @@ export function AiSettingsForm({
           <AdminToggle
             name="clearApiKey"
             label="Remove saved key"
-            description="Clear the admin key and fall back to OPENAI_API_KEY in the environment, if set."
+            description="Remove the saved key. Chat and AI drafts will stop until you add a new one."
           />
         ) : null}
         <AdminToggle

@@ -22,7 +22,6 @@ export default async function AdminSettingsPage() {
       <AiSettingsForm
         enabled={settings.enabled}
         hasStoredKey={settings.hasStoredKey}
-        envKeyFallback={!settings.hasStoredKey && Boolean(settings.apiKey)}
         systemPrompt={settings.systemPrompt}
         knowledgeBase={settings.knowledgeBase}
         chatModel={settings.chatModel}

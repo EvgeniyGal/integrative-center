@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { put } from "@vercel/blob";
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { eq } from "drizzle-orm";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -194,9 +194,33 @@ async function uploadImage(sourceUrl: string, slug: string) {
   return blob.url;
 }
 
-async function generateSummary(title: string, body: string[]) {
+async function loadAdminOpenAiKey() {
+  const { db } = await import("../lib/db");
+  const { SITE_SETTINGS_ID, siteSettings } = await import("../lib/db/schema");
+  const { decryptSecret } = await import("../lib/ai/encrypt");
+  const rows = await db
+    .select({ openaiApiKeyEncrypted: siteSettings.openaiApiKeyEncrypted })
+    .from(siteSettings)
+    .where(eq(siteSettings.id, SITE_SETTINGS_ID))
+    .limit(1);
+  const encrypted = rows[0]?.openaiApiKeyEncrypted;
+  if (!encrypted) {
+    throw new Error("OpenAI API key is not set in Admin → Settings.");
+  }
+  const key = decryptSecret(encrypted).trim();
+  if (!key) {
+    throw new Error("OpenAI API key is not set in Admin → Settings.");
+  }
+  return key;
+}
+
+async function generateSummary(
+  title: string,
+  body: string[],
+  client: ReturnType<typeof createOpenAI>,
+) {
   const { text } = await generateText({
-    model: openai("gpt-4.1-mini"),
+    model: client("gpt-4.1-mini"),
     prompt: `Write one concise summary sentence (max 28 words) for a clinic service page.
 Tone: calm, clinical, welcoming. No marketing hype, no emojis.
 Do not invent treatments not present in the source.
@@ -234,7 +258,8 @@ async function main() {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     throw new Error("BLOB_READ_WRITE_TOKEN missing");
   }
-  if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY missing");
+
+  const openai = createOpenAI({ apiKey: await loadAdminOpenAiKey() });
 
   const scraped = await scrapeAll();
   await fs.mkdir("tmp/old-site", { recursive: true });
@@ -251,7 +276,7 @@ async function main() {
     console.log(`Uploading image for ${item.slug}...`);
     const imageUrl = await uploadImage(item.listingImageUrl, item.slug);
     console.log(`Generating summary for ${item.slug}...`);
-    const summary = await generateSummary(item.title, item.body);
+    const summary = await generateSummary(item.title, item.body, openai);
 
     const existing = await db.query.services.findFirst({
       where: eq(services.slug, item.slug),
