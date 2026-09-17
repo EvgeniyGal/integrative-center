@@ -79,6 +79,8 @@ export function ProductCategoryFilter({
                     href={product.referralLink}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-analytics="outbound_click"
+                    data-analytics-outbound
                     className="max-w-full"
                   >
                     <span className="min-w-0 truncate">{product.ctaLabel}</span>

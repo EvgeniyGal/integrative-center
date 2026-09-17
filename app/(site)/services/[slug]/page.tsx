@@ -81,7 +81,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           ) : null}
           <Reveal className="mt-12 flex flex-wrap gap-3" delay={0.12}>
             <Button asChild>
-              <Link href="/contact">Request a consult</Link>
+              <Link href="/contact" data-analytics="consult_click">
+                Request a consult
+              </Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/services">All services</Link>

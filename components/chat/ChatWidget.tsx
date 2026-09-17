@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { Button } from "@/components/ui/button";
+import { trackClientEvent } from "@/lib/analytics/client";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "hbi-chat-widget-v1";
@@ -137,6 +138,7 @@ export function ChatWidget({
     setOpen(true);
     setInviteVisible(false);
     setInviteDismissed(true);
+    trackClientEvent("chat_open");
   }
 
   function closeChat() {
@@ -146,6 +148,8 @@ export function ChatWidget({
   async function sendMessage(text: string) {
     const content = text.trim();
     if (!content || pending) return;
+
+    trackClientEvent("chat_message");
 
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),

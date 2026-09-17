@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ChartColumn,
   FileText,
   HelpCircle,
   Inbox,
@@ -42,6 +43,7 @@ const storeLinks = [
 ];
 
 const inboxLinks = [
+  { href: "/admin/analytics", label: "Analytics", icon: ChartColumn },
   { href: "/admin/contact-requests", label: "Requests", icon: Inbox },
   { href: "/admin/subscribers", label: "Subscribers", icon: Mail },
 ];
@@ -174,6 +176,7 @@ function pageTitle(pathname: string) {
     return "Edit article";
   }
   if (pathname.startsWith("/admin/news")) return "News";
+  if (pathname.startsWith("/admin/analytics")) return "Analytics";
   if (pathname.startsWith("/admin/contact-requests")) return "Requests";
   if (pathname.startsWith("/admin/subscribers")) return "Subscribers";
   if (pathname === "/admin/supplement-brands/new") return "New brand";

@@ -203,6 +203,7 @@ export default function PatientResourcesPage() {
                   href={site.portalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-analytics="portal_click"
                 >
                   {portal.ctaLabel}
                 </a>

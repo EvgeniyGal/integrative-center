@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -274,6 +275,35 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const analyticsEvents = pgTable(
+  "analytics_events",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    occurredAt: timestamp("occurredAt", { mode: "date" }).notNull().defaultNow(),
+    name: text("name").notNull(),
+    path: text("path"),
+    country: text("country"),
+    region: text("region"),
+    city: text("city"),
+    device: text("device"),
+    referrerHost: text("referrerHost"),
+    utmSource: text("utmSource"),
+    utmMedium: text("utmMedium"),
+    utmCampaign: text("utmCampaign"),
+    visitorHash: text("visitorHash"),
+    meta: jsonb("meta").$type<Record<string, string>>().notNull().default({}),
+  },
+  (table) => [
+    index("analytics_events_occurred_at_idx").on(table.occurredAt),
+    index("analytics_events_occurred_name_idx").on(table.occurredAt, table.name),
+    index("analytics_events_path_idx").on(table.path),
+    index("analytics_events_country_idx").on(table.country),
+    index("analytics_events_region_idx").on(table.region),
+  ],
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
@@ -307,3 +337,4 @@ export type SiteSettings = typeof siteSettings.$inferSelect;
 export type NotificationRecipient = typeof notificationRecipients.$inferSelect;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

@@ -62,6 +62,7 @@ export default function ContactPage() {
                     href={site.mapsLink}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-analytics="maps_click"
                     className="hover:text-ink"
                   >
                     {site.address.line1}
@@ -73,7 +74,11 @@ export default function ContactPage() {
                 </li>
                 <li className="flex gap-3">
                   <Phone className="mt-0.5 size-4 shrink-0 text-brand" />
-                  <a href={site.phoneHref} className="hover:text-ink">
+                  <a
+                    href={site.phoneHref}
+                    data-analytics="phone_click"
+                    className="hover:text-ink"
+                  >
                     {site.phone}
                   </a>
                 </li>
@@ -93,10 +98,17 @@ export default function ContactPage() {
               </ul>
               <div className="mt-8 flex flex-col gap-3">
                 <Button asChild>
-                  <a href={site.phoneHref}>Call the front desk</a>
+                  <a href={site.phoneHref} data-analytics="phone_click">
+                    Call the front desk
+                  </a>
                 </Button>
                 <Button asChild variant="outline">
-                  <a href={site.portalUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={site.portalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-analytics="portal_click"
+                  >
                     Patient Portal
                   </a>
                 </Button>

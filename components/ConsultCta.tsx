@@ -24,10 +24,14 @@ export function ConsultCta({
         </div>
         <div className="flex flex-wrap gap-3">
           <Button asChild variant="inverted">
-            <Link href="/contact">Request a consult</Link>
+            <Link href="/contact" data-analytics="consult_click">
+              Request a consult
+            </Link>
           </Button>
           <Button asChild variant="ghost" className="border border-white/25">
-            <a href={site.phoneHref}>{site.phone}</a>
+            <a href={site.phoneHref} data-analytics="phone_click">
+              {site.phone}
+            </a>
           </Button>
         </div>
       </div>

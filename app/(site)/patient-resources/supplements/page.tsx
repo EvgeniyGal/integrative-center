@@ -133,6 +133,8 @@ export default async function SupplementsPage() {
                         href={brand.referralLink}
                         target="_blank"
                         rel="noopener noreferrer"
+                        data-analytics="outbound_click"
+                        data-analytics-outbound
                       >
                         {brand.ctaLabel}
                         <ExternalLink className="size-3.5" aria-hidden />

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import type { ActionState } from "@/app/admin/actions/auth";
+import { ingestAnalyticsEvent } from "@/lib/analytics/ingest";
 import {
   sendContactRequestEmail,
   sendNewsletterSignupEmail,
@@ -205,6 +206,10 @@ export async function submitContactAction(
     email: parsed.data.email,
     message: parsed.data.message,
   });
+  void ingestAnalyticsEvent({
+    name: "contact_submit",
+    path: "/contact",
+  });
   revalidateInquiries();
 
   return { success: "Message sent." };
@@ -284,5 +289,9 @@ export async function submitNewsletterAction(
   }
 
   revalidateInquiries();
+  void ingestAnalyticsEvent({
+    name: "newsletter_submit",
+    path: "/",
+  });
   return { success: "Subscribed." };
 }

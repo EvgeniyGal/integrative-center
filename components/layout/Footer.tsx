@@ -51,6 +51,7 @@ export async function Footer() {
                 href={site.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-analytics="social_click"
                 className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 text-ivory/80 transition hover:border-brand hover:text-brand"
                 aria-label="Instagram"
               >
@@ -60,6 +61,7 @@ export async function Footer() {
                 href={site.social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-analytics="social_click"
                 className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 text-ivory/80 transition hover:border-brand hover:text-brand"
                 aria-label="Facebook"
               >
@@ -81,6 +83,7 @@ export async function Footer() {
             </p>
             <a
               href={site.phoneHref}
+              data-analytics="phone_click"
               className="mt-4 inline-block text-sm text-ivory transition hover:text-brand"
             >
               {site.phone}
@@ -104,6 +107,7 @@ export async function Footer() {
                   href={site.portalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-analytics="portal_click"
                   className={linkClass}
                 >
                   Patient Portal

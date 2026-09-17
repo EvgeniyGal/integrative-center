@@ -77,6 +77,7 @@ export function Header() {
             href={site.portalUrl}
             target="_blank"
             rel="noopener noreferrer"
+            data-analytics="portal_click"
             className={cn(
               "text-[11px] font-medium uppercase tracking-[0.22em] transition-colors",
               onHero ? "text-white/80 hover:text-white" : "text-ink/70 hover:text-ink",
@@ -85,7 +86,9 @@ export function Header() {
             Patient Portal
           </a>
           <Button asChild size="sm" variant={onHero ? "inverted" : "default"}>
-            <Link href="/contact">Request a consult</Link>
+            <Link href="/contact" data-analytics="consult_click">
+              Request a consult
+            </Link>
           </Button>
         </div>
 
@@ -134,10 +137,17 @@ export function Header() {
               </nav>
               <div className="mt-auto flex flex-col gap-3">
                 <Button asChild>
-                  <Link href="/contact">Request a consult</Link>
+                  <Link href="/contact" data-analytics="consult_click">
+                    Request a consult
+                  </Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <a href={site.portalUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={site.portalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-analytics="portal_click"
+                  >
                     Patient Portal
                   </a>
                 </Button>

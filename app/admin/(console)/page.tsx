@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  ChartColumn,
   FileText,
   HelpCircle,
   Inbox,
@@ -13,18 +14,27 @@ import {
   Users,
 } from "lucide-react";
 
+import { getAnalyticsPageViewCount } from "@/lib/analytics/queries";
 import { getDashboardCounts } from "@/lib/content/queries";
 import { getInquiryCounts } from "@/lib/inquiries";
 
 export const instant = false;
 
 export default async function AdminDashboardPage() {
-  const [counts, inquiries] = await Promise.all([
+  const [counts, inquiries, pageViews] = await Promise.all([
     getDashboardCounts(),
     getInquiryCounts(),
+    getAnalyticsPageViewCount(30),
   ]);
 
   const cards = [
+    {
+      href: "/admin/analytics",
+      label: "Analytics",
+      value: pageViews,
+      hint: "Page views · last 30 days",
+      icon: ChartColumn,
+    },
     {
       href: "/admin/contact-requests",
       label: "Requests",
