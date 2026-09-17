@@ -17,6 +17,8 @@ import { SITE_SETTINGS_ID, getAiSettings } from "@/lib/ai/settings";
 import { requireUserManager } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { notificationRecipients, siteSettings } from "@/lib/db/schema";
+import { sendTestStaffEmail } from "@/lib/email";
+import { getRecipientEmails } from "@/lib/notifications";
 
 const openAiSchema = z.object({
   chatModel: z.string().min(1),
@@ -224,4 +226,35 @@ export async function deleteNotificationRecipientAction(formData: FormData) {
   if (!id) throw new Error("Missing recipient id.");
   await db.delete(notificationRecipients).where(eq(notificationRecipients.id, id));
   revalidateRecipients();
+}
+
+export async function sendTestNotificationAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireUserManager();
+  const channel =
+    formData.get("channel") === "newsletter" ? "newsletter" : "contact";
+  const to = await getRecipientEmails(channel);
+  if (to.length === 0) {
+    return { error: "Add a recipient for this type of message first." };
+  }
+
+  try {
+    const result = await sendTestStaffEmail({ to, channel });
+    if (result.sent === 0) {
+      return { error: result.error ?? "The test email could not be sent." };
+    }
+    if (result.error) {
+      return {
+        error: `Sent to some addresses, but not all. ${result.error}`,
+      };
+    }
+    return { success: `Test email sent to ${to.join(", ")}.` };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : "The test email could not be sent.",
+    };
+  }
 }

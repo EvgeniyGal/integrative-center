@@ -2,6 +2,7 @@
 
 import {
   deleteSubscriberAction,
+  retrySubscriberEmailAction,
   setSubscriberActiveAction,
 } from "@/app/admin/actions/inquiries";
 import {
@@ -12,7 +13,7 @@ import {
   AdminTableHead,
   AdminTableHeaderCell,
   AdminTableRow,
-  StatusBadge,
+  EmailNotifyCell,
   StatusToggle,
 } from "@/components/admin/AdminTable";
 import { DeleteButton } from "@/components/admin/TableActions";
@@ -89,9 +90,12 @@ export function NewsletterSubscribersTable({
                   />
                 </AdminTableCell>
                 <AdminTableCell className="hidden lg:table-cell">
-                  <StatusBadge tone={item.emailSent ? "success" : "warning"}>
-                    {item.emailSent ? "Sent" : "Not sent"}
-                  </StatusBadge>
+                  <EmailNotifyCell
+                    sent={item.emailSent}
+                    error={item.emailError}
+                    retryAction={retrySubscriberEmailAction}
+                    id={item.id}
+                  />
                 </AdminTableCell>
                 <AdminTableCell>
                   <div className="flex justify-end">

@@ -46,26 +46,44 @@ function escapeHtml(value: string) {
     .replaceAll('"', "&quot;");
 }
 
+export type StaffEmailResult = {
+  sent: number;
+  error: string | null;
+};
+
 async function sendToRecipients(params: {
   to: string[];
   subject: string;
   html: string;
   replyTo?: string;
-}) {
+}): Promise<StaffEmailResult> {
   if (params.to.length === 0) {
-    throw new Error("No notification recipients are configured.");
+    return { sent: 0, error: "No notification recipients are configured." };
   }
   const resend = getResend();
-  const { error } = await resend.emails.send({
-    from: fromAddress(),
-    to: params.to,
-    replyTo: params.replyTo,
-    subject: params.subject,
-    html: params.html,
-  });
-  if (error) {
-    throw new Error(error.message);
+  const from = fromAddress();
+  const failures: string[] = [];
+  let sent = 0;
+
+  for (const recipient of params.to) {
+    const { error } = await resend.emails.send({
+      from,
+      to: recipient,
+      replyTo: params.replyTo,
+      subject: params.subject,
+      html: params.html,
+    });
+    if (error) {
+      failures.push(`${recipient}: ${error.message}`);
+    } else {
+      sent += 1;
+    }
   }
+
+  return {
+    sent,
+    error: failures.length > 0 ? failures.join(" ") : null,
+  };
 }
 
 export async function sendContactRequestEmail(params: {
@@ -75,9 +93,9 @@ export async function sendContactRequestEmail(params: {
   phone: string;
   email: string;
   message: string;
-}) {
+}): Promise<StaffEmailResult> {
   const name = `${params.firstName} ${params.lastName}`.trim();
-  await sendToRecipients({
+  return sendToRecipients({
     to: params.to,
     replyTo: params.email,
     subject: `New consult request from ${name}`,
@@ -97,9 +115,9 @@ export async function sendNewsletterSignupEmail(params: {
   firstName?: string;
   lastName?: string;
   email: string;
-}) {
+}): Promise<StaffEmailResult> {
   const name = `${params.firstName ?? ""} ${params.lastName ?? ""}`.trim();
-  await sendToRecipients({
+  return sendToRecipients({
     to: params.to,
     replyTo: params.email,
     subject: `New newsletter signup: ${params.email}`,
@@ -107,6 +125,22 @@ export async function sendNewsletterSignupEmail(params: {
       <p>Someone subscribed to the ${site.name} newsletter.</p>
       ${name ? `<p><strong>Name:</strong> ${escapeHtml(name)}</p>` : ""}
       <p><strong>Email:</strong> ${escapeHtml(params.email)}</p>
+    `,
+  });
+}
+
+export async function sendTestStaffEmail(params: {
+  to: string[];
+  channel: "contact" | "newsletter";
+}): Promise<StaffEmailResult> {
+  const kind =
+    params.channel === "newsletter" ? "newsletter signups" : "consult requests";
+  return sendToRecipients({
+    to: params.to,
+    subject: `Test ${kind} email from ${site.shortName}`,
+    html: `
+      <p>This is a test from the ${site.name} admin settings.</p>
+      <p>If you received this, ${kind} will be delivered to this address.</p>
     `,
   });
 }

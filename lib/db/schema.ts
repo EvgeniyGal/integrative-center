@@ -255,6 +255,7 @@ export const contactSubmissions = pgTable("contact_submissions", {
   message: text("message").notNull(),
   status: text("status").notNull().default("new"),
   emailSent: boolean("emailSent").notNull().default(false),
+  emailError: text("emailError"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
@@ -268,6 +269,7 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   lastName: text("lastName"),
   status: text("status").notNull().default("active"),
   emailSent: boolean("emailSent").notNull().default(false),
+  emailError: text("emailError"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });

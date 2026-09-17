@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import {
   addNotificationRecipientAction,
   deleteNotificationRecipientAction,
+  sendTestNotificationAction,
   updateNotificationRecipientAction,
 } from "@/app/admin/actions/settings";
 import type { ActionState } from "@/app/admin/actions/auth";
@@ -183,7 +184,57 @@ export function NotificationRecipientsPanel({
           </AdminTableElement>
         </AdminTable>
       </AdminSection>
+
+      <TestNotificationForm />
     </div>
+  );
+}
+
+function TestNotificationForm() {
+  const [state, formAction, pending] = useActionState(
+    sendTestNotificationAction,
+    {} as ActionState,
+  );
+
+  return (
+    <AdminSection
+      title="Send a test"
+      description="Resend only delivers to arbitrary inboxes after you verify a sending domain (for example hbintegrative.com). Until then, test from this page to see the exact delivery error."
+    >
+      <form action={formAction} className="space-y-4">
+        <fieldset className="flex flex-wrap gap-4">
+          <legend className="sr-only">Message type</legend>
+          <label className="inline-flex items-center gap-2 text-sm text-ink">
+            <input
+              type="radio"
+              name="channel"
+              value="contact"
+              defaultChecked
+              className="size-4 accent-brand"
+            />
+            Contact requests
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm text-ink">
+            <input
+              type="radio"
+              name="channel"
+              value="newsletter"
+              className="size-4 accent-brand"
+            />
+            Newsletter signups
+          </label>
+        </fieldset>
+        {state.error ? (
+          <p className="text-sm text-red-700">{state.error}</p>
+        ) : null}
+        {state.success ? (
+          <p className="text-sm text-brand-dark">{state.success}</p>
+        ) : null}
+        <Button type="submit" variant="outline" disabled={pending}>
+          {pending ? "Sending…" : "Send test email"}
+        </Button>
+      </form>
+    </AdminSection>
   );
 }
 

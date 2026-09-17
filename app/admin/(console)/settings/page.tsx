@@ -20,7 +20,7 @@ const INTRO: Record<string, string> = {
   knowledge:
     "The public chatbot answers from this prompt and knowledge base, plus live services, hours, and contact details.",
   emails:
-    "Choose who receives consult requests from the contact form and newsletter signups from the site.",
+    "Choose who receives consult requests from the contact form and newsletter signups. Delivery uses Resend; verify your domain there so mail can leave the test account.",
 };
 
 export default async function AdminSettingsPage({

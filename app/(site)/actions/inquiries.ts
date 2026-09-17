@@ -66,8 +66,18 @@ async function notifyContact(params: {
 }) {
   try {
     const to = await getRecipientEmails("contact");
-    if (to.length === 0) return;
-    await sendContactRequestEmail({
+    if (to.length === 0) {
+      await db
+        .update(contactSubmissions)
+        .set({
+          emailSent: false,
+          emailError: "No notification recipients are configured.",
+          updatedAt: new Date(),
+        })
+        .where(eq(contactSubmissions.id, params.id));
+      return;
+    }
+    const result = await sendContactRequestEmail({
       to,
       firstName: params.firstName,
       lastName: params.lastName,
@@ -77,10 +87,24 @@ async function notifyContact(params: {
     });
     await db
       .update(contactSubmissions)
-      .set({ emailSent: true, updatedAt: new Date() })
+      .set({
+        emailSent: result.sent > 0,
+        emailError: result.error,
+        updatedAt: new Date(),
+      })
       .where(eq(contactSubmissions.id, params.id));
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Email could not be sent.";
     console.error("Contact notification failed", error);
+    await db
+      .update(contactSubmissions)
+      .set({
+        emailSent: false,
+        emailError: message,
+        updatedAt: new Date(),
+      })
+      .where(eq(contactSubmissions.id, params.id));
   }
 }
 
@@ -92,8 +116,18 @@ async function notifyNewsletter(params: {
 }) {
   try {
     const to = await getRecipientEmails("newsletter");
-    if (to.length === 0) return;
-    await sendNewsletterSignupEmail({
+    if (to.length === 0) {
+      await db
+        .update(newsletterSubscribers)
+        .set({
+          emailSent: false,
+          emailError: "No notification recipients are configured.",
+          updatedAt: new Date(),
+        })
+        .where(eq(newsletterSubscribers.id, params.id));
+      return;
+    }
+    const result = await sendNewsletterSignupEmail({
       to,
       firstName: params.firstName,
       lastName: params.lastName,
@@ -101,10 +135,24 @@ async function notifyNewsletter(params: {
     });
     await db
       .update(newsletterSubscribers)
-      .set({ emailSent: true, updatedAt: new Date() })
+      .set({
+        emailSent: result.sent > 0,
+        emailError: result.error,
+        updatedAt: new Date(),
+      })
       .where(eq(newsletterSubscribers.id, params.id));
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Email could not be sent.";
     console.error("Newsletter notification failed", error);
+    await db
+      .update(newsletterSubscribers)
+      .set({
+        emailSent: false,
+        emailError: message,
+        updatedAt: new Date(),
+      })
+      .where(eq(newsletterSubscribers.id, params.id));
   }
 }
 

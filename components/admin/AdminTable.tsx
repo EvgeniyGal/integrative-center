@@ -179,6 +179,38 @@ export function StatusToggle({
   );
 }
 
+export function EmailNotifyCell({
+  sent,
+  error,
+  retryAction,
+  id,
+}: {
+  sent: boolean;
+  error?: string | null;
+  retryAction: (formData: FormData) => Promise<void> | void;
+  id: string;
+}) {
+  return (
+    <div className="max-w-xs space-y-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge tone={sent ? "success" : "warning"}>
+          {sent ? "Sent" : "Not sent"}
+        </StatusBadge>
+        <form action={retryAction}>
+          <input type="hidden" name="id" value={id} />
+          <button
+            type="submit"
+            className="text-[10px] font-medium uppercase tracking-[0.14em] text-brand hover:underline"
+          >
+            Retry
+          </button>
+        </form>
+      </div>
+      {error ? <p className="text-xs leading-5 text-red-700">{error}</p> : null}
+    </div>
+  );
+}
+
 export function PreviewFrame({
   label,
   children,

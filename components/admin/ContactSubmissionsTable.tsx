@@ -4,6 +4,7 @@ import { Fragment } from "react";
 
 import {
   deleteContactSubmissionAction,
+  retryContactEmailAction,
   setContactReadAction,
 } from "@/app/admin/actions/inquiries";
 import {
@@ -14,7 +15,7 @@ import {
   AdminTableHead,
   AdminTableHeaderCell,
   AdminTableRow,
-  StatusBadge,
+  EmailNotifyCell,
   StatusToggle,
 } from "@/components/admin/AdminTable";
 import {
@@ -107,9 +108,12 @@ export function ContactSubmissionsTable({
                       />
                     </AdminTableCell>
                     <AdminTableCell className="hidden lg:table-cell">
-                      <StatusBadge tone={item.emailSent ? "success" : "warning"}>
-                        {item.emailSent ? "Sent" : "Not sent"}
-                      </StatusBadge>
+                      <EmailNotifyCell
+                        sent={item.emailSent}
+                        error={item.emailError}
+                        retryAction={retryContactEmailAction}
+                        id={item.id}
+                      />
                     </AdminTableCell>
                     <AdminTableCell>
                       <div className="flex justify-end gap-1.5">
@@ -154,6 +158,14 @@ export function ContactSubmissionsTable({
                               </dt>
                               <dd className="mt-1">{formatDate(item.createdAt)}</dd>
                             </div>
+                            {item.emailError ? (
+                              <div className="sm:col-span-3">
+                                <dt className="text-[10px] uppercase tracking-[0.16em] text-muted">
+                                  Email delivery
+                                </dt>
+                                <dd className="mt-1 text-red-700">{item.emailError}</dd>
+                              </div>
+                            ) : null}
                           </dl>
                         </div>
                       </td>
