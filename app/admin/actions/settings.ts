@@ -26,7 +26,6 @@ const schema = z.object({
   productModel: z.string().min(1),
   enabled: z.boolean(),
   openaiApiKey: z.string(),
-  clearApiKey: z.boolean(),
 });
 
 export async function saveAiSettingsAction(
@@ -46,7 +45,6 @@ export async function saveAiSettingsAction(
       String(formData.get("productModel") ?? "").trim() || DEFAULT_PRODUCT_MODEL,
     enabled: formData.get("enabled") === "on",
     openaiApiKey: String(formData.get("openaiApiKey") ?? "").trim(),
-    clearApiKey: formData.get("clearApiKey") === "on",
   });
 
   if (!parsed.success) {
@@ -63,9 +61,7 @@ export async function saveAiSettingsAction(
     .limit(1);
 
   let openaiApiKeyEncrypted = existing[0]?.openaiApiKeyEncrypted ?? null;
-  if (parsed.data.clearApiKey) {
-    openaiApiKeyEncrypted = null;
-  } else if (parsed.data.openaiApiKey) {
+  if (parsed.data.openaiApiKey) {
     try {
       openaiApiKeyEncrypted = encryptSecret(parsed.data.openaiApiKey);
     } catch (error) {

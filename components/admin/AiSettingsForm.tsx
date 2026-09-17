@@ -58,13 +58,6 @@ export function AiSettingsForm({
         >
           <ApiKeyField hasStoredKey={hasStoredKey} />
         </AdminField>
-        {hasStoredKey ? (
-          <AdminToggle
-            name="clearApiKey"
-            label="Remove saved key"
-            description="Remove the saved key. Chat and AI drafts will stop until you add a new one."
-          />
-        ) : null}
         <AdminToggle
           name="enabled"
           label="Show chat widget"
