@@ -49,14 +49,12 @@ function SaveBar({ pending }: { pending: boolean }) {
 }
 
 export function OpenAiSettingsForm({
-  enabled,
   hasStoredKey,
   chatModel,
   contentModel,
   productModel,
   models,
 }: {
-  enabled: boolean;
   hasStoredKey: boolean;
   chatModel: string;
   contentModel: string;
@@ -86,12 +84,6 @@ export function OpenAiSettingsForm({
         >
           <ApiKeyField hasStoredKey={hasStoredKey} />
         </AdminField>
-        <AdminToggle
-          name="enabled"
-          label="Show chat widget"
-          description="When off, visitors will not see the assistant on the public site."
-          defaultChecked={enabled}
-        />
       </AdminSection>
 
       <AdminSection
@@ -131,9 +123,11 @@ export function OpenAiSettingsForm({
 }
 
 export function KnowledgeSettingsForm({
+  enabled,
   systemPrompt,
   knowledgeBase,
 }: {
+  enabled: boolean;
   systemPrompt: string;
   knowledgeBase: string;
 }) {
@@ -148,6 +142,12 @@ export function KnowledgeSettingsForm({
         title="Chat knowledge"
         description="The assistant uses this prompt and knowledge base, plus live services, hours, and contact details from the site."
       >
+        <AdminToggle
+          name="enabled"
+          label="Show chat widget"
+          description="When off, visitors will not see the assistant on the public site."
+          defaultChecked={enabled}
+        />
         <AdminField label="System prompt" htmlFor="systemPrompt">
           <Textarea
             id="systemPrompt"

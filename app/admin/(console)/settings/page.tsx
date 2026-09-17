@@ -16,7 +16,7 @@ export const instant = false;
 
 const INTRO: Record<string, string> = {
   openai:
-    "Manage the OpenAI API key, chat widget, and the models used for the assistant and AI drafts.",
+    "Manage the OpenAI API key and the models used for the assistant and AI drafts.",
   knowledge:
     "The public chatbot answers from this prompt and knowledge base, plus live services, hours, and contact details.",
   emails:
@@ -47,7 +47,6 @@ export default async function AdminSettingsPage({
       <p className="max-w-2xl text-sm text-muted">{INTRO[current]}</p>
       {current === "openai" ? (
         <OpenAiSettingsForm
-          enabled={settings.enabled}
           hasStoredKey={settings.hasStoredKey}
           chatModel={settings.chatModel}
           contentModel={settings.contentModel}
@@ -57,6 +56,7 @@ export default async function AdminSettingsPage({
       ) : null}
       {current === "knowledge" ? (
         <KnowledgeSettingsForm
+          enabled={settings.enabled}
           systemPrompt={settings.systemPrompt}
           knowledgeBase={settings.knowledgeBase}
         />

@@ -22,13 +22,13 @@ const openAiSchema = z.object({
   chatModel: z.string().min(1),
   contentModel: z.string().min(1),
   productModel: z.string().min(1),
-  enabled: z.boolean(),
   openaiApiKey: z.string(),
 });
 
 const knowledgeSchema = z.object({
   systemPrompt: z.string().min(1),
   knowledgeBase: z.string().min(1),
+  enabled: z.boolean(),
 });
 
 const recipientSchema = z.object({
@@ -87,7 +87,6 @@ export async function saveOpenAiSettingsAction(
       String(formData.get("contentModel") ?? "").trim() || DEFAULT_CONTENT_MODEL,
     productModel:
       String(formData.get("productModel") ?? "").trim() || DEFAULT_PRODUCT_MODEL,
-    enabled: formData.get("enabled") === "on",
     openaiApiKey: String(formData.get("openaiApiKey") ?? "").trim(),
   });
 
@@ -117,7 +116,6 @@ export async function saveOpenAiSettingsAction(
       chatModel: parsed.data.chatModel,
       contentModel: parsed.data.contentModel,
       productModel: parsed.data.productModel,
-      enabled: parsed.data.enabled,
       updatedAt: new Date(),
     })
     .where(eq(siteSettings.id, SITE_SETTINGS_ID));
@@ -137,6 +135,7 @@ export async function saveKnowledgeSettingsAction(
       String(formData.get("systemPrompt") ?? "").trim() || DEFAULT_SYSTEM_PROMPT,
     knowledgeBase:
       String(formData.get("knowledgeBase") ?? "").trim() || DEFAULT_KNOWLEDGE_BASE,
+    enabled: formData.get("enabled") === "on",
   });
 
   if (!parsed.success) {
@@ -149,6 +148,7 @@ export async function saveKnowledgeSettingsAction(
     .set({
       systemPrompt: parsed.data.systemPrompt,
       knowledgeBase: parsed.data.knowledgeBase,
+      enabled: parsed.data.enabled,
       updatedAt: new Date(),
     })
     .where(eq(siteSettings.id, SITE_SETTINGS_ID));
