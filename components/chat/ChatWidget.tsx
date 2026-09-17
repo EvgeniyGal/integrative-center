@@ -365,15 +365,25 @@ export function ChatWidget({
       ) : null}
 
       {!open ? (
-        <Button
-          type="button"
-          size="icon"
-          aria-label="Open practice assistant"
-          onClick={openChat}
-          className="fixed z-40 right-[max(1.5rem,env(safe-area-inset-right))] bottom-[max(1.5rem,env(safe-area-inset-bottom))] lg:right-10 lg:bottom-10"
-        >
-          <MessageCircle className="size-5" />
-        </Button>
+        <div className="group/chat-fab fixed z-40 size-11 right-[max(1.5rem,env(safe-area-inset-right))] bottom-[max(1.5rem,env(safe-area-inset-bottom))] lg:right-10 lg:bottom-10">
+          <span
+            aria-hidden="true"
+            className="animate-chat-ring pointer-events-none absolute inset-0 rounded-full bg-brand/35"
+          />
+          <span
+            aria-hidden="true"
+            className="animate-chat-ring animate-chat-ring-delay pointer-events-none absolute inset-0 rounded-full bg-brand/25"
+          />
+          <Button
+            type="button"
+            size="icon"
+            aria-label="Open practice assistant"
+            onClick={openChat}
+            className="relative"
+          >
+            <MessageCircle className="animate-chat-icon size-5" />
+          </Button>
+        </div>
       ) : null}
     </>
   );
