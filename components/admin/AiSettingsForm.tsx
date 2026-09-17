@@ -196,7 +196,7 @@ function ApiKeyField({ hasStoredKey }: { hasStoredKey: boolean }) {
       const result = await revealOpenAiApiKeyAction();
       setBusy(false);
       if ("error" in result) {
-        setError(result.error);
+        setError(result.error ?? "No API key is saved.");
         return;
       }
       setRevealed(result.key);

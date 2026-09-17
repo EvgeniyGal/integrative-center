@@ -1,4 +1,5 @@
 import { and, count, countDistinct, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { connection } from "next/server";
 
 import { db } from "@/lib/db";
 import { analyticsEvents } from "@/lib/db/schema";
@@ -10,7 +11,9 @@ export function parseAnalyticsRange(raw: string | undefined | null): AnalyticsRa
   return 30;
 }
 
-function sinceDate(days: AnalyticsRangeDays): Date {
+async function sinceDate(days: AnalyticsRangeDays): Promise<Date> {
+  // Request-time: analytics ranges must not be baked into the static prerender.
+  await connection();
   const d = new Date();
   d.setUTCHours(0, 0, 0, 0);
   d.setUTCDate(d.getUTCDate() - (days - 1));
@@ -51,7 +54,7 @@ const CONVERSION_LABELS: Record<(typeof CONVERSION_NAMES)[number], string> = {
 export async function getAnalyticsSummary(
   rangeDays: AnalyticsRangeDays = 30,
 ): Promise<AnalyticsSummary> {
-  const since = sinceDate(rangeDays);
+  const since = await sinceDate(rangeDays);
   const rangeFilter = gte(analyticsEvents.occurredAt, since);
 
   const [
@@ -203,7 +206,7 @@ export async function getAnalyticsSummary(
 export async function getAnalyticsPageViewCount(
   rangeDays: AnalyticsRangeDays = 30,
 ): Promise<number> {
-  const since = sinceDate(rangeDays);
+  const since = await sinceDate(rangeDays);
   const [row] = await db
     .select({ value: count() })
     .from(analyticsEvents)
