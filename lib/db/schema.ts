@@ -199,6 +199,21 @@ export const storeBrands = pgTable("store_brands", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const SITE_SETTINGS_ID = "default";
+
+export const siteSettings = pgTable("site_settings", {
+  id: text("id").primaryKey().$defaultFn(() => SITE_SETTINGS_ID),
+  openaiApiKeyEncrypted: text("openaiApiKeyEncrypted"),
+  systemPrompt: text("systemPrompt").notNull(),
+  knowledgeBase: text("knowledgeBase").notNull(),
+  chatModel: text("chatModel").notNull().default("gpt-4o-mini"),
+  contentModel: text("contentModel").notNull().default("gpt-4o-mini"),
+  productModel: text("productModel").notNull().default("gpt-4o-mini"),
+  enabled: boolean("enabled").notNull().default(true),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const recommendedProducts = pgTable("recommended_products", {
   id: text("id")
     .primaryKey()
@@ -246,3 +261,4 @@ export type ProductCategory = typeof productCategories.$inferSelect;
 export type StoreBrand = typeof storeBrands.$inferSelect;
 export type RecommendedProduct = typeof recommendedProducts.$inferSelect;
 export type AdminInvite = typeof adminInvites.$inferSelect;
+export type SiteSettings = typeof siteSettings.$inferSelect;

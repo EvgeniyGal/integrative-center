@@ -1,13 +1,16 @@
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { FloatingActions } from "@/components/layout/FloatingActions";
 import { JsonLd } from "@/components/JsonLd";
+import { isChatWidgetEnabled } from "@/lib/ai/settings";
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const chatEnabled = await isChatWidgetEnabled();
+
   return (
     <>
       <JsonLd />
@@ -16,7 +19,7 @@ export default function SiteLayout({
         {children}
       </main>
       <Footer />
-      <ScrollToTop />
+      <FloatingActions chatEnabled={chatEnabled} />
     </>
   );
 }

@@ -6,15 +6,23 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function ScrollToTop() {
-  const [visible, setVisible] = useState(false);
+export function ScrollToTop({
+  raised = false,
+  hidden = false,
+}: {
+  raised?: boolean;
+  hidden?: boolean;
+}) {
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400);
+    const onScroll = () => setScrolled(window.scrollY > 400);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const visible = scrolled && !hidden;
 
   return (
     <Button
@@ -28,7 +36,10 @@ export function ScrollToTop() {
         window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
       }}
       className={cn(
-        "fixed right-6 bottom-6 z-40 lg:right-10 lg:bottom-10",
+        "fixed z-40 right-[max(1.5rem,env(safe-area-inset-right))] lg:right-10",
+        raised
+          ? "bottom-[max(5rem,calc(env(safe-area-inset-bottom)+3.5rem))] lg:bottom-24"
+          : "bottom-[max(1.5rem,env(safe-area-inset-bottom))] lg:bottom-10",
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-2 opacity-0",

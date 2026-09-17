@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { generateProductDraftAction } from "@/app/admin/actions/ai";
 import type { ActionState } from "@/app/admin/actions/auth";
 import {
   createRecommendedProductAction,
@@ -41,6 +42,7 @@ export function RecommendedProductEditor({
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
   const [title, setTitle] = useState(product?.title ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
+  const [notes, setNotes] = useState("");
   const [referralLink, setReferralLink] = useState(
     product?.referralLink ?? "",
   );
@@ -51,6 +53,17 @@ export function RecommendedProductEditor({
     ? updateRecommendedProductAction
     : createRecommendedProductAction;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
+  const [aiState, aiAction, aiPending] = useActionState(
+    generateProductDraftAction,
+    {} as ActionState & { draft?: { title: string; description: string } },
+  );
+
+  useEffect(() => {
+    if (aiState.draft) {
+      setTitle(aiState.draft.title);
+      setDescription(aiState.draft.description);
+    }
+  }, [aiState.draft]);
 
   useEffect(() => {
     if (!product && state.success) {
@@ -67,7 +80,45 @@ export function RecommendedProductEditor({
   );
 
   return (
-    <form action={formAction} className="mx-auto max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
+      {!product ? (
+        <form
+          action={aiAction}
+          className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
+        >
+          <div className="space-y-1">
+            <h3 className="font-display text-xl text-ink">AI draft assist</h3>
+            <p className="text-sm text-muted">
+              Provide notes. The draft fills the title and description —
+              review before saving.
+            </p>
+          </div>
+          <input type="hidden" name="title" value={title} />
+          <input type="hidden" name="category" value={category} />
+          <AdminField label="Notes" htmlFor={`notes-${id}`}>
+            <Textarea
+              id={`notes-${id}`}
+              name="notes"
+              variant="box"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              placeholder="What this product is, who it is for…"
+            />
+          </AdminField>
+          {aiState.error ? (
+            <p className="text-sm text-red-700">{aiState.error}</p>
+          ) : null}
+          {aiState.success ? (
+            <p className="text-sm text-brand-dark">{aiState.success}</p>
+          ) : null}
+          <Button type="submit" variant="outline" size="sm" disabled={aiPending}>
+            {aiPending ? "Generating…" : "Generate draft"}
+          </Button>
+        </form>
+      ) : null}
+
+      <form action={formAction} className="space-y-5">
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
 
       <AdminSection
@@ -264,5 +315,6 @@ export function RecommendedProductEditor({
         </Button>
       </div>
     </form>
+    </div>
   );
 }

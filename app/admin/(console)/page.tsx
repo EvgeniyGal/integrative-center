@@ -130,8 +130,9 @@ export default async function AdminDashboardPage() {
           <ul className="mt-3 space-y-2 text-sm text-muted">
             <li>Hide services without deleting them using the Visible toggle.</li>
             <li>
-              Use AI draft assist on services and articles, then review before
-              publishing.
+              Use AI draft assist on services, articles, and products, then
+              review before publishing. Configure models and the chat widget
+              under Settings.
             </li>
             <li>Only published / visible items appear on the public site.</li>
           </ul>

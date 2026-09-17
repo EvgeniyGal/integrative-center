@@ -9,6 +9,7 @@ import {
   MessageSquareQuote,
   Package,
   Pill,
+  Settings,
   Sparkles,
   Store,
   Tags,
@@ -36,6 +37,7 @@ const contentLinks = [
 ];
 
 const systemLinks = [
+  { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/users", label: "Admins", icon: Users },
 ];
 
@@ -175,6 +177,7 @@ function pageTitle(pathname: string) {
     return "Edit admin";
   }
   if (pathname.startsWith("/admin/users")) return "Admins";
+  if (pathname.startsWith("/admin/settings")) return "AI settings";
   return "Admin";
 }
 

@@ -20,9 +20,14 @@ async function main() {
     storeBrands,
     supplementBrands,
     testimonials,
+    siteSettings,
     users,
   } = await import("../lib/db/schema");
   const { homeNews, homeQuestions, reviews } = await import("../lib/site");
+  const {
+    DEFAULT_KNOWLEDGE_BASE,
+    DEFAULT_SYSTEM_PROMPT,
+  } = await import("../lib/ai/defaults");
   const { homeServices, wellnessServices } = await import("../lib/services");
 
   async function seedAdmin() {
@@ -372,7 +377,23 @@ async function main() {
     console.log(`Seeded ${products.length} recommended products`);
   }
 
+  async function seedSiteSettings() {
+    const existing = await db.select().from(siteSettings).limit(1);
+    if (existing.length > 0) {
+      console.log("Site settings already seeded");
+      return;
+    }
+
+    await db.insert(siteSettings).values({
+      id: "default",
+      systemPrompt: DEFAULT_SYSTEM_PROMPT,
+      knowledgeBase: DEFAULT_KNOWLEDGE_BASE,
+    });
+    console.log("Seeded site settings");
+  }
+
   await seedAdmin();
+  await seedSiteSettings();
   await seedQuestions();
   await seedServices();
   await seedTestimonials();
