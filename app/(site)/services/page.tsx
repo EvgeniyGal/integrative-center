@@ -6,14 +6,15 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { getVisibleServices } from "@/lib/content/queries";
+import { serviceBodyPlainText } from "@/lib/content/service-body";
 import { pageMetadata, pages } from "@/lib/seo";
 import { servicesIntro } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.services);
 
 /** First 2–3 body sentences, ending with … to show more follows. */
-function serviceCardExcerpt(body: string[] | null | undefined, fallback: string) {
-  const source = (body ?? []).map((p) => p.trim()).filter(Boolean).join(" ");
+function serviceCardExcerpt(body: unknown, fallback: string) {
+  const source = serviceBodyPlainText(body);
   const text = (source || fallback).trim();
   if (!text) return "";
 

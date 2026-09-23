@@ -1,6 +1,15 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { ImageIcon, Link2, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { generateServiceDraftAction } from "@/app/admin/actions/ai";
@@ -10,6 +19,7 @@ import {
   type ServiceActionState,
 } from "@/app/admin/actions/services";
 import type { ActionState } from "@/app/admin/actions/auth";
+import { uploadAdminImageAction } from "@/app/admin/actions/media";
 import {
   AdminField,
   AdminSection,
@@ -23,18 +33,133 @@ import { ImageField } from "@/components/admin/ImageField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { ArticleBlock } from "@/lib/content/blocks";
+import { safeParseMarkdown } from "@/lib/content/markdown";
+import {
+  normalizeServiceBody,
+  serviceBodyToMarkdown,
+} from "@/lib/content/service-body";
 import type { Service } from "@/lib/db/schema";
+
+function insertAtCursor(
+  value: string,
+  start: number,
+  end: number,
+  insertion: string,
+) {
+  return {
+    next: `${value.slice(0, start)}${insertion}${value.slice(end)}`,
+    caret: start + insertion.length,
+  };
+}
+
+function InsertDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  onConfirm,
+  confirmLabel,
+  confirmDisabled,
+  onCancel,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  confirmLabel: string;
+  confirmDisabled?: boolean;
+  onCancel?: () => void;
+}) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 border border-ink/10 bg-ivory p-6 shadow-2xl focus:outline-none">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Dialog.Title className="font-display text-2xl text-ink">
+                {title}
+              </Dialog.Title>
+              <Dialog.Description className="mt-1 text-sm text-muted">
+                {description}
+              </Dialog.Description>
+            </div>
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                className="rounded-full p-1 text-muted transition hover:bg-ink/5 hover:text-ink"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </Dialog.Close>
+          </div>
+          <div className="mt-4 space-y-4">{children}</div>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onCancel?.();
+                onOpenChange(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={confirmDisabled}
+              onClick={onConfirm}
+            >
+              {confirmLabel}
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
 
 export function ServiceEditor({ service }: { service?: Service }) {
   const router = useRouter();
   const id = service?.id ?? "new";
+  const markdownRef = useRef<HTMLTextAreaElement>(null);
+  const bodyImageRef = useRef<HTMLInputElement>(null);
+
+  const initialBlocks = useMemo(
+    () => normalizeServiceBody(service?.body),
+    [service?.body],
+  );
+
   const [title, setTitle] = useState(service?.title ?? "");
   const [slug, setSlug] = useState(service?.slug ?? "");
   const [eyebrow, setEyebrow] = useState(service?.eyebrow ?? "");
   const [summary, setSummary] = useState(service?.summary ?? "");
-  const [body, setBody] = useState((service?.body ?? []).join("\n\n"));
+  const [bodyMarkdown, setBodyMarkdown] = useState(() =>
+    serviceBodyToMarkdown(service?.body),
+  );
   const [notes, setNotes] = useState("");
   const [imageUrl, setImageUrl] = useState(service?.imageUrl ?? "");
+  const [lastGoodBlocks, setLastGoodBlocks] =
+    useState<ArticleBlock[]>(initialBlocks);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const [imageUploading, startImageUpload] = useTransition();
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
+  const [imageAlt, setImageAlt] = useState("");
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linkLabel, setLinkLabel] = useState("Learn more");
+  const [linkHref, setLinkHref] = useState("https://");
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState(
+    "https://www.youtube.com/watch?v=",
+  );
+  const imageAltOpen = Boolean(pendingImage);
 
   const action = service ? updateServiceAction : createServiceAction;
   const [state, formAction, pending] = useActionState(
@@ -49,10 +174,26 @@ export function ServiceEditor({ service }: { service?: Service }) {
         slug: string;
         eyebrow: string;
         summary: string;
-        body: string[];
+        bodyMarkdown: string;
       };
     },
   );
+
+  const parseResult = useMemo(
+    () => safeParseMarkdown(bodyMarkdown),
+    [bodyMarkdown],
+  );
+
+  useEffect(() => {
+    if (parseResult.ok) {
+      setLastGoodBlocks(parseResult.blocks);
+    }
+  }, [parseResult]);
+
+  const blocksForSave = JSON.stringify(
+    parseResult.ok ? parseResult.blocks : lastGoodBlocks,
+  );
+  const previewBlocks = parseResult.ok ? parseResult.blocks : lastGoodBlocks;
 
   useEffect(() => {
     if (aiState.draft) {
@@ -60,7 +201,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
       setSlug(aiState.draft.slug);
       setEyebrow(aiState.draft.eyebrow);
       setSummary(aiState.draft.summary);
-      setBody(aiState.draft.body.join("\n\n"));
+      setBodyMarkdown(aiState.draft.bodyMarkdown);
     }
   }, [aiState.draft]);
 
@@ -77,50 +218,128 @@ export function ServiceEditor({ service }: { service?: Service }) {
     }
   }, [service, state.success, router]);
 
-  const imageReady =
-    Boolean(imageUrl) && !imageUrl.startsWith("blob:");
+  const imageReady = Boolean(imageUrl) && !imageUrl.startsWith("blob:");
+
+  function applyInsertion(insertion: string) {
+    const el = markdownRef.current;
+    const start = el?.selectionStart ?? bodyMarkdown.length;
+    const end = el?.selectionEnd ?? bodyMarkdown.length;
+    const { next, caret } = insertAtCursor(bodyMarkdown, start, end, insertion);
+    setBodyMarkdown(next);
+    requestAnimationFrame(() => {
+      if (!markdownRef.current) return;
+      markdownRef.current.focus();
+      markdownRef.current.setSelectionRange(caret, caret);
+    });
+  }
+
+  function openLinkModal() {
+    const selected = markdownRef.current
+      ? bodyMarkdown.slice(
+          markdownRef.current.selectionStart,
+          markdownRef.current.selectionEnd,
+        )
+      : "";
+    setLinkLabel(selected.trim() || "Learn more");
+    setLinkHref("https://");
+    setLinkOpen(true);
+  }
+
+  function confirmLink() {
+    const label = linkLabel.trim() || "Learn more";
+    const href = linkHref.trim();
+    if (!href) return;
+    applyInsertion(`[${label}](${href})`);
+    setLinkOpen(false);
+  }
+
+  function openYoutubeModal() {
+    setYoutubeUrl("https://www.youtube.com/watch?v=");
+    setYoutubeOpen(true);
+  }
+
+  function confirmYoutube() {
+    const url = youtubeUrl.trim();
+    if (!url) return;
+    applyInsertion(`\n\n${url}\n\n`);
+    setYoutubeOpen(false);
+  }
+
+  function insertImage() {
+    setImageUploadError(null);
+    bodyImageRef.current?.click();
+  }
+
+  function onBodyImageSelected(file: File | null) {
+    if (!file) return;
+    setPendingImage(file);
+    setImageAlt("");
+    if (bodyImageRef.current) bodyImageRef.current.value = "";
+  }
+
+  function confirmBodyImage() {
+    if (!pendingImage) return;
+    const file = pendingImage;
+    const alt = imageAlt.trim() || "Service image";
+    setPendingImage(null);
+    startImageUpload(async () => {
+      setImageUploadError(null);
+      const fd = new FormData();
+      fd.set("image", file);
+      fd.set("folder", "services");
+      const result = await uploadAdminImageAction(fd);
+      if (result.error || !result.url) {
+        setImageUploadError(result.error ?? "Image upload failed.");
+        return;
+      }
+      applyInsertion(`\n\n![${alt}](${result.url})\n\n`);
+    });
+  }
 
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
       <div className="space-y-5">
-        {!service ? (
-          <form
-            action={aiAction}
-            className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
-          >
-            <div className="space-y-1">
-              <h3 className="font-display text-xl text-ink">AI draft assist</h3>
-              <p className="text-sm text-muted">
-                Provide notes. The draft fills the form below — review before
-                saving.
-              </p>
-            </div>
-            <input type="hidden" name="title" value={title} />
-            <AdminField label="Notes" htmlFor={`notes-${id}`}>
-              <Textarea
-                id={`notes-${id}`}
-                name="notes"
-                variant="box"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-                placeholder="What this service includes, who it is for…"
-              />
-            </AdminField>
-            {aiState.error ? (
-              <p className="text-sm text-red-700">{aiState.error}</p>
-            ) : null}
-            {aiState.success ? (
-              <p className="text-sm text-brand-dark">{aiState.success}</p>
-            ) : null}
-            <Button type="submit" variant="outline" size="sm" disabled={aiPending}>
-              {aiPending ? "Generating…" : "Generate draft"}
-            </Button>
-          </form>
-        ) : null}
+        <form
+          action={aiAction}
+          className="space-y-4 border border-dashed border-brand/35 bg-brand-light/25 p-5"
+        >
+          <div className="space-y-1">
+            <h3 className="font-display text-xl text-ink">AI draft assist</h3>
+            <p className="text-sm text-muted">
+              Paste your notes. AI formats them as Markdown (headings, lists,
+              quotes, images, video) without rewriting your wording — review
+              before saving.
+            </p>
+          </div>
+          <input type="hidden" name="title" value={title} />
+          <input type="hidden" name="imageUrls" value={imageUrl} />
+          <input type="hidden" name="fallbackBody" value={bodyMarkdown} />
+          <AdminField label="Notes" htmlFor={`notes-${id}`}>
+            <Textarea
+              id={`notes-${id}`}
+              name="notes"
+              variant="box"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+              placeholder="Paste the service copy to format. Leave blank to format the Markdown body below."
+            />
+          </AdminField>
+          {aiState.error ? (
+            <p className="text-sm text-red-700">{aiState.error}</p>
+          ) : null}
+          {aiState.success ? (
+            <p className="text-sm text-brand-dark">{aiState.success}</p>
+          ) : null}
+          <Button type="submit" variant="outline" size="sm" disabled={aiPending}>
+            {aiPending ? "Generating…" : "Generate draft"}
+          </Button>
+        </form>
 
         <form action={formAction} className="space-y-5">
           {service ? <input type="hidden" name="id" value={service.id} /> : null}
+          <input type="hidden" name="bodyMarkdown" value={bodyMarkdown} />
+          <input type="hidden" name="blocks" value={blocksForSave} />
 
           <AdminSection
             title="Basics"
@@ -167,7 +386,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
 
           <AdminSection
             title="Content"
-            description="Summary appears on cards; body paragraphs appear on the service detail."
+            description="Summary appears on cards. Body is Markdown — same dialect as news."
           >
             <AdminField label="Summary" htmlFor={`summary-${id}`}>
               <Textarea
@@ -180,21 +399,136 @@ export function ServiceEditor({ service }: { service?: Service }) {
                 rows={3}
               />
             </AdminField>
-            <AdminField
-              label="Body"
-              htmlFor={`body-${id}`}
-              hint="Separate paragraphs with a blank line"
+
+            <div className="flex flex-wrap gap-2 rounded-sm border border-brand/25 bg-brand-light/30 p-2">
+              <Button type="button" size="sm" onClick={openLinkModal}>
+                <Link2 className="size-3.5" />
+                Link
+              </Button>
+              <Button type="button" size="sm" onClick={openYoutubeModal}>
+                <Video className="size-3.5" />
+                YouTube
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={insertImage}
+                disabled={imageUploading}
+              >
+                <ImageIcon className="size-3.5" />
+                {imageUploading ? "Uploading…" : "Image"}
+              </Button>
+              <input
+                ref={bodyImageRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) =>
+                  onBodyImageSelected(event.target.files?.[0] ?? null)
+                }
+              />
+            </div>
+            {imageUploadError ? (
+              <p className="text-sm text-red-700">{imageUploadError}</p>
+            ) : null}
+
+            <InsertDialog
+              open={linkOpen}
+              onOpenChange={setLinkOpen}
+              title="Insert link"
+              description="Add a label and destination URL."
+              onConfirm={confirmLink}
+              confirmLabel="Insert link"
+              confirmDisabled={!linkLabel.trim() || !linkHref.trim()}
             >
+              <AdminField label="Label" htmlFor={`link-label-${id}`}>
+                <Input
+                  id={`link-label-${id}`}
+                  variant="box"
+                  value={linkLabel}
+                  onChange={(e) => setLinkLabel(e.target.value)}
+                  placeholder="Learn more"
+                  autoFocus
+                />
+              </AdminField>
+              <AdminField label="URL" htmlFor={`link-href-${id}`}>
+                <Input
+                  id={`link-href-${id}`}
+                  variant="box"
+                  value={linkHref}
+                  onChange={(e) => setLinkHref(e.target.value)}
+                  placeholder="https://"
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
+              open={youtubeOpen}
+              onOpenChange={setYoutubeOpen}
+              title="Insert YouTube video"
+              description="Paste a YouTube watch or share URL."
+              onConfirm={confirmYoutube}
+              confirmLabel="Insert video"
+              confirmDisabled={!youtubeUrl.trim()}
+            >
+              <AdminField label="YouTube URL" htmlFor={`youtube-url-${id}`}>
+                <Input
+                  id={`youtube-url-${id}`}
+                  variant="box"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v="
+                  autoFocus
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
+              open={imageAltOpen}
+              onOpenChange={(open) => {
+                if (!open) setPendingImage(null);
+              }}
+              title="Image alt text"
+              description="Describe the image for accessibility."
+              onConfirm={confirmBodyImage}
+              confirmLabel="Insert image"
+              confirmDisabled={!imageAlt.trim()}
+              onCancel={() => setPendingImage(null)}
+            >
+              {pendingImage ? (
+                <p className="truncate text-xs text-muted">
+                  {pendingImage.name}
+                </p>
+              ) : null}
+              <AdminField label="Alt text" htmlFor={`image-alt-${id}`}>
+                <Input
+                  id={`image-alt-${id}`}
+                  variant="box"
+                  value={imageAlt}
+                  onChange={(e) => setImageAlt(e.target.value)}
+                  placeholder="Short description of the image"
+                  autoFocus
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <AdminField label="Markdown body" htmlFor={`markdown-${id}`}>
               <Textarea
-                id={`body-${id}`}
-                name="body"
+                ref={markdownRef}
+                id={`markdown-${id}`}
                 variant="box"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                rows={10}
-                className="min-h-48"
+                value={bodyMarkdown}
+                onChange={(e) => setBodyMarkdown(e.target.value)}
+                rows={16}
+                className="min-h-64 font-mono text-sm"
+                placeholder={`## What to expect\n\nPaste your service copy here.\n\n- Benefit one\n- Benefit two\n\nhttps://www.youtube.com/watch?v=VIDEO_ID`}
               />
             </AdminField>
+            {!parseResult.ok ? (
+              <p className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                Markdown error: {parseResult.error}
+              </p>
+            ) : null}
           </AdminSection>
 
           <AdminSection
@@ -211,7 +545,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
             />
           </AdminSection>
 
-          <AdminSection title="Visibility" description="Control where this service appears.">
+          <AdminSection
+            title="Visibility"
+            description="Control where this service appears."
+          >
             <div className="grid gap-4 sm:grid-cols-[minmax(0,10rem)_1fr_1fr]">
               <AdminField label="Sort order" htmlFor={`sort-${id}`}>
                 <Input
@@ -258,7 +595,11 @@ export function ServiceEditor({ service }: { service?: Service }) {
             </p>
             <Button
               type="submit"
-              disabled={pending || (!service && !imageReady)}
+              disabled={
+                pending ||
+                (!service && !imageReady) ||
+                !parseResult.ok
+              }
             >
               {pending
                 ? "Saving…"
@@ -281,10 +622,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
           title={title}
           eyebrow={eyebrow}
           summary={summary}
-          body={body
-            .split(/\n\s*\n/)
-            .map((p) => p.trim())
-            .filter(Boolean)}
+          body={previewBlocks}
           imageUrl={imageUrl}
         />
       </div>

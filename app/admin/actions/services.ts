@@ -6,6 +6,8 @@ import { z } from "zod";
 
 import type { ActionState } from "@/app/admin/actions/auth";
 import { requireAdmin } from "@/lib/auth/session";
+import type { ArticleBlock } from "@/lib/content/blocks";
+import { safeParseMarkdown } from "@/lib/content/markdown";
 import { db } from "@/lib/db";
 import { services } from "@/lib/db/schema";
 import {
@@ -41,7 +43,7 @@ const serviceSchema = z.object({
   title: z.string().min(1),
   eyebrow: z.string().min(1),
   summary: z.string().min(1),
-  body: z.array(z.string()),
+  body: z.array(z.custom<ArticleBlock>()),
   imageUrl: z.string().min(1),
   showOnHome: z.boolean(),
   visible: z.boolean(),
@@ -52,6 +54,31 @@ export type ServiceActionState = ActionState & {
   /** Persisted Blob URL returned after upload so retries keep the image. */
   imageUrl?: string;
 };
+
+function resolveBlocksFromForm(
+  formData: FormData,
+): { ok: true; blocks: ArticleBlock[] } | { ok: false; error: string } {
+  const bodyMarkdown = String(formData.get("bodyMarkdown") ?? "");
+  if (bodyMarkdown.trim()) {
+    const parsed = safeParseMarkdown(bodyMarkdown);
+    if (!parsed.ok) {
+      return { ok: false, error: parsed.error };
+    }
+    return { ok: true, blocks: parsed.blocks };
+  }
+
+  const rawBlocks = String(formData.get("blocks") ?? "");
+  if (rawBlocks.trim()) {
+    try {
+      const blocks = JSON.parse(rawBlocks) as ArticleBlock[];
+      if (Array.isArray(blocks)) return { ok: true, blocks };
+    } catch {
+      return { ok: false, error: "Body blocks are invalid." };
+    }
+  }
+
+  return { ok: true, blocks: [] };
+}
 
 async function resolveServiceImage(
   file: File | null,
@@ -67,19 +94,19 @@ async function resolveServiceImage(
   return formUrl || existingUrl;
 }
 
-function parseServiceForm(formData: FormData, existingImage = "") {
+function parseServiceForm(
+  formData: FormData,
+  blocks: ArticleBlock[],
+  existingImage = "",
+) {
   const title = String(formData.get("title") ?? "");
   const slugInput = String(formData.get("slug") ?? "");
-  const bodyRaw = String(formData.get("body") ?? "");
   return serviceSchema.safeParse({
     slug: slugify(slugInput || title),
     title,
     eyebrow: String(formData.get("eyebrow") ?? ""),
     summary: String(formData.get("summary") ?? ""),
-    body: bodyRaw
-      .split(/\n\s*\n/)
-      .map((p) => p.trim())
-      .filter(Boolean),
+    body: blocks,
     imageUrl: String(formData.get("imageUrl") ?? existingImage),
     showOnHome: formData.get("showOnHome") === "on",
     visible: formData.get("visible") === "on",
@@ -125,7 +152,12 @@ export async function createServiceAction(
     }
     formData.set("imageUrl", uploadedImageUrl);
 
-    const parsed = parseServiceForm(formData);
+    const blocksResult = resolveBlocksFromForm(formData);
+    if (!blocksResult.ok) {
+      return { error: blocksResult.error, ...persistImage };
+    }
+
+    const parsed = parseServiceForm(formData, blocksResult.blocks);
     if (!parsed.success) {
       return {
         error: "Check the service fields and image.",
@@ -197,7 +229,16 @@ export async function updateServiceAction(
     }
     formData.set("imageUrl", uploadedImageUrl);
 
-    const parsed = parseServiceForm(formData, existing.imageUrl);
+    const blocksResult = resolveBlocksFromForm(formData);
+    if (!blocksResult.ok) {
+      return { error: blocksResult.error, ...persistImage };
+    }
+
+    const parsed = parseServiceForm(
+      formData,
+      blocksResult.blocks,
+      existing.imageUrl,
+    );
     if (!parsed.success) {
       return {
         error: "Check the service fields.",

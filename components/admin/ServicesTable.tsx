@@ -35,6 +35,7 @@ import {
   usePreviewId,
 } from "@/components/admin/TableActions";
 import type { Service } from "@/lib/db/schema";
+import { normalizeServiceBody } from "@/lib/content/service-body";
 
 export function ServicesTable({ items }: { items: Service[] }) {
   const { toggle, isOpen } = usePreviewId();
@@ -73,7 +74,7 @@ export function ServicesTable({ items }: { items: Service[] }) {
           ) : (
             rows.map((item) => {
               const open = isOpen(item.id);
-              const body = item.body ?? [];
+              const body = normalizeServiceBody(item.body);
               return (
                 <Fragment key={item.id}>
                   <SortableAdminTableRow id={item.id} selected={open}>

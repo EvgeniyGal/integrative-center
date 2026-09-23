@@ -316,12 +316,14 @@ export function ArticleEditor({ article }: { article?: Article }) {
             <div className="space-y-1">
               <h3 className="font-display text-xl text-ink">AI draft assist</h3>
               <p className="text-sm text-muted">
-                Provide notes. AI drafts the article fields and Markdown body —
-                review before saving.
+                Provide notes. AI formats them as Markdown (sections, lists,
+                quotes, images, video) without rewriting your wording — review
+                before saving.
               </p>
             </div>
             <input type="hidden" name="title" value={title} />
             <input type="hidden" name="imageUrls" value={coverImageUrl} />
+            <input type="hidden" name="fallbackBody" value={bodyMarkdown} />
             <AdminField label="Notes" htmlFor={`notes-${id}`}>
               <Textarea
                 id={`notes-${id}`}
@@ -330,7 +332,7 @@ export function ArticleEditor({ article }: { article?: Article }) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                placeholder="Article outline, key points, what patients should know…"
+                placeholder="Paste the article copy to format. Leave blank to format the Markdown body below."
               />
             </AdminField>
             {aiState.error ? (

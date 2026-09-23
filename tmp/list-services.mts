@@ -15,7 +15,7 @@ for (const r of rows) {
         visible: r.visible,
         showOnHome: r.showOnHome,
         summary: r.summary,
-        bodyCount: (r.body as string[] | null)?.length ?? 0,
+        bodyCount: Array.isArray(r.body) ? r.body.length : 0,
         imageUrl: r.imageUrl?.slice(0, 70),
       },
       null,

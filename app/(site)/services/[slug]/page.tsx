@@ -4,8 +4,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Reveal } from "@/components/motion/Reveal";
+import { ArticleBlocks } from "@/components/content/ArticleBlocks";
 import { Button } from "@/components/ui/button";
 import { getServiceBySlug, getVisibleServices } from "@/lib/content/queries";
+import { normalizeServiceBody } from "@/lib/content/service-body";
 import { site } from "@/lib/site";
 
 type PageProps = {
@@ -39,7 +41,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   const service = await getServiceBySlug(slug);
   if (!service) notFound();
 
-  const body = service.body ?? [];
+  const body = normalizeServiceBody(service.body);
 
   return (
     <>
@@ -73,10 +75,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             </p>
           </Reveal>
           {body.length > 0 ? (
-            <Reveal className="mt-10 space-y-5 text-base leading-relaxed text-muted sm:text-lg" delay={0.08}>
-              {body.map((paragraph) => (
-                <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-              ))}
+            <Reveal className="mt-10" delay={0.08}>
+              <ArticleBlocks blocks={body} />
             </Reveal>
           ) : null}
           <Reveal className="mt-12 flex flex-wrap gap-3" delay={0.12}>

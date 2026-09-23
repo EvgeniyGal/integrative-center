@@ -13,7 +13,7 @@ const serviceDraftSchema = z.object({
   slug: z.string(),
   eyebrow: z.string(),
   summary: z.string(),
-  body: z.array(z.string()),
+  bodyMarkdown: z.string(),
 });
 
 const articleDraftSchema = z.object({
@@ -32,7 +32,32 @@ const productDraftSchema = z.object({
   description: z.string(),
 });
 
-const system = `You help draft marketing copy for Health & Beauty Integrative Center, a clinical integrative practice in Sarasota, Florida.
+const formatSystem = `You format content for Health & Beauty Integrative Center, a clinical integrative practice in Sarasota, Florida.
+
+CRITICAL — preserve wording:
+- Do NOT paraphrase, rewrite, expand, shorten, or "improve" the admin's sentences.
+- Do NOT invent clinical claims, statistics, guarantees, outcomes, testimonials, or details that are not in the notes.
+- Keep every meaningful word from the notes in bodyMarkdown. You may only add Markdown structure (headings, lists, quotes, blank lines, light emphasis) around that wording.
+- If notes are already Markdown, normalize structure lightly without changing the prose.
+
+Metadata (title, slug, eyebrow/summary/excerpt, etc.) may be derived briefly from the notes when helpful. bodyMarkdown must stay faithful to the notes.
+
+Tone of any new metadata: calm, clinical, clear.`;
+
+const markdownDialect = `Markdown dialect for bodyMarkdown (NOT JSON blocks):
+- ## / ### for headings (only when the notes already suggest sections)
+- Blank-line-separated paragraphs (inline [label](url), **bold**, *italic* allowed — use sparingly and only on existing words)
+- Unordered lists with "- item"; ordered lists with "1. item" when the notes list items/steps
+- > quote lines; optional final "> — Attribution" when the notes include a quote
+- ![alt](url) for images; consecutive image lines become a gallery
+- A bare YouTube / youtu.be / shorts URL on its own line for video
+- Optional :::imageText{side=left image="url"} ... :::
+- Do not invent image URLs; only use URLs the admin provided (notes or allowed list)
+- Do not invent YouTube links unless the admin notes include one
+- When the notes include image or YouTube URLs, place them as Markdown media lines in a natural spot
+- No JSON block arrays in the response`;
+
+const productSystem = `You help draft marketing copy for Health & Beauty Integrative Center, a clinical integrative practice in Sarasota, Florida.
 Only expand on the notes the admin provides. Do not invent clinical claims, statistics, guarantees, or patient outcomes.
 If something is unknown, use a short placeholder in brackets like [add detail].
 Keep tone calm, clinical, and clear. Prefer short paragraphs.`;
@@ -56,7 +81,10 @@ export async function generateServiceDraftAction(
   if ("error" in configured) return configured;
 
   const title = String(formData.get("title") ?? "");
-  const notes = String(formData.get("notes") ?? "");
+  const notes =
+    String(formData.get("notes") ?? "").trim() ||
+    String(formData.get("fallbackBody") ?? "").trim();
+  const imageUrls = String(formData.get("imageUrls") ?? "");
   if (!title && !notes) {
     return { error: "Provide a title or notes for the draft." };
   }
@@ -65,13 +93,27 @@ export async function generateServiceDraftAction(
     const { object } = await generateObject({
       model: configured.model,
       schema: serviceDraftSchema,
-      system,
-      prompt: `Draft a service entry.
+      system: formatSystem,
+      prompt: `Format a service entry. Return metadata fields plus bodyMarkdown.
+
+${markdownDialect}
+- Allowed image URLs only: ${imageUrls || "(none)"}
+- You may place provided image URLs or YouTube URLs from the notes into Markdown image/video lines; never invent media URLs
+
 Title seed: ${title || "(none)"}
-Admin notes:
+Admin notes (preserve this wording in bodyMarkdown):
 ${notes || "(none)"}
-Return slug in kebab-case, a short eyebrow label, a 1-2 sentence summary, and 2-4 body paragraphs.`,
+
+Return slug in kebab-case, a short eyebrow label, a 1-2 sentence summary drawn from the notes (without inventing facts), and bodyMarkdown that structures the notes only.`,
     });
+
+    const mdCheck = safeParseMarkdown(object.bodyMarkdown);
+    if (!mdCheck.ok) {
+      return {
+        error: `AI returned invalid Markdown: ${mdCheck.error}`,
+      };
+    }
+
     return { success: "Draft generated. Review before saving.", draft: object };
   } catch (error) {
     return {
@@ -89,7 +131,9 @@ export async function generateArticleDraftAction(
   if ("error" in configured) return configured;
 
   const title = String(formData.get("title") ?? "");
-  const notes = String(formData.get("notes") ?? "");
+  const notes =
+    String(formData.get("notes") ?? "").trim() ||
+    String(formData.get("fallbackBody") ?? "").trim();
   const imageUrls = String(formData.get("imageUrls") ?? "");
   if (!title && !notes) {
     return { error: "Provide a title or notes for the draft." };
@@ -99,26 +143,18 @@ export async function generateArticleDraftAction(
     const { object } = await generateObject({
       model: configured.model,
       schema: articleDraftSchema,
-      system,
-      prompt: `Draft a news/article entry. Return metadata fields plus bodyMarkdown (NOT JSON blocks).
+      system: formatSystem,
+      prompt: `Format a news/article entry. Return metadata fields plus bodyMarkdown (NOT JSON blocks).
 
-Markdown dialect for bodyMarkdown:
-- ## / ### for headings
-- Blank-line-separated paragraphs (inline [label](url), **bold**, *italic* allowed)
-- Unordered lists with "- item" (or * / +); ordered lists with "1. item"
-- > quote lines; optional final "> — Attribution"
-- ![alt](url) for images; consecutive image lines become a gallery
-- A bare YouTube / youtu.be / shorts URL on its own line for video
-- Optional :::imageText{side=left image="url"} ... :::
-- Prefer short bullet or numbered lists when notes include steps, benefits, or takeaways
-- Do not invent image URLs; only use: ${imageUrls || "(none)"}
-- Do not invent YouTube links unless the admin notes include one
-- Keep body focused and factual; no fake testimonials
-- No JSON block arrays in the response
+${markdownDialect}
+- Allowed image URLs only: ${imageUrls || "(none)"}
+- You may place provided image URLs or YouTube URLs from the notes into Markdown image/video lines; never invent media URLs
 
 Title seed: ${title || "(none)"}
-Admin notes:
-${notes || "(none)"}`,
+Admin notes (preserve this wording in bodyMarkdown):
+${notes || "(none)"}
+
+Return slug in kebab-case, excerpt/category/tags/SEO fields derived lightly from the notes, and bodyMarkdown that structures the notes only — do not rewrite the prose.`,
     });
 
     const mdCheck = safeParseMarkdown(object.bodyMarkdown);
@@ -155,7 +191,7 @@ export async function generateProductDraftAction(
     const { object } = await generateObject({
       model: configured.model,
       schema: productDraftSchema,
-      system,
+      system: productSystem,
       prompt: `Draft a recommended-product card for the clinic supplements page.
 Category: ${category || "(none)"}
 Title seed: ${title || "(none)"}

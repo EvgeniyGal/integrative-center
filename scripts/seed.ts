@@ -144,6 +144,10 @@ async function main() {
 
     const rows = Array.from(bySlug.values()).map((row, index) => ({
       ...row,
+      body: row.body
+        .map((text) => text.trim())
+        .filter(Boolean)
+        .map((text) => ({ type: "paragraph" as const, text })),
       sortOrder: index,
       visible: true,
     }));

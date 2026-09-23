@@ -80,7 +80,7 @@ export function ServiceDetailPreview({
   title: string;
   eyebrow: string;
   summary: string;
-  body: string[];
+  body: ArticleBlock[];
   imageUrl: string;
 }) {
   return (
@@ -105,11 +105,11 @@ export function ServiceDetailPreview({
             {title || "Service title"}
           </h2>
           <p className="mt-3 text-base text-ink/80">{summary || "Summary…"}</p>
-          <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
-            {(body.length ? body : ["Detail paragraphs appear here."]).map(
-              (para, index) => (
-                <p key={`${index}-${para.slice(0, 16)}`}>{para}</p>
-              ),
+          <div className="mt-4 text-sm leading-relaxed text-muted">
+            {body.length > 0 ? (
+              <ArticleBlocks blocks={body} />
+            ) : (
+              <p>Detail content appears here.</p>
             )}
           </div>
         </div>

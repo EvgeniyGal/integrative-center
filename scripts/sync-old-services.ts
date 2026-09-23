@@ -286,7 +286,10 @@ async function main() {
       title: item.title,
       eyebrow: item.eyebrow,
       summary,
-      body: item.body,
+      body: item.body
+        .map((text) => text.trim())
+        .filter(Boolean)
+        .map((text) => ({ type: "paragraph" as const, text })),
       imageUrl,
       visible: true,
       showOnHome: item.slug !== "diagnostics",

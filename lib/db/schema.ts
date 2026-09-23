@@ -117,7 +117,7 @@ export const services = pgTable("services", {
   title: text("title").notNull(),
   eyebrow: text("eyebrow").notNull(),
   summary: text("summary").notNull(),
-  body: jsonb("body").$type<string[]>().notNull().default([]),
+  body: jsonb("body").$type<ArticleBlock[]>().notNull().default([]),
   imageUrl: text("imageUrl").notNull(),
   showOnHome: boolean("showOnHome").notNull().default(false),
   visible: boolean("visible").notNull().default(true),

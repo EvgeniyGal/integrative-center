@@ -1,6 +1,7 @@
 import { del } from "@vercel/blob";
 
 import type { ArticleBlock } from "@/lib/content/blocks";
+import { normalizeServiceBody } from "@/lib/content/service-body";
 import { db } from "@/lib/db";
 import { articles, services } from "@/lib/db/schema";
 
@@ -54,8 +55,13 @@ export function collectArticleImageUrls(article: {
 
 export function collectServiceImageUrls(service: {
   imageUrl?: string | null;
+  body?: unknown;
 }): string[] {
-  return service.imageUrl ? [service.imageUrl] : [];
+  const urls = [
+    service.imageUrl ?? "",
+    ...collectBlockImageUrls(normalizeServiceBody(service.body)),
+  ];
+  return [...new Set(urls.filter(Boolean))];
 }
 
 function uniqueManaged(urls: Iterable<string>) {
