@@ -198,13 +198,14 @@ export const pages = {
   location: {
     title: "Location & Hours | Health & Beauty Integrative Center",
     description:
-      "Visit us at 4370 S Tamiami Trail, Suite 151, Sarasota, FL 34231. Call (941) 933-9474. Monday–Friday, 9 AM–5 PM. Appointments recommended.",
+      "Visit our Sarasota office at 4370 S Tamiami Trail, Suite 151, or request a secure telehealth consult in eligible states. Call (941) 933-9474.",
     keywords: [
       "HBI Sarasota location",
       "4370 S Tamiami Trail Suite 151",
       "integrative clinic Sarasota hours",
       "Health and Beauty Integrative Center address",
       "directions to HBI Sarasota",
+      "telehealth Sarasota",
     ],
     path: "/location",
     image: "/images/generated/exterior.jpg",

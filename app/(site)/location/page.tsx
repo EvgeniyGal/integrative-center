@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Calendar, Laptop, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -10,58 +10,51 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.location);
 
+const availableStates = ["Florida", "Massachusetts", "Illinois"] as const;
+const comingSoonStates = ["New Jersey", "Connecticut"] as const;
+
 export default function LocationPage() {
   return (
     <section className="relative overflow-hidden bg-ivory pt-[7.75rem] pb-24 lg:pb-32">
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl"
-      />
+        className="pointer-events-none absolute -right-8 top-20 h-72 w-72 opacity-40"
+      >
+        <div className="absolute inset-0 rounded-full bg-brand/15 blur-3xl" />
+      </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-24">
+      <div className="relative mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
         <Reveal>
           <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-            Location
+            Visit us
           </p>
           <h1 className="mt-4 font-display text-4xl leading-[1.1] tracking-tight text-ink text-balance sm:text-5xl lg:text-6xl">
-            Find us in Sarasota.
+            Our Locations
           </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+            Visit our Sarasota office or connect with us through secure
+            telehealth appointments in eligible states.
+          </p>
         </Reveal>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <div className="flex h-full flex-col rounded-2xl border border-stone bg-white p-8 shadow-[0_12px_40px_-28px_rgba(28,27,25,0.35)] lg:p-10">
+            <article className="flex h-full flex-col rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] lg:p-9">
               <div className="flex size-11 items-center justify-center rounded-full bg-brand-light text-brand">
                 <MapPin className="size-5" aria-hidden />
               </div>
-              <p className="mt-6 text-[11px] uppercase tracking-[0.28em] text-brand">
-                The practice
-              </p>
-              <h2 className="mt-3 font-display text-3xl text-ink">{site.name}</h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted">
-                We welcome patients by appointment at our suite on Tamiami
-                Trail.
-              </p>
-
-              <ul className="mt-8 space-y-5 text-sm text-muted">
-                <li className="flex gap-3">
-                  <MapPin className="mt-0.5 size-4 shrink-0 text-brand" />
-                  <a
-                    href={site.mapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-analytics="maps_click"
-                    className="hover:text-ink"
-                  >
-                    {site.address.line1}
-                    <br />
-                    {site.address.line2}
-                    <br />
-                    {site.address.city}, {site.address.state} {site.address.zip}
-                  </a>
-                </li>
-                <li className="flex gap-3">
-                  <Phone className="mt-0.5 size-4 shrink-0 text-brand" />
+              <h2 className="mt-5 font-display text-3xl text-ink">
+                Sarasota Office
+              </h2>
+              <div className="mt-5 space-y-1 text-sm leading-relaxed text-muted">
+                <p className="font-medium text-ink">{site.name}</p>
+                <p>
+                  {site.address.line1}, {site.address.line2}
+                </p>
+                <p>
+                  {site.address.city}, {site.address.state} {site.address.zip}
+                </p>
+                <p className="pt-2">
                   <a
                     href={site.phoneHref}
                     data-analytics="phone_click"
@@ -69,55 +62,9 @@ export default function LocationPage() {
                   >
                     {site.phone}
                   </a>
-                </li>
-                <li className="flex gap-3">
-                  <Clock className="mt-0.5 size-4 shrink-0 text-brand" />
-                  <div>
-                    <p>{site.hours.summary}</p>
-                    <p className="mt-1">{site.hours.note}</p>
-                    <ul className="mt-4 space-y-1">
-                      {site.hours.days.map((item) => (
-                        <li key={item.day}>
-                          <span className="text-ink">{item.day}:</span>{" "}
-                          {item.time}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </li>
-              </ul>
-
+                </p>
+              </div>
               <div className="mt-auto flex flex-wrap gap-3 pt-8">
-                <Button asChild>
-                  <a href={site.phoneHref} data-analytics="phone_click">
-                    Call the front desk
-                  </a>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/contact" data-analytics="consult_click">
-                    Request a consult
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <div className="flex h-full flex-col rounded-2xl border border-stone bg-white p-8 shadow-[0_12px_40px_-28px_rgba(28,27,25,0.35)] lg:p-10">
-              <div className="flex size-11 items-center justify-center rounded-full bg-brand-light text-brand">
-                <MapPin className="size-5" aria-hidden />
-              </div>
-              <p className="mt-6 text-[11px] uppercase tracking-[0.28em] text-brand">
-                Directions
-              </p>
-              <h2 className="mt-3 font-display text-3xl text-ink">
-                Open the map for turn-by-turn guidance.
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted">
-                Suite 151 is on S Tamiami Trail. Appointments are recommended so
-                we can prepare for your visit.
-              </p>
-              <div className="mt-auto flex flex-col gap-3 pt-8 sm:flex-row sm:flex-wrap">
                 <Button asChild>
                   <a
                     href={site.mapsLink}
@@ -125,27 +72,60 @@ export default function LocationPage() {
                     rel="noopener noreferrer"
                     data-analytics="maps_click"
                   >
-                    Open in Google Maps
+                    Get Directions
+                    <ArrowRight className="size-4" aria-hidden />
                   </a>
                 </Button>
                 <Button asChild variant="outline">
-                  <a
-                    href={site.portalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-analytics="portal_click"
-                  >
-                    Patient Portal
+                  <a href={site.phoneHref} data-analytics="phone_click">
+                    Call Us
                   </a>
                 </Button>
               </div>
-            </div>
+            </article>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <article className="flex h-full flex-col rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] lg:p-9">
+              <div className="flex size-11 items-center justify-center rounded-full bg-brand-light text-brand">
+                <Laptop className="size-5" aria-hidden />
+              </div>
+              <h2 className="mt-5 font-display text-3xl text-ink">
+                Telehealth Appointments
+              </h2>
+              <p className="mt-5 text-sm leading-relaxed text-muted">
+                Secure virtual consultations are available for eligible patients
+                in states where our providers are licensed.
+              </p>
+              <div className="mt-6 space-y-3 text-sm">
+                <p>
+                  <span className="text-muted">Available in: </span>
+                  <span className="font-medium text-brand">
+                    {availableStates.join(" · ")}
+                  </span>
+                </p>
+                <p>
+                  <span className="text-muted">Coming soon: </span>
+                  <span className="font-medium text-brand">
+                    {comingSoonStates.join(" · ")}
+                  </span>
+                </p>
+              </div>
+              <div className="mt-auto pt-8">
+                <Button asChild>
+                  <Link href="/contact" data-analytics="consult_click">
+                    Request a Telehealth Consultation
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                </Button>
+              </div>
+            </article>
           </Reveal>
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+            <div className="relative aspect-[16/11] overflow-hidden rounded-2xl">
               <Image
                 src="/images/generated/exterior.jpg"
                 alt="Exterior of Health & Beauty Integrative Center"
@@ -154,9 +134,9 @@ export default function LocationPage() {
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
               />
-              <div className="absolute inset-x-0 bottom-0 bg-ink/70 px-5 py-4 text-sm text-ivory">
-                <p className="font-medium">{site.name}</p>
-                <p className="mt-1 text-ivory/80">{site.address.full}</p>
+              <div className="absolute inset-x-0 bottom-0 bg-ink/75 px-5 py-3.5 text-xs text-ivory sm:text-sm">
+                {site.name} | {site.address.line1}, {site.address.line2} |{" "}
+                {site.address.city}, {site.address.state} {site.address.zip}
               </div>
             </div>
           </Reveal>
@@ -165,7 +145,7 @@ export default function LocationPage() {
               <iframe
                 title="Map to Health & Beauty Integrative Center"
                 src={site.mapsEmbed}
-                className="h-full min-h-[280px] w-full aspect-[4/3] grayscale lg:min-h-0"
+                className="aspect-[16/11] min-h-[240px] w-full"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
@@ -174,24 +154,24 @@ export default function LocationPage() {
         </div>
 
         <Reveal className="mt-6">
-          <div className="flex flex-col gap-6 rounded-2xl bg-brand-light/60 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <div className="flex flex-col gap-5 rounded-2xl bg-brand-light/70 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-8 sm:py-7">
             <div className="flex items-start gap-4 sm:items-center">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand shadow-sm">
                 <Calendar className="size-5" aria-hidden />
               </div>
               <div>
                 <p className="font-display text-2xl text-ink">
-                  Appointments recommended
+                  Ready to schedule?
                 </p>
                 <p className="mt-1 text-sm text-muted">
-                  We welcome patients by appointment at our suite on Tamiami
-                  Trail.
+                  Request an in-person or telehealth consultation.
                 </p>
               </div>
             </div>
-            <Button asChild className="shrink-0">
+            <Button asChild className="shrink-0 self-start sm:self-auto">
               <Link href="/contact" data-analytics="consult_click">
-                Request a consult
+                Request a Consultation
+                <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
           </div>
