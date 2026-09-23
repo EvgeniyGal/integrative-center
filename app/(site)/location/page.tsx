@@ -39,85 +39,89 @@ export default function LocationPage() {
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <article className="flex h-full flex-col rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] lg:p-9">
-              <div className="flex size-11 items-center justify-center rounded-full bg-brand-light text-brand">
-                <MapPin className="size-5" aria-hidden />
+            <article className="flex h-full gap-5 rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] sm:gap-6 lg:p-9">
+              <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand sm:size-20">
+                <MapPin className="size-8 sm:size-9" aria-hidden />
               </div>
-              <h2 className="mt-5 font-display text-3xl text-ink">
-                Sarasota Office
-              </h2>
-              <div className="mt-5 space-y-1 text-sm leading-relaxed text-muted">
-                <p className="font-medium text-ink">{site.name}</p>
-                <p>
-                  {site.address.line1}, {site.address.line2}
-                </p>
-                <p>
-                  {site.address.city}, {site.address.state} {site.address.zip}
-                </p>
-                <p className="pt-2">
-                  <a
-                    href={site.phoneHref}
-                    data-analytics="phone_click"
-                    className="hover:text-ink"
-                  >
-                    {site.phone}
-                  </a>
-                </p>
-              </div>
-              <div className="mt-auto flex flex-wrap gap-3 pt-8">
-                <Button asChild>
-                  <a
-                    href={site.mapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-analytics="maps_click"
-                  >
-                    Get Directions
-                    <ArrowRight className="size-4" aria-hidden />
-                  </a>
-                </Button>
-                <Button asChild variant="outline">
-                  <a href={site.phoneHref} data-analytics="phone_click">
-                    Call Us
-                  </a>
-                </Button>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <h2 className="font-display text-3xl font-bold text-brand">
+                  Sarasota Office
+                </h2>
+                <div className="mt-5 space-y-1 text-base leading-relaxed text-muted">
+                  <p className="font-medium text-ink">{site.name}</p>
+                  <p>
+                    {site.address.line1}, {site.address.line2}
+                  </p>
+                  <p>
+                    {site.address.city}, {site.address.state} {site.address.zip}
+                  </p>
+                  <p className="pt-2">
+                    <a
+                      href={site.phoneHref}
+                      data-analytics="phone_click"
+                      className="hover:text-ink"
+                    >
+                      {site.phone}
+                    </a>
+                  </p>
+                </div>
+                <div className="mt-auto flex flex-wrap gap-3 pt-8">
+                  <Button asChild>
+                    <a
+                      href={site.mapsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-analytics="maps_click"
+                    >
+                      Get Directions
+                      <ArrowRight className="size-4" aria-hidden />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <a href={site.phoneHref} data-analytics="phone_click">
+                      Call Us
+                    </a>
+                  </Button>
+                </div>
               </div>
             </article>
           </Reveal>
 
           <Reveal delay={0.08}>
-            <article className="flex h-full flex-col rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] lg:p-9">
-              <div className="flex size-11 items-center justify-center rounded-full bg-brand-light text-brand">
-                <Laptop className="size-5" aria-hidden />
+            <article className="flex h-full gap-5 rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] sm:gap-6 lg:p-9">
+              <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand sm:size-20">
+                <Laptop className="size-8 sm:size-9" aria-hidden />
               </div>
-              <h2 className="mt-5 font-display text-3xl text-ink">
-                Telehealth Appointments
-              </h2>
-              <p className="mt-5 text-sm leading-relaxed text-muted">
-                Secure virtual consultations are available for eligible patients
-                in states where our providers are licensed.
-              </p>
-              <div className="mt-6 space-y-3 text-sm">
-                <p>
-                  <span className="text-muted">Available in: </span>
-                  <span className="font-medium text-brand">
-                    {availableStates.join(" · ")}
-                  </span>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <h2 className="font-display text-3xl font-bold text-brand">
+                  Telehealth Appointments
+                </h2>
+                <p className="mt-5 text-base leading-relaxed text-muted">
+                  Secure virtual consultations are available for eligible
+                  patients in states where our providers are licensed.
                 </p>
-                <p>
-                  <span className="text-muted">Coming soon: </span>
-                  <span className="font-medium text-brand">
-                    {comingSoonStates.join(" · ")}
-                  </span>
-                </p>
-              </div>
-              <div className="mt-auto pt-8">
-                <Button asChild>
-                  <Link href="/contact" data-analytics="consult_click">
-                    Request a Telehealth Consultation
-                    <ArrowRight className="size-4" aria-hidden />
-                  </Link>
-                </Button>
+                <div className="mt-6 space-y-3 text-base">
+                  <p>
+                    <span className="font-medium text-brand">Available in: </span>
+                    <span className="text-muted">
+                      {availableStates.join(" · ")}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="text-muted">Coming soon: </span>
+                    <span className="text-muted">
+                      {comingSoonStates.join(" · ")}
+                    </span>
+                  </p>
+                </div>
+                <div className="mt-auto pt-8">
+                  <Button asChild>
+                    <Link href="/contact" data-analytics="consult_click">
+                      Request a Telehealth Consultation
+                      <ArrowRight className="size-4" aria-hidden />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </article>
           </Reveal>
