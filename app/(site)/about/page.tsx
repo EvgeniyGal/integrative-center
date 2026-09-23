@@ -63,7 +63,11 @@ export default function AboutPage() {
                 title={aboutPolicies.title}
                 body={aboutPolicies.body}
               />
-              <Button asChild className="shrink-0 self-start lg:self-auto">
+              <Button
+                asChild
+                variant="outline"
+                className="shrink-0 self-start bg-white hover:bg-brand-light/40 lg:self-auto"
+              >
                 <Link href={aboutPolicies.readMoreHref}>Read more</Link>
               </Button>
             </div>
