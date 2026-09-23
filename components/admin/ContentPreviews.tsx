@@ -229,7 +229,7 @@ export function ArticleDetailPreview({
         {blocks.length === 0 ? (
           <p className="text-sm text-muted">No body content yet.</p>
         ) : (
-          <div className="max-h-[28rem] overflow-y-auto pr-1 [&_.space-y-12]:space-y-6">
+          <div className="max-h-[28rem] overflow-y-auto pr-1">
             <ArticleBlocks blocks={blocks.slice(0, 8)} />
           </div>
         )}

@@ -11,49 +11,87 @@ function stripOuterQuotes(text: string) {
     .trim();
 }
 
+type BlockType = ArticleBlock["type"];
+
+/** Prose that should sit close together (paragraphs, lists). */
+function isProse(type: BlockType) {
+  return type === "paragraph" || type === "list";
+}
+
+/** Larger breathing room before section breaks / media. */
+function isSectionBreak(type: BlockType) {
+  return (
+    type === "heading" ||
+    type === "quote" ||
+    type === "image" ||
+    type === "gallery" ||
+    type === "imageText" ||
+    type === "video"
+  );
+}
+
+function spacingBefore(
+  current: BlockType,
+  previous: BlockType | null,
+): string {
+  if (!previous) return "";
+  if (isProse(previous) && isProse(current)) return "mt-4";
+  if (isProse(previous) && current === "heading") return "mt-10";
+  if (previous === "heading" && isProse(current)) return "mt-4";
+  if (isSectionBreak(current) || isSectionBreak(previous)) return "mt-10";
+  return "mt-6";
+}
+
 export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
   if (!Array.isArray(blocks) || blocks.length === 0) {
     return null;
   }
 
+  let previousType: BlockType | null = null;
+
   return (
-    <div className="space-y-12">
+    <div>
       {blocks.map((block, index) => {
         if (!block || typeof block !== "object" || !("type" in block)) {
           return null;
         }
 
         const key = `${block.type}-${index}`;
+        const space = spacingBefore(block.type, previousType);
+
         switch (block.type) {
           case "heading":
+            previousType = block.type;
             return block.level === 2 ? (
               <h2
                 key={key}
-                className="max-w-3xl break-words font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl"
+                className={`${space} max-w-3xl break-words font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl`}
               >
                 <InlineMarkdown text={block.text} />
               </h2>
             ) : (
               <h3
                 key={key}
-                className="max-w-3xl break-words font-display text-3xl tracking-tight text-ink text-balance"
+                className={`${space} max-w-3xl break-words font-display text-3xl tracking-tight text-ink text-balance`}
               >
                 <InlineMarkdown text={block.text} />
               </h3>
             );
           case "paragraph":
+            previousType = block.type;
             return (
               <p
                 key={key}
-                className="max-w-3xl break-words text-base leading-relaxed text-muted sm:text-lg"
+                className={`${space} max-w-3xl break-words text-base leading-relaxed text-muted sm:text-lg`}
               >
                 <InlineMarkdown text={block.text} />
               </p>
             );
           case "image":
             if (!block.url) return null;
+            previousType = block.type;
             return (
-              <figure key={key} className="max-w-4xl space-y-3">
+              <figure key={key} className={`${space} max-w-4xl space-y-3`}>
                 <div
                   className={`relative overflow-hidden ${
                     block.layout === "full" ? "aspect-[21/9]" : "aspect-[16/9]"
@@ -76,10 +114,11 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             );
           case "gallery":
             if (!block.images?.length) return null;
+            previousType = block.type;
             return (
               <div
                 key={key}
-                className="grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                className={`${space} grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3`}
               >
                 {block.images.map((image, i) =>
                   image?.url ? (
@@ -101,10 +140,11 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
             );
           case "imageText":
             if (!block.image || !block.text) return null;
+            previousType = block.type;
             return (
               <div
                 key={key}
-                className="grid max-w-5xl items-center gap-10 lg:grid-cols-2"
+                className={`${space} grid max-w-5xl items-center gap-10 lg:grid-cols-2`}
               >
                 <div
                   className={`relative aspect-[4/3] overflow-hidden ${
@@ -132,10 +172,11 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
               </div>
             );
           case "quote":
+            previousType = block.type;
             return (
               <blockquote
                 key={key}
-                className="max-w-3xl break-words border-l-2 border-brand pl-6 font-display text-2xl leading-snug text-ink text-pretty sm:text-3xl"
+                className={`${space} max-w-3xl break-words border-l-2 border-brand pl-6 font-display text-2xl leading-snug text-ink text-pretty sm:text-3xl`}
               >
                 “
                 <InlineMarkdown text={stripOuterQuotes(block.text)} />
@@ -150,8 +191,9 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
           case "video": {
             const id = block.videoId?.trim();
             if (!id) return null;
+            previousType = block.type;
             return (
-              <div key={key} className="w-full max-w-4xl">
+              <div key={key} className={`${space} w-full max-w-4xl`}>
                 <div className="relative aspect-video overflow-hidden bg-ink">
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`}
@@ -168,14 +210,15 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
           }
           case "list": {
             if (!block.items?.length) return null;
+            previousType = block.type;
             const ListTag = block.style === "ordered" ? "ol" : "ul";
             return (
               <ListTag
                 key={key}
                 className={
                   block.style === "ordered"
-                    ? "max-w-3xl list-decimal space-y-2 break-words pl-6 text-base leading-relaxed text-muted sm:text-lg"
-                    : "max-w-3xl list-disc space-y-2 break-words pl-6 text-base leading-relaxed text-muted sm:text-lg"
+                    ? `${space} max-w-3xl list-decimal space-y-2 break-words pl-6 text-base leading-relaxed text-muted sm:text-lg`
+                    : `${space} max-w-3xl list-disc space-y-2 break-words pl-6 text-base leading-relaxed text-muted sm:text-lg`
                 }
               >
                 {block.items.map((item, itemIndex) => (
