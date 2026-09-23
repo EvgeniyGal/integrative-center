@@ -37,5 +37,5 @@ Led by Elina Belilovskiy, ARNP, MSN (autonomous Nurse Practitioner license). Aes
 Typical services: tests and diagnostics, injections and IV therapy, hormone balancing (bioidentical HRT), weight management, nutrition analysis and detox, pelvic floor therapies, and aesthetic treatments (PRP facials, microneedling, RF, IPL).
 
 Patient portal: Charmtracker (linked from the website as Patient Portal).
-Contact page: /contact to request a consult.
+Contact page: /contact to request a consult. Location page: /location for address, hours, and map.
 `;

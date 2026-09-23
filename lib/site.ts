@@ -41,7 +41,7 @@ export const nav = [
   { href: "/services", label: "Services" },
   { href: "/patient-resources", label: "Patient Resources" },
   { href: "/news", label: "News" },
-  { href: "/contact", label: "Location" },
+  { href: "/location", label: "Location" },
 ] as const;
 
 export const footerNav = [
@@ -49,6 +49,7 @@ export const footerNav = [
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/patient-resources", label: "Patient Resources" },
+  { href: "/location", label: "Location" },
   { href: "/contact", label: "Contact" },
 ] as const;
 

@@ -14,6 +14,7 @@ import {
 import { db } from "@/lib/db";
 import { contactSubmissions, newsletterSubscribers } from "@/lib/db/schema";
 import { getRecipientEmails } from "@/lib/notifications";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_REQUESTS = 8;
@@ -161,8 +162,18 @@ export async function submitContactAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const honeypot = String(formData.get("website") ?? "").trim();
+  if (honeypot) {
+    return { success: "Message sent." };
+  }
+
   if (!(await takeFormLimit("contact"))) {
     return { error: "Too many messages. Please try again later." };
+  }
+
+  const turnstileToken = String(formData.get("cf-turnstile-response") ?? "");
+  if (!(await verifyTurnstileToken(turnstileToken))) {
+    return { error: "Verification failed. Please try again." };
   }
 
   const parsed = contactSchema.safeParse({
