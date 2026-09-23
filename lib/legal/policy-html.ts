@@ -9,9 +9,20 @@ const TERMAGEDDON_CSS: Record<string, string> = {
     "https://policies.termageddon.com/api/embed_css/YVhaSVdYUlVNWFprYzBsd1VtYzlQUT09.css",
 };
 
+function stripEmptyParagraphs(html: string) {
+  return html
+    // <p></p>, <p>&nbsp;</p>, whitespace-only
+    .replace(/<p(\s[^>]*)?>\s*(?:&nbsp;|&#160;|\u00a0|\s)*<\/p>/gi, "")
+    // <p><span…>&nbsp;</span></p> (Word/HIPAA export spacers)
+    .replace(
+      /<p(\s[^>]*)?>(?:\s*<span\b[^>]*>\s*(?:&nbsp;|&#160;|\u00a0|\s)*<\/span>\s*)+<\/p>/gi,
+      "",
+    );
+}
+
 export async function getLegalHtml(slug: string) {
   "use cache";
-  cacheTag(`legal-${slug}-v2`);
+  cacheTag(`legal-${slug}-v6`);
   cacheLife("max");
 
   const filePath = path.join(process.cwd(), "content/legal", `${slug}.html`);
@@ -28,7 +39,16 @@ export async function getLegalHtml(slug: string) {
           )
         : html;
 
-  return withoutTitle.replace(/<link\b[^>]*>/gi, "");
+  return linkifyPhoneNumbers(
+    stripEmptyParagraphs(withoutTitle.replace(/<link\b[^>]*>/gi, "")),
+  );
+}
+
+function linkifyPhoneNumbers(html: string) {
+  return html.replace(
+    /(?<!["\w])\((\d{3})\)\s*(\d{3})-(\d{4})(?![^<]*>|[^<]*<\/a>)/g,
+    '<a href="tel:+1$1$2$3">($1) $2-$3</a>',
+  );
 }
 
 export function getTermageddonCss(slug: string) {

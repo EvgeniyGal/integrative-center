@@ -176,6 +176,14 @@ body {
   margin-top: 1rem;
 }
 
+.legal-policy-content p:empty {
+  display: none;
+  margin: 0;
+  padding: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 .legal-policy-content ul,
 .legal-policy-content ol {
   margin-top: 0.75rem;
