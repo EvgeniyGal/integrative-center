@@ -141,13 +141,6 @@ export const mediaLibrary: MediaLibraryItem[] = [
     localPath: "/images/staff/elina.jpg",
     url: "https://wrk6fbu5jhvrw06a.public.blob.vercel-storage.com/library/staff/elina.jpg",
   },
-  {
-    id: "staff/yelena.jpg",
-    label: "Yelena",
-    group: "Staff",
-    localPath: "/images/staff/yelena.jpg",
-    url: "https://wrk6fbu5jhvrw06a.public.blob.vercel-storage.com/library/staff/yelena.jpg",
-  },
 ] as const;
 
 export function mediaByLocalPath(localPath: string) {

@@ -32,7 +32,7 @@ Hours: Monday–Friday, 9:00 AM – 5:00 PM. Saturday–Sunday closed. Appointme
 Free 15-minute consultation is available.
 Telehealth is available. Fully licensed in FL, MA, and IL; coming soon in NJ and CL.
 
-Led by Elina Belilovskiy, ARNP, MSN (autonomous Nurse Practitioner license). Aesthetic care includes Yelena Spivak, aesthetician.
+Led by Elina Belilovskiy, ARNP, MSN (autonomous Nurse Practitioner license).
 
 Typical services: tests and diagnostics, injections and IV therapy, hormone balancing (bioidentical HRT), weight management, nutrition analysis and detox, pelvic floor therapies, and aesthetic treatments (PRP facials, microneedling, RF, IPL).
 

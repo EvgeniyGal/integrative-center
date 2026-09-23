@@ -256,12 +256,6 @@ export const team = [
     image: "/images/staff/elina.jpg",
     bio: "Elina holds an autonomous Nurse Practitioner license and leads Health & Beauty Integrative Center. She received medical training in Russia and the United States, graduating from Regis College in Weston, MA, in 2001. Her private practice spans Integrative Medicine, Women’s Health, and Urology, with a focus on diagnosing root causes and applying physiological, natural, and anti-aging approaches.",
   },
-  {
-    name: "Yelena Spivak",
-    role: "Licensed Aesthetician",
-    image: "/images/staff/yelena.jpg",
-    bio: "Yelena brings more than three decades of skincare expertise to the practice. She has trained other professionals on IPL, RF, and related treatments, and works with an individual approach to restore skin health with precision and care.",
-  },
 ] as const;
 
 export const aboutPolicies = {

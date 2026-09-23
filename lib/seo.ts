@@ -90,10 +90,9 @@ export const pages = {
   about: {
     title: "About Our Practice | Elina Belilovskiy, ARNP | HBI Sarasota",
     description:
-      "Meet founder Elina Belilovskiy, ARNP, MSN, and licensed aesthetician Yelena Spivak. Root-cause diagnostics, personalized plans, and integrative care in Sarasota, FL.",
+      "Meet founder Elina Belilovskiy, ARNP, MSN. Root-cause diagnostics, personalized plans, and integrative care in Sarasota, FL.",
     keywords: [
       "Elina Belilovskiy ARNP",
-      "Yelena Spivak aesthetician",
       "about Health and Beauty Integrative Center",
       "family nurse practitioner Sarasota",
       "integrative clinic team",
