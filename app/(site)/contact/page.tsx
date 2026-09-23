@@ -1,4 +1,4 @@
-import { Clock, MapPin, Phone } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 import Image from "next/image";
 import type { Metadata } from "next";
 
@@ -81,19 +81,6 @@ export default function ContactPage() {
                   >
                     {site.phone}
                   </a>
-                </li>
-                <li className="flex gap-3">
-                  <Clock className="mt-0.5 size-4 shrink-0 text-brand" />
-                  <div>
-                    {site.hours.days.map((row) => (
-                      <p key={row.day}>
-                        <span className="text-ink">{row.day}</span>
-                        <span className="mx-2 text-stone">·</span>
-                        {row.time}
-                      </p>
-                    ))}
-                    <p className="mt-1 text-xs">{site.hours.note}</p>
-                  </div>
                 </li>
               </ul>
               <div className="mt-8 flex flex-col gap-3">
