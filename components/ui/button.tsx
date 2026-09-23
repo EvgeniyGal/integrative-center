@@ -14,7 +14,7 @@ const buttonVariants = cva(
         inverted:
           "bg-ivory text-ink hover:bg-white",
         outline:
-          "border border-brand/30 bg-transparent text-ink hover:border-brand hover:text-brand",
+          "border border-brand/30 bg-white text-ink shadow-[0_1px_2px_rgba(28,27,25,0.04)] hover:border-brand hover:bg-brand-light/50 hover:text-brand",
         ghost:
           "text-ivory/90 hover:bg-white/10 hover:text-white",
         dark: "bg-ink text-ivory hover:bg-ink/90",
