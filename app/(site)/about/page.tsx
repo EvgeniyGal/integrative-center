@@ -72,11 +72,11 @@ export default function AboutPage() {
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {aboutPolicies.items.map((policy, index) => (
               <Reveal key={policy.title} delay={index * 0.06}>
-                <article className="h-full border border-brand/35 bg-ivory/40 px-5 py-6">
-                  <h3 className="text-[12px] font-medium uppercase tracking-[0.2em] text-brand">
+                <article className="group flex h-full min-h-[220px] flex-col border border-ink bg-ivory/60 p-6 transition duration-500 ease-out hover:-translate-y-1.5 hover:border-brand hover:bg-ivory hover:shadow-[0_18px_40px_-28px_rgba(28,27,25,0.45)] lg:p-7">
+                  <h3 className="font-display text-xl leading-snug tracking-tight text-brand uppercase transition duration-500 group-hover:text-brand-dark sm:text-2xl">
                     {policy.title}
                   </h3>
-                  <p className="mt-4 text-sm leading-relaxed text-muted">
+                  <p className="mt-4 text-sm leading-relaxed text-muted transition duration-500 group-hover:text-ink/75">
                     {policy.body}
                   </p>
                 </article>

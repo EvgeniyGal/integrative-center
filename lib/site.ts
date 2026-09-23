@@ -41,7 +41,7 @@ export const nav = [
   { href: "/services", label: "Services" },
   { href: "/patient-resources", label: "Patient Resources" },
   { href: "/news", label: "News" },
-  { href: "/contact", label: "Contact" },
+  { href: "/contact", label: "Location" },
 ] as const;
 
 export const footerNav = [
@@ -270,20 +270,20 @@ export const aboutPolicies = {
   readMoreHref: "/patient-resources/office-policies",
   items: [
     {
-      title: "Late arrivals",
-      body: "Patients arriving more than 15 minutes late may have their appointment canceled and may need to reschedule.",
-    },
-    {
-      title: "No-shows",
-      body: "Missed appointments without prior notice may result in a charge according to the practice’s cancellation and no-show policy.",
-    },
-    {
-      title: "Portal messages",
-      body: "Patient portal messages are intended for brief, limited questions. Questions requiring medical assessment, detailed advice, or treatment recommendations may be considered a consultation and billed accordingly.",
-    },
-    {
       title: "Appointments & cancellations",
-      body: "Please notify the office as early as possible if you need to cancel or reschedule your appointment.",
+      body: "Please provide at least 24 hours’ notice if you need to cancel or reschedule your appointment. Late cancellations and missed appointments may be subject to a $50 fee.",
+    },
+    {
+      title: "Late arrivals",
+      body: "We allow a 15-minute grace period. Arrivals more than approximately 20 minutes late will generally need to be rescheduled to avoid delaying other patients.",
+    },
+    {
+      title: "Patient portal",
+      body: "The patient portal is intended for brief questions, refill requests, scheduling, and clarification of an existing treatment plan. More complex medical concerns may require an appointment.",
+    },
+    {
+      title: "Prescription refills",
+      body: "Please allow 24–48 business hours for routine prescription refill requests. Whenever possible, requests should be submitted through the patient portal or your pharmacy.",
     },
   ],
 } as const;
