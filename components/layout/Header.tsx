@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { SiteLogo } from "@/components/layout/SiteLogo";
 import { Ticker } from "@/components/layout/Ticker";
@@ -12,7 +12,53 @@ import { Button } from "@/components/ui/button";
 import { nav, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function Header() {
+function HeaderFallback() {
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 bg-ivory/90 shadow-[0_1px_0_rgba(28,27,25,0.06)] backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-6 lg:h-[5.5rem] lg:px-10">
+        <Link href="/" className="relative flex items-center">
+          <SiteLogo priority />
+        </Link>
+        <nav className="hidden items-center gap-8 min-[1100px]:flex">
+          {nav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-ink"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="hidden items-center gap-3 min-[1100px]:flex">
+          <a
+            href={site.portalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-analytics="portal_click"
+            className="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-ink"
+          >
+            Patient Portal
+          </a>
+          <Button asChild size="sm">
+            <Link href="/contact" data-analytics="consult_click">
+              Request a consult
+            </Link>
+          </Button>
+        </div>
+        <span
+          className="inline-flex size-11 items-center justify-center rounded-full border border-ink/15 text-ink min-[1100px]:hidden"
+          aria-hidden
+        >
+          <Menu className="size-5" />
+        </span>
+      </div>
+      <Ticker visible />
+    </header>
+  );
+}
+
+function HeaderInner() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -158,5 +204,13 @@ export function Header() {
       </div>
       <Ticker visible={showTicker} />
     </header>
+  );
+}
+
+export function Header() {
+  return (
+    <Suspense fallback={<HeaderFallback />}>
+      <HeaderInner />
+    </Suspense>
   );
 }

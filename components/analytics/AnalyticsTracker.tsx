@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 
 import type { AnalyticsEventName } from "@/lib/analytics/events";
 import { trackClientEvent } from "@/lib/analytics/client";
@@ -70,7 +70,7 @@ function classifyClick(anchor: HTMLAnchorElement): {
   return null;
 }
 
-export function AnalyticsTracker() {
+function AnalyticsTrackerInner() {
   const pathname = usePathname();
   const lastPath = useRef<string | null>(null);
 
@@ -116,4 +116,12 @@ export function AnalyticsTracker() {
   }, []);
 
   return null;
+}
+
+export function AnalyticsTracker() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsTrackerInner />
+    </Suspense>
+  );
 }
