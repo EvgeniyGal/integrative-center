@@ -13,7 +13,7 @@ export type QuestionItem = {
 export function QuestionsCarousel({ items }: { items: QuestionItem[] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
-      loop: items.length > 1,
+      loop: items.length > 4,
       align: "start",
       skipSnaps: false,
     },
@@ -35,19 +35,22 @@ export function QuestionsCarousel({ items }: { items: QuestionItem[] }) {
     <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex touch-pan-y">
-          {items.map((item) => (
+          {items.map((item, i) => (
             <div
               key={item.question}
-              className="min-w-0 shrink-0 grow-0 basis-[85%] pr-4 sm:basis-1/2 sm:pr-5 lg:basis-1/3"
+              className="min-w-0 shrink-0 grow-0 basis-[85%] pr-4 sm:basis-1/2 sm:pr-4 lg:basis-1/4"
             >
-              <div className="flex h-full min-h-[220px] flex-col border border-ink/20 bg-ivory/40 p-6 lg:p-7">
-                <h3 className="font-display text-2xl tracking-tight text-ink">
+              <article className="flex h-full min-h-[220px] flex-col border border-ink p-6 lg:p-7">
+                <p className="font-display text-3xl leading-none tracking-tight text-brand sm:text-4xl">
+                  {i + 1}
+                </p>
+                <h3 className="mt-3 font-display text-xl leading-snug tracking-tight text-ink sm:text-2xl">
                   {item.question}
                 </h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
+                <p className="mt-4 text-sm leading-relaxed text-muted">
                   {item.answer}
                 </p>
-              </div>
+              </article>
             </div>
           ))}
         </div>

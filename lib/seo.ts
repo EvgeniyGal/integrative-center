@@ -196,4 +196,43 @@ export const pages = {
     imageAlt:
       "Professional medical building serving Health & Beauty Integrative Center in Sarasota",
   },
+  privacyPolicy: {
+    title: "Privacy Policy | Health & Beauty Integrative Center",
+    description:
+      "Privacy Policy for Health and Beauty Integrative Center LLC — how we collect, use, and protect personal information on hbintegrative.com.",
+    keywords: [
+      "HBI privacy policy",
+      "Health and Beauty Integrative Center privacy",
+      "website privacy Sarasota",
+    ],
+    path: "/privacy-policy",
+    image: "/images/generated/reception.jpg",
+    imageAlt: "Health & Beauty Integrative Center privacy information",
+  },
+  cookiePolicy: {
+    title: "Cookie Policy | Health & Beauty Integrative Center",
+    description:
+      "Cookie Policy for Health and Beauty Integrative Center — cookies and similar technologies used on hbintegrative.com.",
+    keywords: [
+      "HBI cookie policy",
+      "Health and Beauty Integrative Center cookies",
+      "website cookies Sarasota",
+    ],
+    path: "/cookie-policy",
+    image: "/images/generated/reception.jpg",
+    imageAlt: "Health & Beauty Integrative Center cookie information",
+  },
+  hipaaNotice: {
+    title: "HIPAA Notice | Health & Beauty Integrative Center",
+    description:
+      "Notice of Privacy Practices for Health and Beauty Integrative Center — how protected health information may be used and disclosed.",
+    keywords: [
+      "HBI HIPAA notice",
+      "Notice of Privacy Practices",
+      "PHI Health and Beauty Integrative Center",
+    ],
+    path: "/hipaa-notice",
+    image: "/images/generated/reception.jpg",
+    imageAlt: "Health & Beauty Integrative Center HIPAA notice",
+  },
 } satisfies Record<string, PageSeo>;

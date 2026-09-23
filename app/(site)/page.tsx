@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -15,7 +14,7 @@ import {
   getPublishedTestimonials,
 } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
-import { homeNews, homeQuestions, practiceIntro, team } from "@/lib/site";
+import { homeNews, homeQuestions, practiceIntro } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.home);
 
@@ -124,65 +123,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-stone/35 py-24 lg:py-32">
+      <section className="bg-ivory py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <Reveal>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
               {homeQuestions.eyebrow}
             </p>
-            <h2 className="mt-4 max-w-2xl font-display text-4xl leading-[1.1] tracking-tight text-balance text-ink sm:text-5xl">
+            <h2 className="mt-4 max-w-3xl font-display text-4xl uppercase leading-[1.1] tracking-tight text-balance text-ink sm:text-5xl">
               {homeQuestions.title}
             </h2>
+            <div className="mt-5 space-y-1 text-xl leading-relaxed text-ink sm:text-2xl">
+              {homeQuestions.body.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
           </Reveal>
           <Reveal className="mt-14" delay={0.06}>
             <QuestionsCarousel items={questionItems} />
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-12 lg:px-10">
-          <Reveal className="relative lg:col-span-5">
-            <div className="relative aspect-[4/5] overflow-hidden">
-              <Image
-                src={team[0].image}
-                alt={team[0].name}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 40vw, 100vw"
-              />
-            </div>
-            <p className="mt-4 text-[11px] uppercase tracking-[0.22em] text-muted">
-              {team[0].name}
-            </p>
-          </Reveal>
-          <Reveal className="lg:col-span-7" delay={0.1}>
-            <SectionHeading
-              eyebrow="The practice"
-              title="Medicine that listens, then looks deeper."
-              body={
-                <>
-                  <strong className="font-semibold text-ink">
-                    Elina Belilovskiy, ARNP, leads the Health & Beauty
-                    Integrative Center,
-                  </strong>{" "}
-                  where we care for patients with a range of health concerns. We
-                  combine holistic therapies with science-backed treatments,
-                  using diagnostic testing and personalized plans to target root
-                  causes and relieve symptoms.
-                </>
-              }
-            />
-            <p className="mt-6 max-w-xl text-muted leading-relaxed">
-              No matter your concern, our dedicated providers listen to your
-              needs and use the latest diagnostic tests to find the source of
-              your symptoms.
-            </p>
-            <Button asChild variant="outline" className="mt-8">
-              <Link href="/about">
-                Meet the team <ArrowRight className="size-4" />
-              </Link>
-            </Button>
           </Reveal>
         </div>
       </section>
@@ -195,18 +152,12 @@ export default async function HomePage() {
               eyebrow="Services"
               title="Functional and traditional medicine, held to a clinical standard."
             />
-            <div className="mt-10 grid max-w-4xl gap-8 sm:grid-cols-2">
-              {questionItems.slice(0, 2).map((item) => (
-                <div key={item.question}>
-                  <h3 className="font-display text-2xl tracking-tight text-ivory">
-                    {item.question}
-                  </h3>
-                  <p className="mt-3 text-base leading-relaxed text-ivory/75 sm:text-lg">
-                    {item.answer}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <p className="mt-6 text-base leading-relaxed text-ivory/75 sm:text-lg">
+              Explore personalized health and wellness services for women and
+              men, including hormone replacement therapy, diagnostics, IV
+              therapy, weight management, and nutritional support. Every care
+              plan is tailored to your individual needs and health goals.
+            </p>
           </Reveal>
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {serviceItems.map((service, i) => (

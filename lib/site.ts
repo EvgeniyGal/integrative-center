@@ -56,8 +56,6 @@ export const legalLinks = [
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/cookie-policy", label: "Cookie Policy" },
   { href: "/hipaa-notice", label: "HIPAA Notice" },
-  { href: "/terms", label: "Terms & Conditions" },
-  { href: "/accessibility", label: "Accessibility Statement" },
 ] as const;
 
 export const tickerItems = [
@@ -84,14 +82,15 @@ export const practiceIntro = {
 export const servicesIntro = {
   title: "Feel and look your best at any age.",
   paragraphs: [
-    "Maintaining our health means providing our body with the care it needs, so we can feel and look our best at any age. Since each person is unique, at Health & Beauty Integrative Center, we provide personalized health and wellness care tailored to your specific needs, offering a wide range of health and wellness services to improve your physical, mental, and emotional well-being.",
-    "Improving your health begins with you. Taking the next step begins with us. Access our experienced team of health and wellness experts—using the latest technology and innovative therapies, we offer patients a customized care experience, addressing your individual concerns to help you achieve your health goals.",
+    "Maintaining our health means providing our body with the care it needs, so we can feel and look our best at any age. Since each person is unique, at Health & Beauty Integrative Center, we provide personalized health and wellness care tailored to your specific needs. Our services include hormone replacement therapy for women and men, diagnostics, IV therapy, weight management, nutritional support, and other individualized treatments designed to support your physical, mental, and emotional well-being.",
+    "Improving your health begins with you. Taking the next step begins with us. Our experienced team uses advanced technology and individualized therapies to address your specific concerns and help you work toward your health goals.",
   ],
 } as const;
 
 export const homeQuestions = {
   eyebrow: "Questions",
-  title: "Functional and traditional medicine, held to a clinical standard.",
+  title: "Questions we help you explore",
+  body: ["You know something feels off.", "The question is why."],
   items: [
     {
       number: "1",

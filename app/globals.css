@@ -139,3 +139,189 @@ body {
     animation: none;
   }
 }
+
+/* Legal policy embeds (Termageddon + HIPAA notice HTML) */
+.legal-policy-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.legal-policy-content h2:first-child {
+  margin-top: 0;
+}
+
+.legal-policy-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.legal-policy-content h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.legal-policy-content p {
+  margin-top: 1rem;
+}
+
+.legal-policy-content ul,
+.legal-policy-content ol {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.legal-policy-content ul {
+  list-style: disc;
+}
+
+.legal-policy-content ol {
+  list-style: decimal;
+}
+
+.legal-policy-content li {
+  margin-top: 0.35rem;
+}
+
+.legal-policy-content a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.legal-policy-content strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.legal-policy-content .ql-align-center {
+  text-align: center;
+}
+
+.legal-policy-content .tg-last-updated-date {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.legal-policy-content .accordions {
+  margin: 1.25rem 0 !important;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--color-ink) 18%, transparent) !important;
+  border-radius: 0 !important;
+  background: white;
+}
+
+.legal-policy-content details.accordion {
+  margin: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-ink) 12%, transparent) !important;
+  background: transparent !important;
+}
+
+.legal-policy-content details.accordion:last-child {
+  border-bottom: 0 !important;
+}
+
+.legal-policy-content summary.accordion-summary {
+  display: flex !important;
+  cursor: pointer;
+  list-style: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem !important;
+  background: color-mix(in oklab, var(--color-brand) 6%, white) !important;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.legal-policy-content summary.accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.legal-policy-content summary.accordion-summary::after {
+  flex-shrink: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 1px solid color-mix(in oklab, var(--color-brand) 45%, transparent);
+  background:
+    linear-gradient(var(--color-brand), var(--color-brand)) center / 10px 2px
+      no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) center / 2px 10px
+      no-repeat,
+    white;
+  content: "";
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.legal-policy-content details.accordion[open] > summary.accordion-summary {
+  background: color-mix(in oklab, var(--color-brand) 12%, white) !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-brand) 20%, transparent);
+}
+
+.legal-policy-content details.accordion[open] > summary.accordion-summary::after {
+  border-color: var(--color-brand);
+  background:
+    linear-gradient(var(--color-brand), var(--color-brand)) center / 10px 2px
+      no-repeat,
+    white;
+}
+
+.legal-policy-content summary.accordion-summary:hover {
+  background: color-mix(in oklab, var(--color-brand) 14%, white) !important;
+}
+
+.legal-policy-content summary.accordion-summary:hover::after {
+  border-color: var(--color-brand);
+}
+
+.legal-policy-content summary.accordion-summary:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
+}
+
+.legal-policy-content .accordion-heading {
+  display: block !important;
+  margin: 0 !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35;
+  color: var(--color-brand) !important;
+}
+
+@media (min-width: 640px) {
+  .legal-policy-content .accordion-heading {
+    font-size: 1.25rem !important;
+  }
+}
+
+.legal-policy-content .accordion-content {
+  padding: 1rem 1.15rem 1.25rem !important;
+  background: white;
+}
+
+.legal-policy-content .accordion-section {
+  margin-top: 0.85rem;
+}
+
+.legal-policy-content .accordion-section:first-child {
+  margin-top: 0;
+}
