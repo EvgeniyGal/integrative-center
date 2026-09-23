@@ -61,7 +61,7 @@ export function QuestionsCarousel({ items }: { items: QuestionItem[] }) {
             type="button"
             onClick={prev}
             aria-label="Previous question"
-            className="inline-flex size-11 items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-brand hover:text-brand"
+            className="inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-brand hover:text-brand"
           >
             <ChevronLeft className="size-4" />
           </button>
@@ -69,7 +69,7 @@ export function QuestionsCarousel({ items }: { items: QuestionItem[] }) {
             type="button"
             onClick={next}
             aria-label="Next question"
-            className="inline-flex size-11 items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-brand hover:text-brand"
+            className="inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-brand hover:text-brand"
           >
             <ChevronRight className="size-4" />
           </button>

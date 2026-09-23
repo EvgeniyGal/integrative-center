@@ -59,7 +59,7 @@ export function NewsList({ articles }: { articles: NewsListItem[] }) {
                 asChild
                 variant="outline"
                 size="sm"
-                className="mt-6 w-fit rounded-none border-ink/25 hover:border-ink"
+                className="mt-6 w-fit bg-white hover:bg-brand-light/40"
               >
                 <Link href={`/news/${article.slug}`}>Read more</Link>
               </Button>
@@ -72,7 +72,7 @@ export function NewsList({ articles }: { articles: NewsListItem[] }) {
           <Button
             type="button"
             variant="outline"
-            className="rounded-none border-ink/25 hover:border-ink"
+            className="bg-white hover:bg-brand-light/40"
             onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
           >
             Load more

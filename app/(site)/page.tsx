@@ -14,7 +14,7 @@ import {
   getPublishedTestimonials,
 } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
-import { homeNews, homeQuestions, practiceIntro } from "@/lib/site";
+import { homeNews, homeQuestions, team } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.home);
 
@@ -103,27 +103,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-12 lg:gap-16 lg:px-10">
-          <Reveal className="lg:col-span-5">
-            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-              {practiceIntro.eyebrow}
-            </p>
-            <h2 className="mt-4 max-w-md font-display text-4xl leading-[1.1] tracking-tight text-balance text-ink sm:text-5xl">
-              {practiceIntro.title}
-            </h2>
-          </Reveal>
-          <Reveal className="lg:col-span-7" delay={0.08}>
-            <div className="space-y-5 text-base leading-relaxed text-muted sm:text-lg">
-              {practiceIntro.paragraphs.map((paragraph) => (
-                <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="bg-ivory py-24 lg:py-32">
+      <section className="bg-ivory pt-24 pb-12 lg:pt-32 lg:pb-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <Reveal>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
@@ -140,6 +120,51 @@ export default async function HomePage() {
           </Reveal>
           <Reveal className="mt-14" delay={0.06}>
             <QuestionsCarousel items={questionItems} />
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="bg-ivory pt-12 pb-24 lg:pt-16 lg:pb-32">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-12 lg:px-10">
+          <Reveal className="relative lg:col-span-5">
+            <div className="relative aspect-[4/5] overflow-hidden">
+              <Image
+                src={team[0].image}
+                alt={team[0].name}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 40vw, 100vw"
+              />
+            </div>
+            <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.22em] text-brand">
+              {team[0].name}
+            </p>
+          </Reveal>
+          <Reveal className="lg:col-span-7" delay={0.1}>
+            <SectionHeading
+              eyebrow="The practice"
+              title="Medicine that listens, then looks deeper."
+              body={
+                <>
+                  <strong className="font-semibold text-ink">
+                    Elina Belilovskiy, ARNP, leads the Health & Beauty
+                    Integrative Center,
+                  </strong>{" "}
+                  where we care for patients with a range of health concerns. We
+                  combine holistic therapies with science-backed treatments,
+                  using diagnostic testing and personalized plans to target root
+                  causes and relieve symptoms.
+                </>
+              }
+            />
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted">
+              No matter your concern, our dedicated providers listen to your
+              needs and use the latest diagnostic tests to find the source of
+              your symptoms.
+            </p>
+            <Button asChild variant="outline" className="mt-8 bg-white hover:bg-brand-light/40">
+              <Link href="/about">Meet the team</Link>
+            </Button>
           </Reveal>
         </div>
       </section>
@@ -212,7 +237,7 @@ export default async function HomePage() {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-none border-ink/25 hover:border-ink"
+                className="bg-white hover:bg-brand-light/40"
               >
                 <Link href="/news">View all news</Link>
               </Button>
@@ -253,7 +278,7 @@ export default async function HomePage() {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="mt-6 w-fit rounded-none border-ink/25 hover:border-ink"
+                    className="mt-6 w-fit bg-white hover:bg-brand-light/40"
                   >
                     <Link href={`/news/${article.slug}`}>Read more</Link>
                   </Button>
