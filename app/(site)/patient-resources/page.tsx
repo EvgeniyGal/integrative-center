@@ -165,7 +165,6 @@ export default function PatientResourcesPage() {
             <Button asChild variant="inverted" className="mt-8">
               <Link href={forms.ctaHref}>{forms.ctaLabel}</Link>
             </Button>
-            <p className="mt-4 text-sm text-ivory/60">{forms.note}</p>
           </Reveal>
         </div>
       </section>

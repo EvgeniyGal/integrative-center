@@ -33,21 +33,21 @@ export function QuestionsCarousel({ items }: { items: QuestionItem[] }) {
 
   return (
     <div className="relative">
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className="overflow-hidden px-0.5 pt-2 pb-5" ref={emblaRef}>
         <div className="flex touch-pan-y">
           {items.map((item, i) => (
             <div
               key={item.question}
               className="min-w-0 shrink-0 grow-0 basis-[85%] pr-4 sm:basis-1/2 sm:pr-4 lg:basis-1/4"
             >
-              <article className="flex h-full min-h-[220px] flex-col border border-ink p-6 lg:p-7">
-                <p className="font-display text-3xl leading-none tracking-tight text-brand sm:text-4xl">
+              <article className="group flex h-full min-h-[220px] flex-col border border-ink bg-ivory/60 p-6 transition duration-500 ease-out hover:-translate-y-1.5 hover:border-brand hover:bg-ivory hover:shadow-[0_18px_40px_-28px_rgba(28,27,25,0.45)] lg:p-7">
+                <p className="font-display text-3xl leading-none tracking-tight text-brand transition duration-500 group-hover:text-brand-dark sm:text-4xl">
                   {i + 1}
                 </p>
-                <h3 className="mt-3 font-display text-xl leading-snug tracking-tight text-ink sm:text-2xl">
+                <h3 className="mt-3 font-display text-xl leading-snug tracking-tight text-ink transition duration-500 group-hover:text-brand sm:text-2xl">
                   {item.question}
                 </h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted">
+                <p className="mt-4 text-sm leading-relaxed text-muted transition duration-500 group-hover:text-ink/75">
                   {item.answer}
                 </p>
               </article>

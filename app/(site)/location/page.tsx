@@ -131,7 +131,7 @@ export default function LocationPage() {
           <Reveal>
             <div className="relative aspect-[16/11] overflow-hidden rounded-2xl">
               <Image
-                src="/images/generated/exterior.jpg"
+                src="/images/Office-800x463.png"
                 alt="Exterior of Health & Beauty Integrative Center"
                 fill
                 className="object-cover"
@@ -164,7 +164,7 @@ export default function LocationPage() {
                 <Calendar className="size-5" aria-hidden />
               </div>
               <div>
-                <p className="font-display text-2xl text-ink">
+                <p className="font-display text-3xl font-bold text-brand sm:text-4xl">
                   Ready to schedule?
                 </p>
                 <p className="mt-1 text-sm text-muted">

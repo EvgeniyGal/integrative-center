@@ -309,7 +309,6 @@ export const patientResources = {
     body: "Complete the required patient forms in advance to help make your visit as smooth and efficient as possible. Having your information ready allows our team to better prepare for your appointment.",
     ctaLabel: "View patient forms",
     ctaHref: "/contact",
-    note: "Patient forms are coming soon. Contact our office if you need paperwork before your visit.",
   },
   supplements: {
     eyebrow: "Supplements & recommended products",
