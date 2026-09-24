@@ -68,8 +68,14 @@ export function ChatWidget({
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Mobile panel frame pinned to visualViewport (handles iOS keyboard pan). */
+  const [mobileFrame, setMobileFrame] = useState<{
+    top: number;
+    height: number;
+  } | null>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const syncMobileFrameRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const stored = loadState();
@@ -124,9 +130,61 @@ export function ChatWidget({
   }, [open]);
 
   useEffect(() => {
-    if (open) {
-      window.setTimeout(() => inputRef.current?.focus(), 50);
+    if (!open) {
+      setMobileFrame(null);
+      return;
     }
+
+    const mobileQuery = window.matchMedia("(max-width: 639px)");
+    const vv = window.visualViewport;
+
+    const syncFrame = () => {
+      if (!mobileQuery.matches) {
+        setMobileFrame(null);
+        return;
+      }
+
+      const viewportHeight = vv?.height ?? window.innerHeight;
+      const offsetTop = vv?.offsetTop ?? 0;
+      // Keyboard is open when the visual viewport is much shorter than the layout viewport.
+      const keyboardOpen = window.innerHeight - viewportHeight > 100;
+      const edge = 12;
+      // Keep room under the site header when the keyboard is closed; use the
+      // full visual viewport when it is open so the panel never lifts off-screen.
+      const topInset = keyboardOpen
+        ? edge
+        : Math.max(edge, 88 /* ~5.5rem under fixed header */);
+      const bottomInset = edge;
+
+      setMobileFrame({
+        top: offsetTop + topInset,
+        height: Math.max(220, viewportHeight - topInset - bottomInset),
+      });
+    };
+
+    syncMobileFrameRef.current = syncFrame;
+    syncFrame();
+    vv?.addEventListener("resize", syncFrame);
+    vv?.addEventListener("scroll", syncFrame);
+    window.addEventListener("resize", syncFrame);
+    mobileQuery.addEventListener("change", syncFrame);
+
+    return () => {
+      syncMobileFrameRef.current = () => {};
+      vv?.removeEventListener("resize", syncFrame);
+      vv?.removeEventListener("scroll", syncFrame);
+      window.removeEventListener("resize", syncFrame);
+      mobileQuery.removeEventListener("change", syncFrame);
+      setMobileFrame(null);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setTimeout(() => {
+      inputRef.current?.focus({ preventScroll: true });
+    }, 50);
+    return () => window.clearTimeout(timer);
   }, [open]);
 
   function dismissInvite() {
@@ -261,10 +319,23 @@ export function ChatWidget({
           aria-label="Practice assistant"
           className={cn(
             "fixed z-50 flex min-h-0 flex-col overflow-hidden border border-ink/10 bg-ivory shadow-[0_24px_60px_-24px_rgba(28,27,25,0.45)]",
-            "left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] top-[max(5.5rem,env(safe-area-inset-top))] bottom-[max(0.75rem,env(safe-area-inset-bottom))]",
+            "left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))]",
+            // Mobile fallback until visualViewport measures (desktop ignores via sm: overrides).
+            !mobileFrame &&
+              "top-[max(5.5rem,env(safe-area-inset-top))] bottom-[max(0.75rem,env(safe-area-inset-bottom))]",
+            // Desktop / tablet card.
             "sm:left-auto sm:right-[max(1.5rem,env(safe-area-inset-right))] sm:top-auto sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:h-[min(36rem,calc(100dvh-4rem))] sm:w-[22rem]",
             "lg:right-10 lg:bottom-10",
           )}
+          style={
+            mobileFrame
+              ? {
+                  top: mobileFrame.top,
+                  height: mobileFrame.height,
+                  bottom: "auto",
+                }
+              : undefined
+          }
         >
           <header className="flex shrink-0 items-start justify-between gap-3 border-b border-ink/10 bg-brand px-4 py-3 text-white">
             <div>
@@ -345,6 +416,15 @@ export function ChatWidget({
                 rows={1}
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
+                onFocus={() => {
+                  // After the keyboard animates, iOS may pan visualViewport — re-pin.
+                  window.setTimeout(() => {
+                    syncMobileFrameRef.current();
+                    transcriptRef.current?.scrollTo({
+                      top: transcriptRef.current.scrollHeight,
+                    });
+                  }, 300);
+                }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {
                     event.preventDefault();
