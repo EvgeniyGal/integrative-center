@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { ArticleBlock } from "@/lib/content/blocks";
 import { getVisiblePolicies } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
-import { officePoliciesPage } from "@/lib/site";
+import { officePoliciesPage, officePolicyToc } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.officePolicies);
 
@@ -16,6 +16,10 @@ export const instant = false;
 export default async function OfficePoliciesPage() {
   const policies = await getVisiblePolicies();
   const { eyebrow, title, intro } = officePoliciesPage;
+  const tocItems = officePolicyToc.flatMap((item) => {
+    const policy = policies.find((row) => row.slug === item.slug);
+    return policy ? [{ ...item, id: policy.id }] : [];
+  });
 
   return (
     <section className="bg-ivory pt-[7.75rem]">
@@ -35,22 +39,22 @@ export default async function OfficePoliciesPage() {
           </p>
         </Reveal>
 
-        {policies.length > 0 ? (
+        {tocItems.length > 0 ? (
           <Reveal delay={0.06}>
             <nav
               aria-label="Office policies sections"
               className="mt-10 border border-brand bg-white px-4 py-4 sm:px-5"
             >
               <ul className="flex flex-wrap items-center justify-center gap-y-2 text-center text-sm leading-relaxed text-ink">
-                {policies.map((policy, index) => (
-                  <li key={policy.id} className="inline-flex items-center">
+                {tocItems.map((item, index) => (
+                  <li key={item.id} className="inline-flex items-center">
                     <a
-                      href={`#${policy.slug}`}
+                      href={`#${item.slug}`}
                       className="px-1 text-ink/80 transition hover:text-brand"
                     >
-                      {policy.title}
+                      {item.label}
                     </a>
-                    {index < policies.length - 1 ? (
+                    {index < tocItems.length - 1 ? (
                       <span className="px-1.5 text-brand/50" aria-hidden>
                         |
                       </span>

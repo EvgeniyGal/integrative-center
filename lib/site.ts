@@ -333,6 +333,24 @@ export const supplementsPage = {
   },
 } as const;
 
+/** Short TOC / About labels → policy slug (section `title` in DB is the longer heading). */
+export const officePolicyToc = [
+  { slug: "philosophy-of-care", label: "Our Philosophy of Care" },
+  { slug: "is-hbic-right-for-you", label: "Is HBIC Right for You?" },
+  { slug: "appointments-cancellations", label: "Appointments & Cancellations" },
+  { slug: "patient-portal", label: "Patient Portal" },
+  { slug: "urgent-concerns", label: "Urgent Concerns" },
+  { slug: "labs-results", label: "Labs & Results" },
+  { slug: "prescription-refills", label: "Prescription Refills" },
+  { slug: "communication-boundaries", label: "Communication & Boundaries" },
+  { slug: "payments-refunds", label: "Payments & Refunds" },
+  { slug: "preparing-for-your-visit", label: "Preparing for Your Visit" },
+  { slug: "treatment-follow-ups", label: "Treatment & Follow-Ups" },
+  { slug: "forms-requests", label: "Forms & Requests" },
+  { slug: "family-support", label: "Family & Support" },
+  { slug: "recording-appointments", label: "Recording Appointments" },
+] as const;
+
 export const officePoliciesPage = {
   eyebrow: "Before your visit",
   title: "Office Policies & Patient Guidelines",
