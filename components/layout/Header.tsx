@@ -143,7 +143,7 @@ function HeaderInner() {
             <button
               type="button"
               className={cn(
-                "inline-flex size-11 items-center justify-center rounded-full border min-[1100px]:hidden",
+                "inline-flex size-11 cursor-pointer items-center justify-center rounded-full border min-[1100px]:hidden",
                 onHero
                   ? "border-white/30 text-white"
                   : "border-ink/15 text-ink",
@@ -163,7 +163,7 @@ function HeaderInner() {
                 <Dialog.Close asChild>
                   <button
                     type="button"
-                    className="inline-flex size-10 items-center justify-center rounded-full border border-ink/15"
+                    className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-ink/15"
                     aria-label="Close menu"
                   >
                     <X className="size-4" />
