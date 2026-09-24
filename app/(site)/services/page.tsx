@@ -94,13 +94,19 @@ export default async function ServicesPage() {
                     : "relative aspect-[4/3] overflow-hidden lg:col-span-6"
                 }
               >
-                <Image
-                  src={service.imageUrl}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                />
+                <Link
+                  href={`/services/${service.slug}`}
+                  className="absolute inset-0 block transition duration-500 hover:opacity-90"
+                  aria-label={`Read more about ${service.title}`}
+                >
+                  <Image
+                    src={service.imageUrl}
+                    alt=""
+                    fill
+                    className="object-cover transition duration-500 hover:scale-[1.02]"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                  />
+                </Link>
               </Reveal>
               <Reveal
                 className={
@@ -112,7 +118,12 @@ export default async function ServicesPage() {
                   {service.eyebrow}
                 </p>
                 <h2 className="mt-4 font-display text-4xl tracking-tight text-ink sm:text-5xl">
-                  {service.title}
+                  <Link
+                    href={`/services/${service.slug}`}
+                    className="transition-colors hover:text-brand"
+                  >
+                    {service.title}
+                  </Link>
                 </h2>
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
                   {excerpt}

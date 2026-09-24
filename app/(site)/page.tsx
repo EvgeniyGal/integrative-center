@@ -109,10 +109,10 @@ export default async function HomePage() {
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
               {homeQuestions.eyebrow}
             </p>
-            <h2 className="mt-4 max-w-3xl font-display text-4xl uppercase leading-[1.1] tracking-tight text-balance text-ink sm:text-5xl">
+            <h2 className="mt-4 max-w-3xl font-display text-4xl leading-[1.1] tracking-tight text-balance text-ink sm:text-5xl">
               {homeQuestions.title}
             </h2>
-            <div className="mt-5 space-y-1 text-xl leading-relaxed text-ink sm:text-2xl">
+            <div className="mt-4 max-w-xl space-y-1 text-base leading-relaxed text-muted sm:text-lg">
               {homeQuestions.body.map((line) => (
                 <p key={line}>{line}</p>
               ))}
