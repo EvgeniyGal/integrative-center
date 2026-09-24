@@ -16,8 +16,8 @@ const globalForDb = globalThis as unknown as {
   db: ReturnType<typeof createDb> | undefined;
 };
 
-export const db = globalForDb.db ?? createDb();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.db = db;
-}
+// Recreate in development so schema HMR updates `db.query.*` (e.g. new tables).
+export const db =
+  process.env.NODE_ENV === "production"
+    ? (globalForDb.db ?? (globalForDb.db = createDb()))
+    : createDb();
