@@ -5,12 +5,18 @@ import type { Metadata } from "next";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
+import { policyCardExcerpt } from "@/lib/content/policy-body";
+import { getAboutPolicies } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
 import { aboutPolicies, practiceIntro, team } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.about);
 
-export default function AboutPage() {
+export const instant = false;
+
+export default async function AboutPage() {
+  const policyCards = await getAboutPolicies();
+
   return (
     <>
       <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
@@ -74,16 +80,19 @@ export default function AboutPage() {
           </Reveal>
 
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {aboutPolicies.items.map((policy, index) => (
-              <Reveal key={policy.title} delay={index * 0.06}>
-                <article className="group flex h-full min-h-[220px] flex-col border border-ink bg-ivory/60 p-6 transition duration-500 ease-out hover:-translate-y-1.5 hover:border-brand hover:bg-ivory hover:shadow-[0_18px_40px_-28px_rgba(28,27,25,0.45)] lg:p-7">
+            {policyCards.map((policy, index) => (
+              <Reveal key={policy.id} delay={index * 0.06}>
+                <Link
+                  href={`/patient-resources/office-policies#${policy.slug}`}
+                  className="group flex h-full min-h-[220px] flex-col border border-ink bg-ivory/60 p-6 transition duration-500 ease-out hover:-translate-y-1.5 hover:border-brand hover:bg-ivory hover:shadow-[0_18px_40px_-28px_rgba(28,27,25,0.45)] lg:p-7"
+                >
                   <h3 className="font-display text-xl leading-snug tracking-tight text-brand uppercase transition duration-500 group-hover:text-brand-dark sm:text-2xl">
                     {policy.title}
                   </h3>
                   <p className="mt-4 text-sm leading-relaxed text-muted transition duration-500 group-hover:text-ink/75">
-                    {policy.body}
+                    {policyCardExcerpt(policy.body)}
                   </p>
-                </article>
+                </Link>
               </Reveal>
             ))}
           </div>

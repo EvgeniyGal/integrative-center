@@ -32,6 +32,20 @@ const productDraftSchema = z.object({
   description: z.string(),
 });
 
+const policyDraftSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  bodyMarkdown: z.string(),
+});
+
+const policyMarkdownDialect = `Markdown dialect for bodyMarkdown (NOT JSON blocks):
+- ## / ### for headings (only when the notes already suggest sections)
+- Blank-line-separated paragraphs (inline [label](url), **bold**, *italic* allowed — use sparingly and only on existing words)
+- Unordered lists with "- item"; ordered lists with "1. item" when the notes list items/steps
+- > quote lines when the notes include a quote
+- Do NOT add images, YouTube links, or :::imageText fences
+- No JSON block arrays in the response`;
+
 const formatSystem = `You format content for Health & Beauty Integrative Center, a clinical integrative practice in Sarasota, Florida.
 
 CRITICAL — preserve wording:
@@ -155,6 +169,53 @@ Admin notes (preserve this wording in bodyMarkdown):
 ${notes || "(none)"}
 
 Return slug in kebab-case, excerpt/category/tags/SEO fields derived lightly from the notes, and bodyMarkdown that structures the notes only — do not rewrite the prose.`,
+    });
+
+    const mdCheck = safeParseMarkdown(object.bodyMarkdown);
+    if (!mdCheck.ok) {
+      return {
+        error: `AI returned invalid Markdown: ${mdCheck.error}`,
+      };
+    }
+
+    return { success: "Draft generated. Review before saving.", draft: object };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "AI generation failed.",
+    };
+  }
+}
+
+export async function generatePolicyDraftAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState & { draft?: z.infer<typeof policyDraftSchema> }> {
+  await requireAdmin();
+  const configured = await requireConfiguredModel("content");
+  if ("error" in configured) return configured;
+
+  const title = String(formData.get("title") ?? "");
+  const notes =
+    String(formData.get("notes") ?? "").trim() ||
+    String(formData.get("fallbackBody") ?? "").trim();
+  if (!title && !notes) {
+    return { error: "Provide a title or notes for the draft." };
+  }
+
+  try {
+    const { object } = await generateObject({
+      model: configured.model,
+      schema: policyDraftSchema,
+      system: formatSystem,
+      prompt: `Format an office policy entry. Return title, slug, and bodyMarkdown.
+
+${policyMarkdownDialect}
+
+Title seed: ${title || "(none)"}
+Admin notes (preserve this wording in bodyMarkdown):
+${notes || "(none)"}
+
+Return slug in kebab-case and bodyMarkdown that structures the notes only — do not rewrite the prose.`,
     });
 
     const mdCheck = safeParseMarkdown(object.bodyMarkdown);

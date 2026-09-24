@@ -8,6 +8,7 @@ import {
   MessageSquareQuote,
   Package,
   Pill,
+  ScrollText,
   Sparkles,
   Store,
   Tags,
@@ -65,6 +66,13 @@ export default async function AdminDashboardPage() {
       value: counts.services,
       hint: "Care offerings",
       icon: Sparkles,
+    },
+    {
+      href: "/admin/policies",
+      label: "Policies",
+      value: counts.policies,
+      hint: "Office policy sections",
+      icon: ScrollText,
     },
     {
       href: "/admin/testimonials",

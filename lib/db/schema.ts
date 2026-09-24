@@ -126,6 +126,20 @@ export const services = pgTable("services", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const policies = pgTable("policies", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  body: jsonb("body").$type<ArticleBlock[]>().notNull().default([]),
+  visible: boolean("visible").notNull().default(true),
+  showOnAbout: boolean("showOnAbout").notNull().default(false),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const testimonials = pgTable("testimonials", {
   id: text("id")
     .primaryKey()
@@ -326,6 +340,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export type User = typeof users.$inferSelect;
 export type Question = typeof questions.$inferSelect;
 export type Service = typeof services.$inferSelect;
+export type Policy = typeof policies.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type SupplementBrand = typeof supplementBrands.$inferSelect;

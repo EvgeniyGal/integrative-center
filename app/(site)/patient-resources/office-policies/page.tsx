@@ -1,72 +1,21 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 
+import { ArticleBlocks } from "@/components/content/ArticleBlocks";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
+import type { ArticleBlock } from "@/lib/content/blocks";
+import { getVisiblePolicies } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
 import { officePoliciesPage } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.officePolicies);
 
-const EMPHASIS = [
-  "24 hours’ notice",
-  "24 hours' notice",
-  "$50 no-show fee",
-  "three no-shows",
-  "15-minute grace period",
-  "20 minutes late",
-  "two rounds of clarification",
-  "one business day",
-  "one to two business days",
-  "three to four business days",
-  "24 to 48 business hours",
-  "call 911",
-  "every 6 months",
-  "every 3 months",
-  "scheduled patient only",
-  "one week",
-  "24 hours before the scheduled appointment",
-] as const;
+export const instant = false;
 
-function emphasize(text: string): ReactNode[] {
-  const parts: ReactNode[] = [];
-  let remaining = text;
-  let key = 0;
-
-  while (remaining.length > 0) {
-    let matchIndex = -1;
-    let matchText = "";
-
-    for (const phrase of EMPHASIS) {
-      const index = remaining.indexOf(phrase);
-      if (index !== -1 && (matchIndex === -1 || index < matchIndex)) {
-        matchIndex = index;
-        matchText = phrase;
-      }
-    }
-
-    if (matchIndex === -1) {
-      parts.push(remaining);
-      break;
-    }
-
-    if (matchIndex > 0) {
-      parts.push(remaining.slice(0, matchIndex));
-    }
-    parts.push(
-      <strong key={`e-${key++}`} className="font-semibold text-ink">
-        {matchText}
-      </strong>,
-    );
-    remaining = remaining.slice(matchIndex + matchText.length);
-  }
-
-  return parts;
-}
-
-export default function OfficePoliciesPage() {
-  const { eyebrow, title, intro, toc, sections } = officePoliciesPage;
+export default async function OfficePoliciesPage() {
+  const policies = await getVisiblePolicies();
+  const { eyebrow, title, intro } = officePoliciesPage;
 
   return (
     <section className="bg-ivory pt-[7.75rem]">
@@ -86,38 +35,43 @@ export default function OfficePoliciesPage() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.06}>
-          <nav
-            aria-label="Office policies sections"
-            className="mt-10 border border-brand bg-white px-4 py-4 sm:px-5"
-          >
-            <ul className="flex flex-wrap items-center justify-center gap-y-2 text-center text-sm leading-relaxed text-ink">
-              {toc.map((item, index) => (
-                <li key={item.id} className="inline-flex items-center">
-                  <a
-                    href={`#${item.id}`}
-                    className="px-1 text-ink/80 transition hover:text-brand"
-                  >
-                    {item.label}
-                  </a>
-                  {index < toc.length - 1 ? (
-                    <span className="px-1.5 text-brand/50" aria-hidden>
-                      |
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </Reveal>
+        {policies.length > 0 ? (
+          <Reveal delay={0.06}>
+            <nav
+              aria-label="Office policies sections"
+              className="mt-10 border border-brand bg-white px-4 py-4 sm:px-5"
+            >
+              <ul className="flex flex-wrap items-center justify-center gap-y-2 text-center text-sm leading-relaxed text-ink">
+                {policies.map((policy, index) => (
+                  <li key={policy.id} className="inline-flex items-center">
+                    <a
+                      href={`#${policy.slug}`}
+                      className="px-1 text-ink/80 transition hover:text-brand"
+                    >
+                      {policy.title}
+                    </a>
+                    {index < policies.length - 1 ? (
+                      <span className="px-1.5 text-brand/50" aria-hidden>
+                        |
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </Reveal>
+        ) : null}
 
         <div className="mt-14">
-          {sections.map((section, index) => {
-            const isLast = index === sections.length - 1;
+          {policies.map((policy, index) => {
+            const isLast = index === policies.length - 1;
+            const body = Array.isArray(policy.body)
+              ? (policy.body as ArticleBlock[])
+              : [];
             return (
-              <Reveal key={section.id} delay={Math.min(index * 0.02, 0.18)}>
+              <Reveal key={policy.id} delay={Math.min(index * 0.02, 0.18)}>
                 <article
-                  id={section.id}
+                  id={policy.slug}
                   className={
                     isLast
                       ? "scroll-mt-28 pt-16 sm:pt-20"
@@ -125,40 +79,11 @@ export default function OfficePoliciesPage() {
                   }
                 >
                   <h2 className="font-display text-3xl tracking-tight text-ink sm:text-4xl">
-                    {section.title}
+                    {policy.title}
                   </h2>
-                  {section.blocks.map((block, blockIndex) => {
-                    if (block.type === "heading") {
-                      return (
-                        <h3
-                          key={`${section.id}-h-${blockIndex}`}
-                          className="mt-8 font-display text-2xl tracking-tight text-ink sm:text-3xl"
-                        >
-                          {block.text}
-                        </h3>
-                      );
-                    }
-                    if (block.type === "bullets") {
-                      return (
-                        <ul
-                          key={`${section.id}-ul-${blockIndex}`}
-                          className="mt-5 list-disc space-y-2 pl-6 text-base leading-relaxed text-muted sm:text-lg"
-                        >
-                          {block.items.map((item) => (
-                            <li key={item}>{emphasize(item)}</li>
-                          ))}
-                        </ul>
-                      );
-                    }
-                    return (
-                      <p
-                        key={`${section.id}-p-${blockIndex}`}
-                        className="mt-5 text-base leading-relaxed text-muted sm:text-lg"
-                      >
-                        {emphasize(block.text)}
-                      </p>
-                    );
-                  })}
+                  <div className="mt-5">
+                    <ArticleBlocks blocks={body} />
+                  </div>
                 </article>
               </Reveal>
             );

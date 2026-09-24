@@ -12,6 +12,7 @@ import {
   MessageSquareQuote,
   Package,
   Pill,
+  ScrollText,
   Settings,
   Sparkles,
   Store,
@@ -31,6 +32,7 @@ const siteLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/questions", label: "Questions", icon: HelpCircle },
   { href: "/admin/services", label: "Services", icon: Sparkles },
+  { href: "/admin/policies", label: "Policies", icon: ScrollText },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/news", label: "News", icon: FileText },
 ];
@@ -163,6 +165,11 @@ function pageTitle(pathname: string) {
     return "Edit service";
   }
   if (pathname.startsWith("/admin/services")) return "Services";
+  if (pathname === "/admin/policies/new") return "New policy";
+  if (pathname.startsWith("/admin/policies/") && pathname !== "/admin/policies") {
+    return "Edit policy";
+  }
+  if (pathname.startsWith("/admin/policies")) return "Policies";
   if (pathname === "/admin/testimonials/new") return "New testimonial";
   if (
     pathname.startsWith("/admin/testimonials/") &&

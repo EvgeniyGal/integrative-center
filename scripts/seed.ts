@@ -13,6 +13,7 @@ async function main() {
   const { db } = await import("../lib/db");
   const {
     articles,
+    policies,
     productCategories,
     questions,
     recommendedProducts,
@@ -23,7 +24,9 @@ async function main() {
     siteSettings,
     users,
   } = await import("../lib/db/schema");
-  const { homeNews, homeQuestions, reviews } = await import("../lib/site");
+  const { homeNews, homeQuestions, officePoliciesPage, reviews } = await import(
+    "../lib/site"
+  );
   const {
     DEFAULT_KNOWLEDGE_BASE,
     DEFAULT_SYSTEM_PROMPT,
@@ -154,6 +157,54 @@ async function main() {
 
     await db.insert(services).values(rows);
     console.log(`Seeded ${rows.length} services`);
+  }
+
+  async function seedPolicies() {
+    const existing = await db.select().from(policies).limit(1);
+    if (existing.length > 0) {
+      console.log("Policies already seeded");
+      return;
+    }
+
+    const aboutSlugs = new Set([
+      "appointments-cancellations",
+      "late-arrivals",
+      "patient-portal",
+      "prescription-refills",
+    ]);
+
+    type StaticBlock =
+      | { type: "paragraph"; text: string }
+      | { type: "heading"; text: string }
+      | { type: "bullets"; items: string[] };
+
+    const rows = officePoliciesPage.sections.map((section, index) => ({
+      slug: section.id,
+      title: section.title,
+      body: (section.blocks as unknown as StaticBlock[]).map((block) => {
+        if (block.type === "bullets") {
+          return {
+            type: "list" as const,
+            style: "unordered" as const,
+            items: block.items,
+          };
+        }
+        if (block.type === "heading") {
+          return {
+            type: "heading" as const,
+            level: 3 as const,
+            text: block.text,
+          };
+        }
+        return { type: "paragraph" as const, text: block.text };
+      }),
+      visible: true,
+      showOnAbout: aboutSlugs.has(section.id),
+      sortOrder: index,
+    }));
+
+    await db.insert(policies).values(rows);
+    console.log(`Seeded ${rows.length} policies`);
   }
 
   async function seedTestimonials() {
@@ -400,6 +451,7 @@ async function main() {
   await seedSiteSettings();
   await seedQuestions();
   await seedServices();
+  await seedPolicies();
   await seedTestimonials();
   await seedArticles();
   await seedSupplementBrands();

@@ -262,24 +262,6 @@ export const aboutPolicies = {
   title: "Clear policies for respectful, efficient care.",
   body: "To help us stay on schedule and provide appropriate care to every patient, please review these key practice policies.",
   readMoreHref: "/patient-resources/office-policies",
-  items: [
-    {
-      title: "Appointments & cancellations",
-      body: "Please provide at least 24 hours’ notice if you need to cancel or reschedule your appointment. Late cancellations and missed appointments may be subject to a $50 fee.",
-    },
-    {
-      title: "Late arrivals",
-      body: "We allow a 15-minute grace period. Arrivals more than approximately 20 minutes late will generally need to be rescheduled to avoid delaying other patients.",
-    },
-    {
-      title: "Patient portal",
-      body: "The patient portal is intended for brief questions, refill requests, scheduling, and clarification of an existing treatment plan. More complex medical concerns may require an appointment.",
-    },
-    {
-      title: "Prescription refills",
-      body: "Please allow 24–48 business hours for routine prescription refill requests. Whenever possible, requests should be submitted through the patient portal or your pharmacy.",
-    },
-  ],
 } as const;
 
 export const patientResources = {
@@ -356,28 +338,7 @@ export const officePoliciesPage = {
   title: "Office Policies & Patient Guidelines",
   intro:
     "Please review our office policies before your visit. These guidelines outline important information about appointments, communication, prescription refills, laboratory results, payments, follow-up care, and your responsibilities as an HBIC patient.",
-  toc: [
-    { id: "philosophy-of-care", label: "Philosophy of Care" },
-    { id: "is-hbic-right-for-you", label: "Is HBIC Right for You?" },
-    {
-      id: "appointments-cancellations",
-      label: "Appointments & Cancellations",
-    },
-    { id: "patient-portal", label: "Patient Portal" },
-    { id: "urgent-concerns", label: "Urgent Concerns" },
-    { id: "labs-results", label: "Labs & Results" },
-    { id: "prescription-refills", label: "Prescription Refills" },
-    {
-      id: "communication-boundaries",
-      label: "Communication & Boundaries",
-    },
-    { id: "payments-refunds", label: "Payments & Refunds" },
-    { id: "preparing-for-your-visit", label: "Preparing for Your Visit" },
-    { id: "treatment-follow-ups", label: "Treatment & Follow-Ups" },
-    { id: "forms-requests", label: "Forms & Requests" },
-    { id: "family-support", label: "Family & Support" },
-    { id: "recording-appointments", label: "Recording Appointments" },
-  ],
+  /** Seed source only — public page loads from DB. */
   sections: [
     {
       id: "philosophy-of-care",
