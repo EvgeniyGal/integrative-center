@@ -13,6 +13,16 @@ export type PageSeo = {
   imageHeight?: number;
 };
 
+export function absoluteUrl(path: string) {
+  if (!path || path === "/") return site.url;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${site.url}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export function contentImageAlt(title: string) {
+  return `${title} at ${site.name}`;
+}
+
 export function pageMetadata({
   title,
   description,
@@ -23,7 +33,7 @@ export function pageMetadata({
   imageWidth = 1920,
   imageHeight = 1080,
 }: PageSeo): Metadata {
-  const url = path === "/" ? site.url : `${site.url}${path}`;
+  const url = absoluteUrl(path);
 
   return {
     title: { absolute: title },
@@ -64,6 +74,123 @@ export function pageMetadata({
           alt: imageAlt,
         },
       ],
+    },
+  };
+}
+
+export type ContentSeo = {
+  title: string;
+  description: string;
+  path: string;
+  image?: string | null;
+  imageAlt?: string;
+  keywords?: string[];
+  type?: "website" | "article";
+  publishedTime?: string | Date | null;
+  modifiedTime?: string | Date | null;
+};
+
+function toIso(value?: string | Date | null) {
+  if (!value) return undefined;
+  if (value instanceof Date) return value.toISOString();
+  return value;
+}
+
+export function contentMetadata({
+  title,
+  description,
+  path,
+  image,
+  imageAlt,
+  keywords,
+  type = "website",
+  publishedTime,
+  modifiedTime,
+}: ContentSeo): Metadata {
+  const url = absoluteUrl(path);
+  const resolvedAlt = imageAlt ?? contentImageAlt(title);
+  const images = image
+    ? [
+        {
+          url: image,
+          alt: resolvedAlt,
+        },
+      ]
+    : undefined;
+  const published = toIso(publishedTime);
+  const modified = toIso(modifiedTime);
+
+  return {
+    title: { absolute: title },
+    description,
+    keywords: keywords?.length ? keywords : undefined,
+    alternates: {
+      canonical: path,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: site.name,
+      locale: "en_US",
+      type,
+      ...(type === "article"
+        ? {
+            publishedTime: published,
+            modifiedTime: modified,
+          }
+        : {}),
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [{ url: image, alt: resolvedAlt }] : undefined,
+    },
+  };
+}
+
+export type BreadcrumbItem = {
+  name: string;
+  path: string;
+};
+
+export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  };
+}
+
+export function clinicPublisherJsonLd() {
+  return {
+    "@type": "MedicalBusiness" as const,
+    name: site.name,
+    url: site.url,
+    logo: absoluteUrl("/images/logo-transparent.png"),
+  };
+}
+
+export function articleAuthorJsonLd() {
+  return {
+    "@type": "Person" as const,
+    name: "Elina Belilovskiy, ARNP, MSN",
+    jobTitle: "Nurse Practitioner",
+    worksFor: {
+      "@type": "MedicalBusiness",
+      name: site.name,
+      url: site.url,
     },
   };
 }

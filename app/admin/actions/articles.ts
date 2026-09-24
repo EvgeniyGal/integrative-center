@@ -177,6 +177,7 @@ export async function createArticleAction(
     revalidatePath("/admin/news");
     revalidatePath("/news");
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
     return { success: "Article created." };
   } catch (error) {
     const message =
@@ -283,6 +284,7 @@ export async function updateArticleAction(
     revalidatePath("/news");
     revalidatePath(`/news/${parsed.data.slug}`);
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
     return { success: "Article updated." };
   } catch (error) {
     const message =
@@ -324,6 +326,7 @@ export async function deleteArticleAction(formData: FormData) {
   revalidatePath("/news");
   revalidatePath(`/news/${existing.slug}`);
   revalidatePath("/");
+  revalidatePath("/sitemap.xml");
 }
 
 export async function setArticleFlagAction(formData: FormData) {
@@ -370,4 +373,5 @@ export async function setArticleFlagAction(formData: FormData) {
   revalidatePath(`/news/${existing.slug}`);
   revalidatePath("/news");
   revalidatePath("/");
+  revalidatePath("/sitemap.xml");
 }

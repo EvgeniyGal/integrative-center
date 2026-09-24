@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
+import { contentImageAlt } from "@/lib/seo";
 
 const PAGE_SIZE = 9;
 
@@ -35,7 +36,7 @@ export function NewsList({ articles }: { articles: NewsListItem[] }) {
               >
                 <Image
                   src={article.coverImageUrl}
-                  alt=""
+                  alt={contentImageAlt(article.title)}
                   fill
                   className="object-cover transition duration-700 hover:scale-105"
                   sizes="(min-width: 1024px) 33vw, 50vw, 100vw"

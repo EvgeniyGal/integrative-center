@@ -141,6 +141,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
   const [slug, setSlug] = useState(service?.slug ?? "");
   const [eyebrow, setEyebrow] = useState(service?.eyebrow ?? "");
   const [summary, setSummary] = useState(service?.summary ?? "");
+  const [seoTitle, setSeoTitle] = useState(service?.seoTitle ?? "");
+  const [seoDescription, setSeoDescription] = useState(
+    service?.seoDescription ?? "",
+  );
   const [bodyMarkdown, setBodyMarkdown] = useState(() =>
     serviceBodyToMarkdown(service?.body),
   );
@@ -547,8 +551,29 @@ export function ServiceEditor({ service }: { service?: Service }) {
 
           <AdminSection
             title="Visibility"
-            description="Control where this service appears."
+            description="SEO overrides and where this service appears."
           >
+            <AdminField label="SEO title" htmlFor={`seo-title-${id}`}>
+              <Input
+                id={`seo-title-${id}`}
+                name="seoTitle"
+                variant="box"
+                value={seoTitle}
+                onChange={(e) => setSeoTitle(e.target.value)}
+                placeholder="Optional — defaults to service title"
+              />
+            </AdminField>
+            <AdminField label="SEO description" htmlFor={`seo-desc-${id}`}>
+              <Textarea
+                id={`seo-desc-${id}`}
+                name="seoDescription"
+                variant="box"
+                value={seoDescription}
+                onChange={(e) => setSeoDescription(e.target.value)}
+                rows={2}
+                placeholder="Optional — defaults to summary"
+              />
+            </AdminField>
             <div className="grid gap-4 sm:grid-cols-[minmax(0,10rem)_1fr_1fr]">
               <AdminField label="Sort order" htmlFor={`sort-${id}`}>
                 <Input

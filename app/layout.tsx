@@ -51,6 +51,13 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: process.env.GOOGLE_SITE_VERIFICATION,
+        },
+      }
+    : {}),
   openGraph: {
     title: pages.home.title,
     description: pages.home.description,

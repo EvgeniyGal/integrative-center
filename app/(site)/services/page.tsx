@@ -3,11 +3,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
+import { ListingBreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { getVisibleServices } from "@/lib/content/queries";
 import { serviceBodyPlainText } from "@/lib/content/service-body";
-import { pageMetadata, pages } from "@/lib/seo";
+import { contentImageAlt, pageMetadata, pages } from "@/lib/seo";
 import { servicesIntro } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.services);
@@ -37,6 +38,7 @@ export default async function ServicesPage() {
 
   return (
     <>
+      <ListingBreadcrumbJsonLd name="Services" path="/services" />
       <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
         <Image
           src="/images/generated/reception.jpg"
@@ -101,7 +103,7 @@ export default async function ServicesPage() {
                 >
                   <Image
                     src={service.imageUrl}
-                    alt=""
+                    alt={contentImageAlt(service.title)}
                     fill
                     className="object-cover transition duration-500 hover:scale-[1.02]"
                     sizes="(min-width: 1024px) 50vw, 100vw"

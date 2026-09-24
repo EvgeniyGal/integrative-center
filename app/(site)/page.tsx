@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { QuestionsCarousel } from "@/components/QuestionsCarousel";
+import { FaqJsonLd } from "@/components/seo/StructuredData";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import {
   getPublishedQuestions,
   getPublishedTestimonials,
 } from "@/lib/content/queries";
-import { pageMetadata, pages } from "@/lib/seo";
+import { contentImageAlt, pageMetadata, pages } from "@/lib/seo";
 import { homeNews, homeQuestions, team } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.home);
@@ -67,6 +68,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <FaqJsonLd items={questionItems} />
       <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden">
         <Image
           src="/images/generated/hero.jpg"
@@ -193,7 +195,7 @@ export default async function HomePage() {
                 >
                   <Image
                     src={service.image}
-                    alt=""
+                    alt={contentImageAlt(service.title)}
                     fill
                     className="object-cover transition duration-700 ease-out group-hover:scale-105"
                     sizes="(min-width: 1024px) 33vw, 50vw"
@@ -254,7 +256,7 @@ export default async function HomePage() {
                   >
                     <Image
                       src={article.image}
-                      alt=""
+                      alt={contentImageAlt(article.title)}
                       fill
                       className="object-cover transition duration-700 hover:scale-105"
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

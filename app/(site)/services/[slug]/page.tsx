@@ -5,10 +5,11 @@ import { notFound } from "next/navigation";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { ArticleBlocks } from "@/components/content/ArticleBlocks";
+import { ServiceJsonLd } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
 import { getServiceBySlug, getVisibleServices } from "@/lib/content/queries";
 import { normalizeServiceBody } from "@/lib/content/service-body";
-import { site } from "@/lib/site";
+import { contentImageAlt, contentMetadata } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -25,15 +26,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = await getServiceBySlug(slug);
   if (!service) return {};
-  return {
-    title: `${service.title} | ${site.shortName}`,
-    description: service.summary,
-    openGraph: {
-      title: service.title,
-      description: service.summary,
-      images: service.imageUrl ? [{ url: service.imageUrl }] : undefined,
-    },
-  };
+
+  const title = service.seoTitle || service.title;
+  const description = service.seoDescription || service.summary;
+
+  return contentMetadata({
+    title,
+    description,
+    path: `/services/${service.slug}`,
+    image: service.imageUrl,
+    imageAlt: contentImageAlt(service.title),
+    type: "website",
+    modifiedTime: service.updatedAt,
+  });
 }
 
 export default async function ServiceDetailPage({ params }: PageProps) {
@@ -42,13 +47,20 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   if (!service) notFound();
 
   const body = normalizeServiceBody(service.body);
+  const description = service.seoDescription || service.summary;
 
   return (
     <>
+      <ServiceJsonLd
+        name={service.title}
+        description={description}
+        path={`/services/${service.slug}`}
+        image={service.imageUrl}
+      />
       <section className="relative isolate min-h-[60svh] overflow-hidden pt-[7.75rem]">
         <Image
           src={service.imageUrl}
-          alt=""
+          alt={contentImageAlt(service.title)}
           fill
           priority
           className="object-cover"

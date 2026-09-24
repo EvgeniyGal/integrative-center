@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { NewsList } from "@/components/NewsList";
 import { Reveal } from "@/components/motion/Reveal";
+import { ListingBreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { SectionHeading } from "@/components/SectionHeading";
 import { getPublishedArticles } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
@@ -14,6 +15,7 @@ export default async function NewsPage() {
 
   return (
     <>
+      <ListingBreadcrumbJsonLd name="News" path="/news" />
       <section className="relative isolate min-h-[70svh] overflow-hidden pt-[7.75rem]">
         <Image
           src="/images/generated/exterior.jpg"

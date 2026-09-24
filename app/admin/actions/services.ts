@@ -45,6 +45,8 @@ const serviceSchema = z.object({
   summary: z.string().min(1),
   body: z.array(z.custom<ArticleBlock>()),
   imageUrl: z.string().min(1),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
   showOnHome: z.boolean(),
   visible: z.boolean(),
   sortOrder: z.number().int(),
@@ -108,10 +110,23 @@ function parseServiceForm(
     summary: String(formData.get("summary") ?? ""),
     body: blocks,
     imageUrl: String(formData.get("imageUrl") ?? existingImage),
+    seoTitle: String(formData.get("seoTitle") ?? "") || undefined,
+    seoDescription: String(formData.get("seoDescription") ?? "") || undefined,
     showOnHome: formData.get("showOnHome") === "on",
     visible: formData.get("visible") === "on",
     sortOrder: Number(formData.get("sortOrder") || 0),
   });
+}
+
+function revalidateServicePaths(slug?: string, previousSlug?: string) {
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  revalidatePath("/");
+  revalidatePath("/sitemap.xml");
+  if (slug) revalidatePath(`/services/${slug}`);
+  if (previousSlug && previousSlug !== slug) {
+    revalidatePath(`/services/${previousSlug}`);
+  }
 }
 
 function readServiceSlug(formData: FormData) {
@@ -167,10 +182,7 @@ export async function createServiceAction(
 
     await db.insert(services).values(parsed.data);
     updateTag("services");
-    revalidatePath("/admin/services");
-    revalidatePath("/services");
-    revalidatePath(`/services/${parsed.data.slug}`);
-    revalidatePath("/");
+    revalidateServicePaths(parsed.data.slug);
     return { success: "Service created." };
   } catch (error) {
     const message =
@@ -257,13 +269,7 @@ export async function updateServiceAction(
 
     updateTag("services");
     updateTag(`service:${parsed.data.slug}`);
-    revalidatePath("/admin/services");
-    revalidatePath("/services");
-    revalidatePath(`/services/${parsed.data.slug}`);
-    if (existing.slug !== parsed.data.slug) {
-      revalidatePath(`/services/${existing.slug}`);
-    }
-    revalidatePath("/");
+    revalidateServicePaths(parsed.data.slug, existing.slug);
     return { success: "Service updated." };
   } catch (error) {
     const message =
@@ -298,9 +304,7 @@ export async function deleteServiceAction(formData: FormData) {
 
   updateTag("services");
   updateTag(`service:${existing.slug}`);
-  revalidatePath("/admin/services");
-  revalidatePath("/services");
-  revalidatePath("/");
+  revalidateServicePaths(existing.slug);
 }
 
 export async function setServiceFlagAction(formData: FormData) {
@@ -325,9 +329,7 @@ export async function setServiceFlagAction(formData: FormData) {
 
   updateTag("services");
   updateTag(`service:${existing.slug}`);
-  revalidatePath("/admin/services");
-  revalidatePath("/services");
-  revalidatePath("/");
+  revalidateServicePaths(existing.slug);
 }
 
 export async function reorderServicesAction(orderedIds: string[]) {
@@ -344,7 +346,5 @@ export async function reorderServicesAction(orderedIds: string[]) {
   );
 
   updateTag("services");
-  revalidatePath("/admin/services");
-  revalidatePath("/services");
-  revalidatePath("/");
+  revalidateServicePaths();
 }

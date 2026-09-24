@@ -5,9 +5,10 @@ import type { Metadata } from "next";
 
 import { ArticleBlocks } from "@/components/content/ArticleBlocks";
 import { ConsultCta } from "@/components/ConsultCta";
+import { ArticleJsonLd } from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
 import { getArticleBySlug, getPublishedArticles } from "@/lib/content/queries";
-import { site } from "@/lib/site";
+import { contentImageAlt, contentMetadata } from "@/lib/seo";
 
 export async function generateStaticParams() {
   try {
@@ -30,19 +31,17 @@ export async function generateMetadata({
   const title = article.seoTitle || article.title;
   const description = article.seoDescription || article.excerpt;
 
-  return {
-    title: { absolute: title },
+  return contentMetadata({
+    title,
     description,
-    alternates: { canonical: `/news/${article.slug}` },
-    openGraph: {
-      title,
-      description,
-      url: `${site.url}/news/${article.slug}`,
-      siteName: site.name,
-      type: "article",
-      images: [{ url: article.coverImageUrl }],
-    },
-  };
+    path: `/news/${article.slug}`,
+    image: article.coverImageUrl,
+    imageAlt: contentImageAlt(article.title),
+    keywords: article.tags?.length ? article.tags : undefined,
+    type: "article",
+    publishedTime: article.publishedAt,
+    modifiedTime: article.updatedAt,
+  });
 }
 
 export default async function ArticlePage({
@@ -54,12 +53,22 @@ export default async function ArticlePage({
   const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
+  const description = article.seoDescription || article.excerpt;
+
   return (
     <>
+      <ArticleJsonLd
+        title={article.title}
+        description={description}
+        path={`/news/${article.slug}`}
+        image={article.coverImageUrl}
+        publishedAt={article.publishedAt}
+        modifiedAt={article.updatedAt}
+      />
       <section className="relative isolate min-h-[60svh] overflow-hidden pt-[7.75rem]">
         <Image
           src={article.coverImageUrl}
-          alt=""
+          alt={contentImageAlt(article.title)}
           fill
           priority
           className="object-cover"

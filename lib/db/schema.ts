@@ -119,6 +119,8 @@ export const services = pgTable("services", {
   summary: text("summary").notNull(),
   body: jsonb("body").$type<ArticleBlock[]>().notNull().default([]),
   imageUrl: text("imageUrl").notNull(),
+  seoTitle: text("seoTitle"),
+  seoDescription: text("seoDescription"),
   showOnHome: boolean("showOnHome").notNull().default(false),
   visible: boolean("visible").notNull().default(true),
   sortOrder: integer("sortOrder").notNull().default(0),
