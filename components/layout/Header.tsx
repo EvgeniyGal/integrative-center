@@ -93,10 +93,7 @@ function HeaderInner() {
 
         <nav className="hidden items-center gap-8 min-[1100px]:flex">
           {nav.map((item) => {
-            const active =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
+            const active = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
