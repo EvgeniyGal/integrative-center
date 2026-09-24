@@ -360,6 +360,12 @@ export function PolicyEditor({ policy }: { policy?: Policy }) {
                 defaultChecked={policy?.visible ?? true}
               />
               <AdminToggle
+                name="showInToc"
+                label="Show in table of contents"
+                description="Include in the policies page TOC nav"
+                defaultChecked={policy?.showInToc ?? false}
+              />
+              <AdminToggle
                 name="showOnAbout"
                 label="Show on About page"
                 description="Include in About page teaser cards"

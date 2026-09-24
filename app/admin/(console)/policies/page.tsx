@@ -11,8 +11,8 @@ export default async function AdminPoliciesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <p className="max-w-2xl text-muted">
-          Hide a policy without deleting it. Toggle “Show on About” for the
-          About page teaser cards.
+          Hide a policy without deleting it. Toggle “TOC” for the policies page
+          nav, and “Show on About” for About teaser cards.
         </p>
         <AddPolicyButton className="rounded-none" />
       </div>

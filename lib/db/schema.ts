@@ -135,6 +135,7 @@ export const policies = pgTable("policies", {
   body: jsonb("body").$type<ArticleBlock[]>().notNull().default([]),
   visible: boolean("visible").notNull().default(true),
   showOnAbout: boolean("showOnAbout").notNull().default(false),
+  showInToc: boolean("showInToc").notNull().default(false),
   sortOrder: integer("sortOrder").notNull().default(0),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),

@@ -51,6 +51,7 @@ export function PoliciesTable({ items }: { items: Policy[] }) {
               <AdminTableHeaderCell className="hidden lg:table-cell">
                 Slug
               </AdminTableHeaderCell>
+              <AdminTableHeaderCell>TOC</AdminTableHeaderCell>
               <AdminTableHeaderCell>About</AdminTableHeaderCell>
               <AdminTableHeaderCell>Visible</AdminTableHeaderCell>
               <AdminTableHeaderCell className="text-right">
@@ -61,7 +62,7 @@ export function PoliciesTable({ items }: { items: Policy[] }) {
           <SortableTableBody>
             {rows.length === 0 ? (
               <AdminTableRow>
-                <AdminTableCell colSpan={6} className="py-10 text-muted">
+                <AdminTableCell colSpan={7} className="py-10 text-muted">
                   No policies yet.
                 </AdminTableCell>
               </AdminTableRow>
@@ -86,6 +87,18 @@ export function PoliciesTable({ items }: { items: Policy[] }) {
                             <p className="max-w-xs truncate text-muted">
                               {item.slug}
                             </p>
+                          </AdminTableCell>
+                          <AdminTableCell>
+                            <StatusToggle
+                              action={setPolicyFlagAction}
+                              id={item.id}
+                              field="showInToc"
+                              value={item.showInToc}
+                              onLabel="In TOC"
+                              offLabel="No TOC"
+                              onTone="info"
+                              offTone="neutral"
+                            />
                           </AdminTableCell>
                           <AdminTableCell>
                             <StatusToggle
@@ -130,7 +143,7 @@ export function PoliciesTable({ items }: { items: Policy[] }) {
                     {open ? (
                       <AdminTableRow>
                         <AdminTableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="bg-stone/20 px-4 py-6"
                         >
                           {body.length > 0 ? (

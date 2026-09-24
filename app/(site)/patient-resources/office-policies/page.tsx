@@ -13,13 +13,16 @@ export const metadata: Metadata = pageMetadata(pages.officePolicies);
 
 export const instant = false;
 
+function tocLabel(slug: string, title: string) {
+  return (
+    officePolicyToc.find((item) => item.slug === slug)?.label ?? title
+  );
+}
+
 export default async function OfficePoliciesPage() {
   const policies = await getVisiblePolicies();
   const { eyebrow, title, intro } = officePoliciesPage;
-  const tocItems = officePolicyToc.flatMap((item) => {
-    const policy = policies.find((row) => row.slug === item.slug);
-    return policy ? [{ ...item, id: policy.id }] : [];
-  });
+  const tocPolicies = policies.filter((policy) => policy.showInToc);
 
   return (
     <section className="bg-ivory pt-[7.75rem]">
@@ -39,22 +42,22 @@ export default async function OfficePoliciesPage() {
           </p>
         </Reveal>
 
-        {tocItems.length > 0 ? (
+        {tocPolicies.length > 0 ? (
           <Reveal delay={0.06}>
             <nav
               aria-label="Office policies sections"
               className="mt-10 border border-brand bg-white px-4 py-4 sm:px-5"
             >
               <ul className="flex flex-wrap items-center justify-center gap-y-2 text-center text-sm leading-relaxed text-ink">
-                {tocItems.map((item, index) => (
-                  <li key={item.id} className="inline-flex items-center">
+                {tocPolicies.map((policy, index) => (
+                  <li key={policy.id} className="inline-flex items-center">
                     <a
-                      href={`#${item.slug}`}
+                      href={`#${policy.slug}`}
                       className="px-1 text-ink/80 transition hover:text-brand"
                     >
-                      {item.label}
+                      {tocLabel(policy.slug, policy.title)}
                     </a>
-                    {index < tocItems.length - 1 ? (
+                    {index < tocPolicies.length - 1 ? (
                       <span className="px-1.5 text-brand/50" aria-hidden>
                         |
                       </span>

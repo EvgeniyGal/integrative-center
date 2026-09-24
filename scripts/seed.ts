@@ -24,9 +24,8 @@ async function main() {
     siteSettings,
     users,
   } = await import("../lib/db/schema");
-  const { homeNews, homeQuestions, officePoliciesPage, reviews } = await import(
-    "../lib/site"
-  );
+  const { homeNews, homeQuestions, officePoliciesPage, officePolicyToc, reviews } =
+    await import("../lib/site");
   const {
     DEFAULT_KNOWLEDGE_BASE,
     DEFAULT_SYSTEM_PROMPT,
@@ -172,6 +171,7 @@ async function main() {
       "patient-portal",
       "prescription-refills",
     ]);
+    const tocSlugs = new Set<string>(officePolicyToc.map((item) => item.slug));
 
     type StaticBlock =
       | { type: "paragraph"; text: string }
@@ -200,6 +200,7 @@ async function main() {
       }),
       visible: true,
       showOnAbout: aboutSlugs.has(section.id),
+      showInToc: tocSlugs.has(section.id),
       sortOrder: index,
     }));
 

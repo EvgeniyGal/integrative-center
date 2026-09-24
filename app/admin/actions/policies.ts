@@ -42,6 +42,7 @@ const policySchema = z.object({
   body: z.array(z.custom<ArticleBlock>()),
   visible: z.boolean(),
   showOnAbout: z.boolean(),
+  showInToc: z.boolean(),
   sortOrder: z.number().int(),
 });
 
@@ -81,6 +82,7 @@ function parsePolicyForm(formData: FormData, blocks: ArticleBlock[]) {
     body: blocks,
     visible: formData.get("visible") === "on",
     showOnAbout: formData.get("showOnAbout") === "on",
+    showInToc: formData.get("showInToc") === "on",
     sortOrder: Number(formData.get("sortOrder") || 0),
   });
 }
@@ -211,7 +213,7 @@ export async function setPolicyFlagAction(formData: FormData) {
   const field = String(formData.get("field") ?? "");
   const value = formData.get("value") === "true";
   if (!id) throw new Error("Missing policy id.");
-  if (field !== "visible" && field !== "showOnAbout") {
+  if (field !== "visible" && field !== "showOnAbout" && field !== "showInToc") {
     throw new Error("Invalid policy flag.");
   }
 
