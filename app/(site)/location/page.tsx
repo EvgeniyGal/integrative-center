@@ -37,14 +37,14 @@ export default function LocationPage() {
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          <Reveal>
-            <article className="flex h-full gap-5 rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] sm:gap-6 lg:p-9">
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand sm:size-20">
+        <div className="mt-12 grid min-w-0 gap-6 lg:grid-cols-2">
+          <Reveal className="min-w-0">
+            <article className="flex h-full min-w-0 gap-5 rounded-2xl border border-stone/80 bg-white p-5 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] sm:gap-6 sm:p-8 lg:p-9">
+              <div className="hidden size-16 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand sm:flex sm:size-20">
                 <MapPin className="size-8 sm:size-9" aria-hidden />
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
-                <h2 className="font-display text-3xl font-bold text-brand">
+                <h2 className="font-display text-2xl font-bold text-brand sm:text-3xl">
                   Sarasota Office
                 </h2>
                 <div className="mt-5 space-y-1 text-base leading-relaxed text-muted">
@@ -87,13 +87,13 @@ export default function LocationPage() {
             </article>
           </Reveal>
 
-          <Reveal delay={0.08}>
-            <article className="flex h-full gap-5 rounded-2xl border border-stone/80 bg-white p-8 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] sm:gap-6 lg:p-9">
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand sm:size-20">
+          <Reveal className="min-w-0" delay={0.08}>
+            <article className="flex h-full min-w-0 gap-5 rounded-2xl border border-stone/80 bg-white p-5 shadow-[0_16px_48px_-32px_rgba(28,27,25,0.4)] sm:gap-6 sm:p-8 lg:p-9">
+              <div className="hidden size-16 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand sm:flex sm:size-20">
                 <Laptop className="size-8 sm:size-9" aria-hidden />
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
-                <h2 className="font-display text-3xl font-bold text-brand">
+                <h2 className="font-display text-2xl font-bold text-brand sm:text-3xl">
                   Telehealth Appointments
                 </h2>
                 <p className="mt-5 text-base leading-relaxed text-muted">
@@ -115,10 +115,13 @@ export default function LocationPage() {
                   </p>
                 </div>
                 <div className="mt-auto pt-8">
-                  <Button asChild>
+                  <Button
+                    asChild
+                    className="h-auto w-full whitespace-normal py-3 text-center sm:h-11 sm:w-auto sm:whitespace-nowrap sm:py-0"
+                  >
                     <Link href="/contact" data-analytics="consult_click">
                       Request a Telehealth Consultation
-                      <ArrowRight className="size-4" aria-hidden />
+                      <ArrowRight className="size-4 shrink-0" aria-hidden />
                     </Link>
                   </Button>
                 </div>
