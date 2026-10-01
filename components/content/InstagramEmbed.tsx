@@ -62,7 +62,6 @@ export function InstagramEmbed({ url }: { url: string }) {
         className="instagram-media"
         data-instgrm-permalink={permalink}
         data-instgrm-version="14"
-        data-instgrm-captioned
       >
         <a
           href={permalink}
