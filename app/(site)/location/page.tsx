@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = pageMetadata(pages.location);
 
 const availableStates = ["Florida", "Massachusetts", "Illinois"] as const;
-const comingSoonStates = ["New Jersey", "Connecticut"] as const;
+const comingSoonStates = ["New Jersey", "California"] as const;
 
 export default function LocationPage() {
   return (
