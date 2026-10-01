@@ -135,7 +135,7 @@ export const homeQuestions = {
 } as const;
 
 export const homeNews = {
-  eyebrow: "Questions",
+  eyebrow: "News",
   title: "News and Articles",
   body: "Stay informed with expert insights on wellness, prevention, and integrative care.",
   items: [
