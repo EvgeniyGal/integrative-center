@@ -84,16 +84,21 @@ export default async function HomePage() {
             Sarasota, Florida
           </p>
           <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[0.95] text-ivory text-balance sm:text-7xl lg:text-8xl">
-            Greater Sarasota’s Best Health & Beauty Integrative Center
+            Integrative & Functional Health Care in Sarasota, Florida
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-ivory/80 sm:text-lg">
-            Located in the heart of Sarasota, Florida, Health and Beauty
-            Integrative Center combines holistic health therapies with
-            science-backed treatments to support the physical and mental health
-            of patients of all ages. Using practical therapies, we address the
-            root causes of our patients’ issues while helping to reduce their
-            symptoms.
-          </p>
+          <div className="mt-6 max-w-2xl space-y-4 text-base leading-relaxed text-ivory/80 sm:text-lg">
+            <p>
+              Health & Beauty Integrative Center is an integrative health clinic
+              in Sarasota, Florida, combining science-backed treatments with
+              integrative and functional medicine principles to support the
+              physical and mental health of patients of all ages.
+            </p>
+            <p>
+              Using practical, personalized therapies, we focus on identifying
+              and addressing potential root causes of health concerns while also
+              helping to reduce symptoms and support overall well-being.
+            </p>
+          </div>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="inverted" size="lg">
               <Link href="/contact">Request a consult</Link>
@@ -180,10 +185,13 @@ export default async function HomePage() {
               title="Functional and traditional medicine, held to a clinical standard."
             />
             <p className="mt-6 text-base leading-relaxed text-ivory/75 sm:text-lg">
-              Explore personalized health and wellness services for women and
-              men, including hormone replacement therapy, diagnostics, IV
-              therapy, weight management, and nutritional support. Every care
-              plan is tailored to your individual needs and health goals.
+              Explore personalized care for women and men, including diagnostic
+              testing, hormone balancing, injections and IV therapy, medical
+              weight management, nutritional analysis, pelvic floor therapies,
+              PRP and PRF, ozone therapy, and peptide therapy when appropriate
+              and available. Services are offered at our Sarasota, Florida
+              clinic, with secure telehealth appointments available in states
+              where our providers are licensed.
             </p>
           </Reveal>
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

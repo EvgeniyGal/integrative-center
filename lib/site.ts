@@ -3,7 +3,7 @@ export const site = {
   shortName: "HBI",
   tagline: "Greater Sarasota’s private integrative practice",
   description:
-    "Located in the heart of Sarasota, Florida, Health and Beauty Integrative Center combines holistic health therapies with science-backed treatments to support the physical and mental health of patients of all ages.",
+    "Health & Beauty Integrative Center is an integrative health clinic in Sarasota, Florida, combining science-backed treatments with integrative and functional medicine principles to support the physical and mental health of patients of all ages.",
   url: "https://hbintegrative.com",
   phone: "(941) 933-9474",
   phoneHref: "tel:+19419339474",

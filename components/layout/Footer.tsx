@@ -43,8 +43,8 @@ export async function Footer() {
             <SiteLogo inverted />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-ivory/70">
               Integrative medicine in the heart of Sarasota — diagnostics,
-              hormones, IV therapy, nutrition, and aesthetic care, designed
-              around you.
+              hormone health, metabolic and gut health, IV therapy, nutrition,
+              weight management, and regenerative care, designed around you.
             </p>
             <div className="mt-8 flex gap-3">
               <a
