@@ -48,7 +48,7 @@ function DocumentTile({
     <button
       type="button"
       onClick={onOpen}
-      className="group flex w-full min-w-0 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+      className="group flex w-full min-w-0 cursor-pointer flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
     >
       <span className="font-display text-lg leading-snug text-ink text-balance sm:text-xl">
         {item.title}
