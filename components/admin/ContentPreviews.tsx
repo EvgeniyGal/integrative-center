@@ -42,7 +42,7 @@ export function ServiceHomePreview({
   return (
     <PreviewFrame label="Homepage service card">
       <div className="mx-auto max-w-sm">
-        <div className="group relative aspect-[4/5] overflow-hidden bg-ink">
+        <div className="group relative aspect-square overflow-hidden bg-ink">
           {imageUrl ? (
             <Image
               src={imageUrl}

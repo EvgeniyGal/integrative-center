@@ -195,36 +195,51 @@ export default async function HomePage() {
             </p>
           </Reveal>
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {serviceItems.map((service, i) => (
-              <Reveal key={service.slug} delay={i * 0.05}>
-                <Link
-                  href={`/services/${service.slug}`}
-                  className="group relative block aspect-[4/5] overflow-hidden"
+            {serviceItems.map((service, i) => {
+              const isFeatured = i === 0;
+              return (
+                <Reveal
+                  key={service.slug}
+                  delay={i * 0.05}
+                  className={isFeatured ? "sm:col-span-2 lg:col-span-3" : undefined}
                 >
-                  <Image
-                    src={service.image}
-                    alt={contentImageAlt(service.title)}
-                    fill
-                    className="object-cover transition duration-700 ease-out group-hover:scale-105"
-                    sizes="(min-width: 1024px) 33vw, 50vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-transparent transition duration-500 group-hover:from-ink/95 group-hover:via-ink/60" />
-                  <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-7">
-                    <div className="translate-y-6 transition duration-500 ease-out group-hover:translate-y-0">
-                      <p className="text-[11px] uppercase tracking-[0.28em] text-brand-light">
-                        {service.eyebrow}
-                      </p>
-                      <h3 className="mt-2 font-display text-3xl text-ivory">
-                        {service.title}
-                      </h3>
-                      <p className="mt-0 max-h-0 overflow-hidden text-sm leading-relaxed text-ivory/80 opacity-0 transition-all duration-500 ease-out group-hover:mt-3 group-hover:max-h-40 group-hover:opacity-100">
-                        {service.summary}
-                      </p>
+                  <Link
+                    href={`/services/${service.slug}`}
+                    className={
+                      isFeatured
+                        ? "group relative block aspect-[16/9] overflow-hidden lg:aspect-[3/1]"
+                        : "group relative block aspect-square overflow-hidden"
+                    }
+                  >
+                    <Image
+                      src={service.image}
+                      alt={contentImageAlt(service.title)}
+                      fill
+                      className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                      sizes={
+                        isFeatured
+                          ? "(min-width: 1024px) 100vw, 100vw"
+                          : "(min-width: 1024px) 33vw, 50vw"
+                      }
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-transparent transition duration-500 group-hover:from-ink/95 group-hover:via-ink/60" />
+                    <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-7">
+                      <div className="translate-y-6 transition duration-500 ease-out group-hover:translate-y-0">
+                        <p className="text-[11px] uppercase tracking-[0.28em] text-brand-light">
+                          {service.eyebrow}
+                        </p>
+                        <h3 className="mt-2 font-display text-3xl text-ivory">
+                          {service.title}
+                        </h3>
+                        <p className="mt-0 max-h-0 overflow-hidden text-sm leading-relaxed text-ivory/80 opacity-0 transition-all duration-500 ease-out group-hover:mt-3 group-hover:max-h-40 group-hover:opacity-100">
+                          {service.summary}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
