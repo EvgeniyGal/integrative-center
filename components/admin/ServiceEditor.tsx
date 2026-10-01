@@ -9,7 +9,7 @@ import {
   useTransition,
 } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Film, ImageIcon, Link2, Video, X } from "lucide-react";
+import { Film, FileText, ImageIcon, Link2, Trash2, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { generateServiceDraftAction } from "@/app/admin/actions/ai";
@@ -19,7 +19,10 @@ import {
   type ServiceActionState,
 } from "@/app/admin/actions/services";
 import type { ActionState } from "@/app/admin/actions/auth";
-import { uploadAdminImageAction } from "@/app/admin/actions/media";
+import {
+  uploadAdminDocumentAction,
+  uploadAdminImageAction,
+} from "@/app/admin/actions/media";
 import {
   AdminField,
   AdminSection,
@@ -33,7 +36,7 @@ import { ImageField } from "@/components/admin/ImageField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { ArticleBlock } from "@/lib/content/blocks";
+import type { ArticleBlock, DocumentBlockItem } from "@/lib/content/blocks";
 import { safeParseMarkdown } from "@/lib/content/markdown";
 import {
   normalizeServiceBody,
@@ -53,6 +56,16 @@ function insertAtCursor(
   };
 }
 
+function documentsFenceMarkdown(items: DocumentBlockItem[]) {
+  const lines = items.map((item) => {
+    const fileName = item.fileName.replace(/"/g, "");
+    const link = `[${item.title}](${item.url} "${fileName}")`;
+    const description = item.description.trim();
+    return description ? `${link}\n${description}` : link;
+  });
+  return `\n\n:::documents\n${lines.join("\n\n")}\n:::\n\n`;
+}
+
 function InsertDialog({
   open,
   onOpenChange,
@@ -63,6 +76,7 @@ function InsertDialog({
   confirmLabel,
   confirmDisabled,
   onCancel,
+  wide,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -73,12 +87,17 @@ function InsertDialog({
   confirmLabel: string;
   confirmDisabled?: boolean;
   onCancel?: () => void;
+  wide?: boolean;
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 border border-ink/10 bg-ivory p-6 shadow-2xl focus:outline-none">
+        <Dialog.Content
+          className={`fixed left-1/2 top-1/2 z-50 max-h-[min(90vh,40rem)] w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto border border-ink/10 bg-ivory p-6 shadow-2xl focus:outline-none ${
+            wide ? "sm:w-[min(100%-2rem,32rem)]" : ""
+          }`}
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
               <Dialog.Title className="font-display text-2xl text-ink">
@@ -131,6 +150,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
   const id = service?.id ?? "new";
   const markdownRef = useRef<HTMLTextAreaElement>(null);
   const bodyImageRef = useRef<HTMLInputElement>(null);
+  const bodyDocumentRef = useRef<HTMLInputElement>(null);
 
   const initialBlocks = useMemo(
     () => normalizeServiceBody(service?.body),
@@ -154,6 +174,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
     useState<ArticleBlock[]>(initialBlocks);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [imageUploading, startImageUpload] = useTransition();
+  const [documentUploadError, setDocumentUploadError] = useState<string | null>(
+    null,
+  );
+  const [documentUploading, startDocumentUpload] = useTransition();
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const [imageAlt, setImageAlt] = useState("");
   const [linkOpen, setLinkOpen] = useState(false);
@@ -166,6 +190,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
   const [instagramOpen, setInstagramOpen] = useState(false);
   const [instagramUrl, setInstagramUrl] = useState(
     "https://www.instagram.com/reel/",
+  );
+  const [documentsOpen, setDocumentsOpen] = useState(false);
+  const [pendingDocuments, setPendingDocuments] = useState<DocumentBlockItem[]>(
+    [],
   );
   const imageAltOpen = Boolean(pendingImage);
 
@@ -316,6 +344,70 @@ export function ServiceEditor({ service }: { service?: Service }) {
     });
   }
 
+  function openDocumentsModal() {
+    setPendingDocuments([]);
+    setDocumentUploadError(null);
+    setDocumentsOpen(true);
+  }
+
+  function resetDocumentsModal() {
+    setPendingDocuments([]);
+    setDocumentUploadError(null);
+  }
+
+  function onDocumentSelected(file: File | null) {
+    if (!file) return;
+    if (bodyDocumentRef.current) bodyDocumentRef.current.value = "";
+    startDocumentUpload(async () => {
+      setDocumentUploadError(null);
+      const fd = new FormData();
+      fd.set("document", file);
+      fd.set("folder", "services/documents");
+      const result = await uploadAdminDocumentAction(fd);
+      if (result.error || !result.url || !result.fileName) {
+        setDocumentUploadError(result.error ?? "Document upload failed.");
+        return;
+      }
+      const defaultTitle = result.fileName.replace(/\.pdf$/i, "").trim() || "Document";
+      setPendingDocuments((prev) => [
+        ...prev,
+        {
+          title: defaultTitle,
+          description: "",
+          url: result.url!,
+          fileName: result.fileName!,
+        },
+      ]);
+    });
+  }
+
+  function updatePendingDocument(
+    index: number,
+    patch: Partial<Pick<DocumentBlockItem, "title" | "description">>,
+  ) {
+    setPendingDocuments((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+    );
+  }
+
+  function removePendingDocument(index: number) {
+    setPendingDocuments((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function confirmDocuments() {
+    const items = pendingDocuments
+      .map((item) => ({
+        ...item,
+        title: item.title.trim(),
+        description: item.description.trim(),
+      }))
+      .filter((item) => item.title && item.url && item.fileName);
+    if (items.length === 0) return;
+    applyInsertion(documentsFenceMarkdown(items));
+    resetDocumentsModal();
+    setDocumentsOpen(false);
+  }
+
   return (
     <div className="space-y-8">
       <div className="space-y-5">
@@ -442,6 +534,15 @@ export function ServiceEditor({ service }: { service?: Service }) {
                 <ImageIcon className="size-3.5" />
                 {imageUploading ? "Uploading…" : "Image"}
               </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={openDocumentsModal}
+                disabled={documentUploading}
+              >
+                <FileText className="size-3.5" />
+                Documents
+              </Button>
               <input
                 ref={bodyImageRef}
                 type="file"
@@ -451,9 +552,21 @@ export function ServiceEditor({ service }: { service?: Service }) {
                   onBodyImageSelected(event.target.files?.[0] ?? null)
                 }
               />
+              <input
+                ref={bodyDocumentRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                className="sr-only"
+                onChange={(event) =>
+                  onDocumentSelected(event.target.files?.[0] ?? null)
+                }
+              />
             </div>
             {imageUploadError ? (
               <p className="text-sm text-red-700">{imageUploadError}</p>
+            ) : null}
+            {documentUploadError ? (
+              <p className="text-sm text-red-700">{documentUploadError}</p>
             ) : null}
 
             <InsertDialog
@@ -555,6 +668,104 @@ export function ServiceEditor({ service }: { service?: Service }) {
                   autoFocus
                 />
               </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
+              open={documentsOpen}
+              onOpenChange={(open) => {
+                setDocumentsOpen(open);
+                if (!open) resetDocumentsModal();
+              }}
+              title="Insert documents"
+              description="Upload PDFs one by one. They will appear as a centered group at the cursor."
+              onConfirm={confirmDocuments}
+              confirmLabel={
+                pendingDocuments.length > 1
+                  ? `Insert ${pendingDocuments.length} documents`
+                  : "Insert documents"
+              }
+              confirmDisabled={
+                pendingDocuments.length === 0 ||
+                pendingDocuments.some((item) => !item.title.trim()) ||
+                documentUploading
+              }
+              onCancel={resetDocumentsModal}
+              wide
+            >
+              {pendingDocuments.length > 0 ? (
+                <ul className="space-y-4">
+                  {pendingDocuments.map((item, index) => (
+                    <li
+                      key={`${item.url}-${index}`}
+                      className="space-y-3 border border-ink/10 bg-white/60 p-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="truncate text-xs text-muted">
+                          {item.fileName}
+                        </p>
+                        <button
+                          type="button"
+                          className="rounded-full p-1 text-muted transition hover:bg-ink/5 hover:text-ink"
+                          aria-label={`Remove ${item.title || item.fileName}`}
+                          onClick={() => removePendingDocument(index)}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                      <AdminField
+                        label="Title"
+                        htmlFor={`doc-title-${id}-${index}`}
+                      >
+                        <Input
+                          id={`doc-title-${id}-${index}`}
+                          variant="box"
+                          value={item.title}
+                          onChange={(e) =>
+                            updatePendingDocument(index, {
+                              title: e.target.value,
+                            })
+                          }
+                          placeholder="Document title"
+                        />
+                      </AdminField>
+                      <AdminField
+                        label="Short description"
+                        htmlFor={`doc-desc-${id}-${index}`}
+                      >
+                        <Textarea
+                          id={`doc-desc-${id}-${index}`}
+                          variant="box"
+                          value={item.description}
+                          onChange={(e) =>
+                            updatePendingDocument(index, {
+                              description: e.target.value,
+                            })
+                          }
+                          rows={2}
+                          placeholder="Optional short description"
+                        />
+                      </AdminField>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted">
+                  No documents yet. Upload a PDF to get started.
+                </p>
+              )}
+              {documentUploadError ? (
+                <p className="text-sm text-red-700">{documentUploadError}</p>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={documentUploading}
+                onClick={() => bodyDocumentRef.current?.click()}
+              >
+                <FileText className="size-3.5" />
+                {documentUploading ? "Uploading…" : "Add PDF"}
+              </Button>
             </InsertDialog>
 
             <AdminField label="Markdown body" htmlFor={`markdown-${id}`}>

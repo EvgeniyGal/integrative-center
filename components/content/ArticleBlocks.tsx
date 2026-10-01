@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { DocumentsBlock } from "@/components/content/DocumentPreview";
 import { InlineMarkdown } from "@/components/content/InlineMarkdown";
 import { InstagramEmbed } from "@/components/content/InstagramEmbed";
 import type { ArticleBlock } from "@/lib/content/blocks";
@@ -27,7 +28,8 @@ function isSectionBreak(type: BlockType) {
     type === "image" ||
     type === "gallery" ||
     type === "imageText" ||
-    type === "video"
+    type === "video" ||
+    type === "documents"
   );
 }
 
@@ -238,6 +240,17 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
                   </li>
                 ))}
               </ListTag>
+            );
+          }
+          case "documents": {
+            if (!block.items?.length) return null;
+            previousType = block.type;
+            return (
+              <DocumentsBlock
+                key={key}
+                items={block.items}
+                className={space}
+              />
             );
           }
           default:

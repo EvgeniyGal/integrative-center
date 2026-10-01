@@ -35,6 +35,11 @@ export function serviceBodyPlainText(body: unknown): string {
       if (block.type === "imageText") {
         return [block.text];
       }
+      if (block.type === "documents") {
+        return block.items.flatMap((item) =>
+          [item.title, item.description].filter(Boolean),
+        );
+      }
       return [];
     })
     .join(" ")

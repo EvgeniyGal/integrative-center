@@ -38,6 +38,11 @@ export function collectBlockImageUrls(
       }
     }
     if (block.type === "imageText" && block.image) urls.push(block.image);
+    if (block.type === "documents" && Array.isArray(block.items)) {
+      for (const item of block.items) {
+        if (item?.url) urls.push(item.url);
+      }
+    }
   }
   return urls;
 }
@@ -98,7 +103,7 @@ export async function getReferencedBlobUrls(except?: {
       columns: { id: true, coverImageUrl: true, blocks: true },
     }),
     db.query.services.findMany({
-      columns: { id: true, imageUrl: true },
+      columns: { id: true, imageUrl: true, body: true },
     }),
   ]);
 
@@ -116,7 +121,10 @@ export async function getReferencedBlobUrls(except?: {
 
   for (const service of allServices) {
     if (except?.serviceId && service.id === except.serviceId) continue;
-    for (const url of collectServiceImageUrls(service)) {
+    for (const url of collectServiceImageUrls({
+      imageUrl: service.imageUrl,
+      body: service.body,
+    })) {
       if (isManagedBlobUrl(url)) referenced.add(url);
     }
   }

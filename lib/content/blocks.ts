@@ -52,8 +52,25 @@ export const articleBlockSchema = z.discriminatedUnion("type", [
     style: z.enum(["unordered", "ordered"]),
     items: z.array(z.string().min(1)).min(1),
   }),
+  z.object({
+    type: z.literal("documents"),
+    items: z
+      .array(
+        z.object({
+          title: z.string().min(1),
+          description: z.string().default(""),
+          url: z.string().min(1),
+          fileName: z.string().min(1),
+        }),
+      )
+      .min(1),
+  }),
 ]);
 
 export type ArticleBlock = z.infer<typeof articleBlockSchema>;
+export type DocumentBlockItem = Extract<
+  ArticleBlock,
+  { type: "documents" }
+>["items"][number];
 
 export const articleBlocksSchema = z.array(articleBlockSchema);

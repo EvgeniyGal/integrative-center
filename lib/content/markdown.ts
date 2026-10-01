@@ -17,6 +17,8 @@ const INSTAGRAM_RE =
 
 const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 const LINK_ONLY_RE = /^\[([^\]]+)\]\(([^)\s]+)\)$/;
+const DOCUMENT_LINK_RE =
+  /^\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 const UNORDERED_LIST_RE = /^[-*+]\s+(.+)$/;
 const ORDERED_LIST_RE = /^\d+[.)]\s+(.+)$/;
 
@@ -113,6 +115,84 @@ function parseImageTextFence(lines: string[], start: number) {
     side,
   };
 
+  return { block, nextIndex: i + 1 };
+}
+
+function parseDocumentsFence(lines: string[], start: number) {
+  const open = lines[start] ?? "";
+  if (!/^:::documents\s*$/i.test(open)) return null;
+
+  const body: string[] = [];
+  let i = start + 1;
+  let closed = false;
+  for (; i < lines.length; i++) {
+    if (/^:::\s*$/.test(lines[i] ?? "")) {
+      closed = true;
+      break;
+    }
+    body.push(lines[i] ?? "");
+  }
+  if (!closed) {
+    throw new Error("Unclosed documents block (missing closing :::)");
+  }
+
+  const items: Array<{
+    title: string;
+    description: string;
+    url: string;
+    fileName: string;
+  }> = [];
+
+  let current: {
+    title: string;
+    url: string;
+    fileName: string;
+    descriptionLines: string[];
+  } | null = null;
+
+  const flushCurrent = () => {
+    if (!current) return;
+    items.push({
+      title: current.title,
+      url: current.url,
+      fileName: current.fileName,
+      description: current.descriptionLines.join("\n").trim(),
+    });
+    current = null;
+  };
+
+  for (const raw of body) {
+    const trimmed = raw.trim();
+    const link = trimmed.match(DOCUMENT_LINK_RE);
+    if (link) {
+      flushCurrent();
+      const title = (link[1] ?? "").trim();
+      const url = (link[2] ?? "").trim();
+      const fileName =
+        (link[3] ?? "").trim() ||
+        url.split("/").pop()?.split("?")[0] ||
+        "document.pdf";
+      if (!title || !url) {
+        throw new Error("Document item needs a title and URL");
+      }
+      current = { title, url, fileName, descriptionLines: [] };
+      continue;
+    }
+    if (!current) {
+      if (!trimmed) continue;
+      throw new Error(
+        "Documents block items must start with a [title](url \"file.pdf\") link",
+      );
+    }
+    current.descriptionLines.push(raw);
+  }
+  flushCurrent();
+
+  if (items.length === 0) {
+    throw new Error("Documents block needs at least one document");
+  }
+
+  const block: ArticleBlock = { type: "documents", items };
   return { block, nextIndex: i + 1 };
 }
 
@@ -229,6 +309,18 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
       listStyle = null;
       blocks.push(imageText.block);
       i = imageText.nextIndex;
+      continue;
+    }
+
+    const documents = parseDocumentsFence(lines, i);
+    if (documents) {
+      flushParagraph(paragraph, blocks);
+      flushQuote(quote, blocks);
+      flushGallery(gallery, blocks);
+      flushList(listStyle, listItems, blocks);
+      listStyle = null;
+      blocks.push(documents.block);
+      i = documents.nextIndex;
       continue;
     }
 
@@ -413,6 +505,26 @@ export function blocksToMarkdown(blocks: ArticleBlock[] | null | undefined): str
         parts.push(
           `:::imageText{side=${side} image="${image}"}\n${heading}${text}\n:::`,
         );
+        break;
+      }
+      case "documents": {
+        const items = Array.isArray(block.items) ? block.items : [];
+        const lines = items
+          .map((item) => {
+            const title = String(item?.title ?? "").trim();
+            const url = String(item?.url ?? "").trim();
+            const fileName = String(item?.fileName ?? "")
+              .trim()
+              .replace(/"/g, "");
+            const description = String(item?.description ?? "").trim();
+            if (!title || !url || !fileName) return null;
+            const link = `[${title}](${url} "${fileName}")`;
+            return description ? `${link}\n${description}` : link;
+          })
+          .filter(Boolean);
+        if (lines.length) {
+          parts.push(`:::documents\n${lines.join("\n\n")}\n:::`);
+        }
         break;
       }
       case "quote": {
