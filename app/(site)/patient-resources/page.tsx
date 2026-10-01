@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ClipboardList, Laptop } from "lucide-react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
@@ -9,67 +10,11 @@ import { patientResources, site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.patientResources);
 
-function FormsIllustration() {
+function SectionIcon({ children }: { children: React.ReactNode }) {
   return (
-    <svg
-      viewBox="0 0 280 240"
-      className="mx-auto h-auto w-full max-w-[16rem]"
-      role="img"
-      aria-label="Clipboard checklist illustration"
-    >
-      <ellipse cx="140" cy="210" rx="78" ry="12" fill="rgba(7,156,162,0.18)" />
-      <path
-        d="M48 150c18-42 42-78 92-78s74 36 92 78c-24 18-56 28-92 28s-68-10-92-28Z"
-        fill="rgba(7,156,162,0.2)"
-      />
-      <path
-        d="M70 168c22-36 44-58 70-58s48 22 70 58c-18 14-42 22-70 22s-52-8-70-22Z"
-        fill="rgba(7,156,162,0.28)"
-      />
-      <rect
-        x="88"
-        y="36"
-        width="104"
-        height="148"
-        rx="10"
-        fill="#E8F6F7"
-        stroke="#9AD6D9"
-        strokeWidth="3"
-      />
-      <rect x="112" y="24" width="56" height="22" rx="6" fill="#079CA2" />
-      <rect x="124" y="30" width="32" height="10" rx="3" fill="#E8F6F7" />
-      {[0, 1, 2, 3].map((i) => (
-        <g key={i} transform={`translate(0 ${68 + i * 26})`}>
-          <rect
-            x="108"
-            y="0"
-            width="16"
-            height="16"
-            rx="3"
-            fill="none"
-            stroke="#079CA2"
-            strokeWidth="2.5"
-          />
-          <path
-            d="M111 8l3.5 3.5 7-7"
-            fill="none"
-            stroke="#079CA2"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <rect x="136" y="4" width="40" height="8" rx="2" fill="#9AD6D9" />
-        </g>
-      ))}
-      <path
-        d="M198 120c8 18 10 34 6 48"
-        fill="none"
-        stroke="#C4A574"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path d="M198 112l8 4-4 10-8-4z" fill="#079CA2" />
-    </svg>
+    <div className="shrink-0 text-brand" aria-hidden>
+      {children}
+    </div>
   );
 }
 
@@ -178,46 +123,59 @@ export default function PatientResourcesPage() {
       </section>
 
       <section className="bg-stone/40 py-24 lg:py-32">
-        <div className="mx-auto grid max-w-7xl items-start gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
-          <Reveal>
-            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-              {forms.eyebrow}
-            </p>
-            <h2 className="mt-4 font-display text-3xl tracking-tight text-ink text-balance sm:text-4xl">
-              {forms.title}
-            </h2>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-muted">
-              {forms.body}
-            </p>
-            <div className="mt-8 max-w-xs">
-              <FormsIllustration />
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
+          <Reveal className="h-full">
+            <div className="flex h-full flex-col border border-ink/10 bg-ivory px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
+              <div className="flex flex-1 items-start gap-3 sm:gap-4">
+                <SectionIcon>
+                  <ClipboardList className="size-12 sm:size-14" strokeWidth={1.25} />
+                </SectionIcon>
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
+                    {forms.eyebrow}
+                  </p>
+                  <h2 className="mt-4 font-display text-3xl tracking-tight text-ink text-balance sm:text-4xl">
+                    {forms.title}
+                  </h2>
+                  <p className="mt-4 max-w-md flex-1 text-base leading-relaxed text-muted">
+                    {forms.body}
+                  </p>
+                  <Button asChild className="mt-6 self-start">
+                    <Link href={forms.ctaHref}>{forms.ctaLabel}</Link>
+                  </Button>
+                </div>
+              </div>
             </div>
-            <Button asChild className="mt-6">
-              <Link href={forms.ctaHref}>{forms.ctaLabel}</Link>
-            </Button>
           </Reveal>
 
-          <Reveal delay={0.08}>
-            <div className="border border-ink/10 bg-ivory px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
-              <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-                {portal.eyebrow}
-              </p>
-              <h2 className="mt-4 font-display text-3xl tracking-tight text-ink sm:text-4xl">
-                {portal.title}
-              </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-muted">
-                {portal.body}
-              </p>
-              <Button asChild className="mt-8">
-                <a
-                  href={site.portalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-analytics="portal_click"
-                >
-                  {portal.ctaLabel}
-                </a>
-              </Button>
+          <Reveal className="h-full" delay={0.08}>
+            <div className="flex h-full flex-col border border-ink/10 bg-ivory px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
+              <div className="flex flex-1 items-start gap-3 sm:gap-4">
+                <SectionIcon>
+                  <Laptop className="size-12 sm:size-14" strokeWidth={1.25} />
+                </SectionIcon>
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
+                    {portal.eyebrow}
+                  </p>
+                  <h2 className="mt-3 font-display text-3xl tracking-tight text-ink sm:text-4xl">
+                    {portal.title}
+                  </h2>
+                  <p className="mt-3 max-w-md flex-1 text-base leading-relaxed text-muted">
+                    {portal.body}
+                  </p>
+                  <Button asChild className="mt-6 self-start">
+                    <a
+                      href={site.portalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-analytics="portal_click"
+                    >
+                      {portal.ctaLabel}
+                    </a>
+                  </Button>
+                </div>
+              </div>
             </div>
           </Reveal>
         </div>
