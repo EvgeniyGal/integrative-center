@@ -1,16 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Download, X } from "lucide-react";
+import { Download, FileText, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { DocumentBlockItem } from "@/lib/content/blocks";
-
-function pdfPreviewSrc(url: string) {
-  const base = url.split("#")[0] ?? url;
-  return `${base}#page=1&view=FitH&toolbar=0&navpanes=0&scrollbar=0`;
-}
+import { loadPdfDocument, usePdfPage } from "@/lib/pdf";
 
 function DocumentsGrid({
   count,
@@ -37,6 +33,34 @@ function DocumentsGrid({
   );
 }
 
+function PdfThumbnail({ url }: { url: string }) {
+  const { canvasRef, status } = usePdfPage(url, 1, 360);
+
+  return (
+    <span className="relative mt-4 block aspect-[3/4] w-full overflow-hidden border border-ink/15 bg-stone/40 shadow-[0_8px_24px_rgba(28,27,25,0.08)] transition duration-500 group-hover:border-brand/35 group-hover:shadow-[0_12px_28px_rgba(28,27,25,0.12)]">
+      {status === "loading" ? (
+        <span className="absolute inset-0 animate-pulse bg-stone/50" />
+      ) : null}
+      {status === "error" ? (
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-brand-light/40 text-brand">
+          <FileText className="size-10" strokeWidth={1.25} aria-hidden />
+          <span className="text-[10px] uppercase tracking-[0.22em]">PDF</span>
+        </span>
+      ) : null}
+      <canvas
+        ref={canvasRef}
+        className={`pointer-events-none absolute left-1/2 top-0 max-h-none w-full -translate-x-1/2 bg-white ${
+          status === "ready" ? "opacity-100" : "opacity-0"
+        }`}
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+      <span className="absolute inset-x-0 bottom-0 bg-ink/70 px-3 py-2 text-center text-[10px] uppercase tracking-[0.22em] text-ivory opacity-0 transition duration-500 group-hover:opacity-100">
+        View PDF
+      </span>
+    </span>
+  );
+}
+
 function DocumentTile({
   item,
   onOpen,
@@ -58,20 +82,107 @@ function DocumentTile({
           {item.description}
         </span>
       ) : null}
-      <span className="relative mt-4 block aspect-[3/4] w-full overflow-hidden border border-ink/15 bg-stone/40 shadow-[0_8px_24px_rgba(28,27,25,0.08)] transition duration-500 group-hover:border-brand/35 group-hover:shadow-[0_12px_28px_rgba(28,27,25,0.12)]">
-        <iframe
-          src={pdfPreviewSrc(item.url)}
-          title=""
-          aria-hidden
-          tabIndex={-1}
-          className="pointer-events-none absolute left-0 top-0 h-[140%] w-full origin-top scale-[1.02] border-0 bg-white"
-        />
-        <span className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-        <span className="absolute inset-x-0 bottom-0 bg-ink/70 px-3 py-2 text-center text-[10px] uppercase tracking-[0.22em] text-ivory opacity-0 transition duration-500 group-hover:opacity-100">
-          View PDF
-        </span>
-      </span>
+      <PdfThumbnail url={item.url} />
     </button>
+  );
+}
+
+function PdfViewer({ url, title }: { url: string; title: string }) {
+  const [pageCount, setPageCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    setPageCount(0);
+
+    loadPdfDocument(url)
+      .then((pdf) => {
+        if (cancelled) return;
+        setPageCount(pdf.numPages);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError("Could not load this PDF in the browser.");
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center text-sm text-muted">
+        Loading document…
+      </div>
+    );
+  }
+
+  if (error || pageCount === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-sm text-muted">
+          {error ?? "Preview unavailable on this device."}
+        </p>
+        <Button asChild>
+          <a href={url} target="_blank" rel="noopener noreferrer">
+            Open PDF
+          </a>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full overflow-y-auto overscroll-contain bg-stone/40 px-3 py-4 sm:px-6 sm:py-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+        {Array.from({ length: pageCount }, (_, index) => (
+          <PdfViewerPage
+            key={`${url}-${index + 1}`}
+            url={url}
+            pageNumber={index + 1}
+            title={title}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PdfViewerPage({
+  url,
+  pageNumber,
+  title,
+}: {
+  url: string;
+  pageNumber: number;
+  title: string;
+}) {
+  const { canvasRef, status } = usePdfPage(url, pageNumber, 820);
+
+  return (
+    <div className="overflow-hidden border border-ink/10 bg-white shadow-[0_8px_24px_rgba(28,27,25,0.08)]">
+      {status === "loading" ? (
+        <div className="aspect-[3/4] animate-pulse bg-stone/40" />
+      ) : null}
+      {status === "error" ? (
+        <div className="flex aspect-[3/4] items-center justify-center text-sm text-muted">
+          Page {pageNumber} could not be rendered.
+        </div>
+      ) : null}
+      <canvas
+        ref={canvasRef}
+        aria-label={`${title}, page ${pageNumber}`}
+        className={`mx-auto block h-auto max-w-full ${
+          status === "ready" ? "opacity-100" : "hidden"
+        }`}
+      />
+    </div>
   );
 }
 
@@ -147,13 +258,9 @@ export function DocumentsBlock({
                 </Dialog.Close>
               </div>
             </div>
-            <div className="min-h-0 flex-1 bg-stone/40">
+            <div className="min-h-0 flex-1">
               {active?.url ? (
-                <iframe
-                  src={active.url}
-                  title={active.title}
-                  className="h-full w-full border-0"
-                />
+                <PdfViewer url={active.url} title={active.title} />
               ) : null}
             </div>
           </Dialog.Content>
