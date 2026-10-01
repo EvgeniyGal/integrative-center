@@ -147,22 +147,22 @@ export default function PatientResourcesPage() {
         </div>
       </section>
 
-      <section className="bg-ink py-24 text-ivory lg:py-32">
+      <section className="bg-ivory py-24 lg:py-32">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
           <Reveal>
-            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand-light">
+            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
               {forms.eyebrow}
             </p>
-            <h2 className="mt-4 font-display text-4xl tracking-tight text-balance sm:text-5xl">
+            <h2 className="mt-4 font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
               {forms.title}
             </h2>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-ivory/75 sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
               {forms.body}
             </p>
           </Reveal>
           <Reveal className="text-center" delay={0.08}>
             <FormsIllustration />
-            <Button asChild variant="inverted" className="mt-8">
+            <Button asChild className="mt-8">
               <Link href={forms.ctaHref}>{forms.ctaLabel}</Link>
             </Button>
           </Reveal>
