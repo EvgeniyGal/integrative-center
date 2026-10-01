@@ -28,7 +28,7 @@ type SettingsRow = typeof siteSettings.$inferSelect;
 async function getSettingsRow() {
   "use cache";
   cacheTag("ai-settings");
-  cacheLife("hours");
+  cacheLife("days");
 
   const rows = await db
     .select()

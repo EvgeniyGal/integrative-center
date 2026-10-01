@@ -12,7 +12,11 @@ import { Button } from "@/components/ui/button";
 import { nav, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-function HeaderFallback() {
+type HeaderProps = {
+  tickerText: string;
+};
+
+function HeaderFallback({ tickerText }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-ivory/90 shadow-[0_1px_0_rgba(28,27,25,0.06)] backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-6 lg:h-[5.5rem] lg:px-10">
@@ -53,12 +57,12 @@ function HeaderFallback() {
           <Menu className="size-5" />
         </span>
       </div>
-      <Ticker visible />
+      <Ticker visible text={tickerText} />
     </header>
   );
 }
 
-function HeaderInner() {
+function HeaderInner({ tickerText }: HeaderProps) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -199,15 +203,15 @@ function HeaderInner() {
           </Dialog.Portal>
         </Dialog.Root>
       </div>
-      <Ticker visible={showTicker} />
+      <Ticker visible={showTicker} text={tickerText} />
     </header>
   );
 }
 
-export function Header() {
+export function Header({ tickerText }: HeaderProps) {
   return (
-    <Suspense fallback={<HeaderFallback />}>
-      <HeaderInner />
+    <Suspense fallback={<HeaderFallback tickerText={tickerText} />}>
+      <HeaderInner tickerText={tickerText} />
     </Suspense>
   );
 }

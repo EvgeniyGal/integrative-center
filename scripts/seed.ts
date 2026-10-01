@@ -24,8 +24,14 @@ async function main() {
     siteSettings,
     users,
   } = await import("../lib/db/schema");
-  const { homeNews, homeQuestions, officePoliciesPage, officePolicyToc, reviews } =
-    await import("../lib/site");
+  const {
+    defaultTickerText,
+    homeNews,
+    homeQuestions,
+    officePoliciesPage,
+    officePolicyToc,
+    reviews,
+  } = await import("../lib/site");
   const {
     DEFAULT_KNOWLEDGE_BASE,
     DEFAULT_SYSTEM_PROMPT,
@@ -436,7 +442,16 @@ async function main() {
   async function seedSiteSettings() {
     const existing = await db.select().from(siteSettings).limit(1);
     if (existing.length > 0) {
-      console.log("Site settings already seeded");
+      const row = existing[0]!;
+      if (!row.tickerText?.trim()) {
+        await db
+          .update(siteSettings)
+          .set({ tickerText: defaultTickerText, updatedAt: new Date() })
+          .where(eq(siteSettings.id, row.id));
+        console.log("Filled missing ticker text on site settings");
+      } else {
+        console.log("Site settings already seeded");
+      }
       return;
     }
 
@@ -444,6 +459,7 @@ async function main() {
       id: "default",
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
       knowledgeBase: DEFAULT_KNOWLEDGE_BASE,
+      tickerText: defaultTickerText,
     });
     console.log("Seeded site settings");
   }

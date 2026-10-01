@@ -9,10 +9,13 @@ import {
   questions,
   recommendedProducts,
   services,
+  SITE_SETTINGS_ID,
+  siteSettings,
   storeBrands,
   supplementBrands,
   testimonials,
 } from "@/lib/db/schema";
+import { defaultTickerText } from "@/lib/site";
 
 export type RecommendedProductCard = {
   id: string;
@@ -32,7 +35,7 @@ export type RecommendedProductCard = {
 export async function getPublishedQuestions() {
   "use cache";
   cacheTag("questions");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -48,10 +51,25 @@ export async function getAllQuestions() {
     .orderBy(asc(questions.sortOrder), asc(questions.createdAt));
 }
 
+export async function getTickerText() {
+  "use cache";
+  cacheTag("ticker");
+  cacheLife("days");
+
+  const rows = await db
+    .select({ tickerText: siteSettings.tickerText })
+    .from(siteSettings)
+    .where(eq(siteSettings.id, SITE_SETTINGS_ID))
+    .limit(1);
+
+  const value = rows[0]?.tickerText?.trim();
+  return value && value.length > 0 ? value : defaultTickerText;
+}
+
 export async function getVisibleServices() {
   "use cache";
   cacheTag("services");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -63,7 +81,7 @@ export async function getVisibleServices() {
 export async function getHomeServices() {
   "use cache";
   cacheTag("services");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -83,7 +101,7 @@ export async function getServiceBySlug(slug: string) {
   "use cache";
   cacheTag("services");
   cacheTag(`service:${slug}`);
-  cacheLife("hours");
+  cacheLife("days");
 
   const rows = await db
     .select()
@@ -96,7 +114,7 @@ export async function getServiceBySlug(slug: string) {
 export async function getVisiblePolicies() {
   "use cache";
   cacheTag("policies");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -108,7 +126,7 @@ export async function getVisiblePolicies() {
 export async function getAboutPolicies() {
   "use cache";
   cacheTag("policies");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -128,7 +146,7 @@ export async function getPolicyBySlug(slug: string) {
   "use cache";
   cacheTag("policies");
   cacheTag(`policy:${slug}`);
-  cacheLife("hours");
+  cacheLife("days");
 
   const rows = await db
     .select()
@@ -141,7 +159,7 @@ export async function getPolicyBySlug(slug: string) {
 export async function getPublishedTestimonials() {
   "use cache";
   cacheTag("testimonials");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -160,7 +178,7 @@ export async function getAllTestimonials() {
 export async function getPublishedArticles() {
   "use cache";
   cacheTag("articles");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -172,7 +190,7 @@ export async function getPublishedArticles() {
 export async function getFeaturedArticles(limit = 3) {
   "use cache";
   cacheTag("articles");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -188,7 +206,7 @@ export async function getArticleBySlug(slug: string) {
   "use cache";
   cacheTag("articles");
   cacheTag(`article:${slug}`);
-  cacheLife("hours");
+  cacheLife("days");
 
   const rows = await db
     .select()
@@ -208,7 +226,7 @@ export async function getAllArticles() {
 export async function getPublishedSupplementBrands() {
   "use cache";
   cacheTag("supplement-brands");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()
@@ -230,7 +248,7 @@ export async function getPublishedRecommendedProducts(): Promise<
   "use cache";
   cacheTag("recommended-products");
   cacheTag("store-brands");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select({
@@ -285,7 +303,7 @@ export async function getAllRecommendedProducts() {
 export async function getPublishedProductCategories() {
   "use cache";
   cacheTag("product-categories");
-  cacheLife("hours");
+  cacheLife("days");
 
   return db
     .select()

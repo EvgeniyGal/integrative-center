@@ -228,6 +228,7 @@ export const siteSettings = pgTable("site_settings", {
   contentModel: text("contentModel").notNull().default("gpt-4o-mini"),
   productModel: text("productModel").notNull().default("gpt-4o-mini"),
   enabled: boolean("enabled").notNull().default(true),
+  tickerText: text("tickerText"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });

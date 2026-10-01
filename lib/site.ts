@@ -68,6 +68,9 @@ export const tickerItems = [
   "Free 15-Minute Consultation",
 ] as const;
 
+/** Default header ticker copy when no CMS value is set. */
+export const defaultTickerText = tickerItems.join("  •  ");
+
 export const practiceIntro = {
   eyebrow: "Our Practice",
   title: "Functional and traditional medicine, held to a clinical standard.",

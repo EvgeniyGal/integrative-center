@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  Megaphone,
   Menu,
   MessageSquareQuote,
   Package,
@@ -30,6 +31,7 @@ import { cn } from "@/lib/utils";
 
 const siteLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/ticker", label: "Ticker", icon: Megaphone },
   { href: "/admin/questions", label: "Questions", icon: HelpCircle },
   { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/policies", label: "Policies", icon: ScrollText },
@@ -155,6 +157,7 @@ function NavLinks({
 
 function pageTitle(pathname: string) {
   if (pathname === "/admin") return "Dashboard";
+  if (pathname.startsWith("/admin/ticker")) return "Ticker";
   if (pathname === "/admin/questions/new") return "New question";
   if (pathname.startsWith("/admin/questions/") && pathname !== "/admin/questions") {
     return "Edit question";

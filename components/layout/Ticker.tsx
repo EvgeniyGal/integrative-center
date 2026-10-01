@@ -1,15 +1,16 @@
 "use client";
 
-import { tickerItems } from "@/lib/site";
 import { cn } from "@/lib/utils";
-
-const segment = tickerItems.join("  •  ");
 
 type TickerProps = {
   visible: boolean;
+  text: string;
 };
 
-export function Ticker({ visible }: TickerProps) {
+export function Ticker({ visible, text }: TickerProps) {
+  const segment = text.trim();
+  if (!segment) return null;
+
   return (
     <div
       className={cn(
