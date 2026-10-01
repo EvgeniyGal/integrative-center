@@ -65,10 +65,11 @@ const markdownDialect = `Markdown dialect for bodyMarkdown (NOT JSON blocks):
 - > quote lines; optional final "> — Attribution" when the notes include a quote
 - ![alt](url) for images; consecutive image lines become a gallery
 - A bare YouTube / youtu.be / shorts URL on its own line for video
+- A bare Instagram reel/post URL (instagram.com/reel/… or /p/…) on its own line for Instagram embeds
 - Optional :::imageText{side=left image="url"} ... :::
 - Do not invent image URLs; only use URLs the admin provided (notes or allowed list)
-- Do not invent YouTube links unless the admin notes include one
-- When the notes include image or YouTube URLs, place them as Markdown media lines in a natural spot
+- Do not invent YouTube or Instagram links unless the admin notes include one
+- When the notes include image, YouTube, or Instagram URLs, place them as Markdown media lines in a natural spot
 - No JSON block arrays in the response`;
 
 const productSystem = `You help draft marketing copy for Health & Beauty Integrative Center, a clinical integrative practice in Sarasota, Florida.
@@ -112,7 +113,7 @@ export async function generateServiceDraftAction(
 
 ${markdownDialect}
 - Allowed image URLs only: ${imageUrls || "(none)"}
-- You may place provided image URLs or YouTube URLs from the notes into Markdown image/video lines; never invent media URLs
+- You may place provided image, YouTube, or Instagram URLs from the notes into Markdown image/video lines; never invent media URLs
 
 Title seed: ${title || "(none)"}
 Admin notes (preserve this wording in bodyMarkdown):
@@ -162,7 +163,7 @@ export async function generateArticleDraftAction(
 
 ${markdownDialect}
 - Allowed image URLs only: ${imageUrls || "(none)"}
-- You may place provided image URLs or YouTube URLs from the notes into Markdown image/video lines; never invent media URLs
+- You may place provided image, YouTube, or Instagram URLs from the notes into Markdown image/video lines; never invent media URLs
 
 Title seed: ${title || "(none)"}
 Admin notes (preserve this wording in bodyMarkdown):

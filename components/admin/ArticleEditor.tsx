@@ -9,7 +9,7 @@ import {
   useTransition,
 } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ImageIcon, Link2, Video, X } from "lucide-react";
+import { Film, ImageIcon, Link2, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { generateArticleDraftAction } from "@/app/admin/actions/ai";
@@ -165,6 +165,10 @@ export function ArticleEditor({ article }: { article?: Article }) {
   const [youtubeUrl, setYoutubeUrl] = useState(
     "https://www.youtube.com/watch?v=",
   );
+  const [instagramOpen, setInstagramOpen] = useState(false);
+  const [instagramUrl, setInstagramUrl] = useState(
+    "https://www.instagram.com/reel/",
+  );
   const imageAltOpen = Boolean(pendingImage);
 
   const action = article ? updateArticleAction : createArticleAction;
@@ -261,6 +265,17 @@ export function ArticleEditor({ article }: { article?: Article }) {
     if (!youtubeUrl.trim()) return;
     applyInsertion(`\n\n${youtubeUrl.trim()}\n\n`);
     setYoutubeOpen(false);
+  }
+
+  function openInstagramModal() {
+    setInstagramUrl("https://www.instagram.com/reel/");
+    setInstagramOpen(true);
+  }
+
+  function confirmInstagram() {
+    if (!instagramUrl.trim()) return;
+    applyInsertion(`\n\n${instagramUrl.trim()}\n\n`);
+    setInstagramOpen(false);
   }
 
   function insertImage() {
@@ -501,6 +516,10 @@ export function ArticleEditor({ article }: { article?: Article }) {
                 <Video className="size-3.5" />
                 YouTube
               </Button>
+              <Button type="button" size="sm" onClick={openInstagramModal}>
+                <Film className="size-3.5" />
+                Instagram
+              </Button>
               <Button
                 type="button"
                 size="sm"
@@ -588,6 +607,33 @@ export function ArticleEditor({ article }: { article?: Article }) {
             </InsertDialog>
 
             <InsertDialog
+              open={instagramOpen}
+              onOpenChange={setInstagramOpen}
+              title="Insert Instagram post"
+              description="Paste a public Instagram Reel or post URL. Stories are not supported."
+              onConfirm={confirmInstagram}
+              confirmLabel="Insert Instagram"
+              confirmDisabled={!instagramUrl.trim()}
+            >
+              <AdminField label="Instagram URL" htmlFor={`instagram-url-${id}`}>
+                <Input
+                  id={`instagram-url-${id}`}
+                  variant="box"
+                  value={instagramUrl}
+                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  placeholder="https://www.instagram.com/reel/…"
+                  autoFocus
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      confirmInstagram();
+                    }
+                  }}
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
               open={imageAltOpen}
               onOpenChange={(open) => {
                 if (!open) clearPendingImage();
@@ -628,7 +674,7 @@ export function ArticleEditor({ article }: { article?: Article }) {
                 onChange={(e) => setBodyMarkdown(e.target.value)}
                 rows={18}
                 className="min-h-72 font-mono text-sm"
-                placeholder={`## Section title\n\nParagraph with a [link](/services).\n\n- First point\n- Second point\n\n1. Step one\n2. Step two\n\n> A short quote\n> — Attribution\n\n![Alt text](https://example.com/image.jpg)\n\nhttps://www.youtube.com/watch?v=VIDEO_ID`}
+                placeholder={`## Section title\n\nParagraph with a [link](/services).\n\n- First point\n- Second point\n\n1. Step one\n2. Step two\n\n> A short quote\n> — Attribution\n\n![Alt text](https://example.com/image.jpg)\n\nhttps://www.youtube.com/watch?v=VIDEO_ID\n\nhttps://www.instagram.com/reel/SHORTCODE/`}
               />
             </AdminField>
             <div className="space-y-3 border border-ink/10 bg-white/70 px-4 py-3 text-xs leading-relaxed text-muted">
@@ -658,8 +704,8 @@ export function ArticleEditor({ article }: { article?: Article }) {
                   per line; blank line ends the list)
                 </li>
                 <li>
-                  <span className="text-ink">Link / YouTube / Image:</span> use
-                  the toolbar buttons above — they insert the correct format
+                  <span className="text-ink">Link / YouTube / Instagram / Image:</span>{" "}
+                  use the toolbar buttons above — they insert the correct format
                   for you
                 </li>
                 <li>

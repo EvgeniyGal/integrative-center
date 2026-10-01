@@ -12,6 +12,9 @@ export type MarkdownParseResult =
 const YOUTUBE_RE =
   /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})(?:[?&#].*)?$/i;
 
+const INSTAGRAM_RE =
+  /^(?:https?:\/\/)?(?:www\.)?instagram\.com\/(reel|p|tv)\/([A-Za-z0-9_-]+)\/?(?:[?#].*)?$/i;
+
 const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 const LINK_ONLY_RE = /^\[([^\]]+)\]\(([^)\s]+)\)$/;
 const UNORDERED_LIST_RE = /^[-*+]\s+(.+)$/;
@@ -23,8 +26,27 @@ export function extractYoutubeId(url: string): string | null {
   return match?.[1] ?? null;
 }
 
+export function extractInstagramPermalink(url: string): {
+  url: string;
+  shortcode: string;
+} | null {
+  const trimmed = url.trim();
+  const match = trimmed.match(INSTAGRAM_RE);
+  if (!match?.[1] || !match[2]) return null;
+  const kind = match[1].toLowerCase();
+  const shortcode = match[2];
+  return {
+    url: `https://www.instagram.com/${kind}/${shortcode}/`,
+    shortcode,
+  };
+}
+
 function isYoutubeUrl(line: string) {
   return extractYoutubeId(line) !== null;
+}
+
+function isInstagramUrl(line: string) {
+  return extractInstagramPermalink(line) !== null;
 }
 
 function parseImageLine(line: string) {
@@ -301,6 +323,22 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
         provider: "youtube",
         url: trimmed,
         videoId,
+      });
+      i += 1;
+      continue;
+    }
+
+    if (isInstagramUrl(trimmed)) {
+      flushParagraph(paragraph, blocks);
+      const permalink = extractInstagramPermalink(trimmed);
+      if (!permalink) {
+        throw new Error(`Invalid Instagram URL: ${trimmed}`);
+      }
+      blocks.push({
+        type: "video",
+        provider: "instagram",
+        url: permalink.url,
+        videoId: permalink.shortcode,
       });
       i += 1;
       continue;

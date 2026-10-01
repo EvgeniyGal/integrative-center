@@ -42,9 +42,10 @@ export const articleBlockSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("video"),
-    provider: z.literal("youtube"),
+    provider: z.enum(["youtube", "instagram"]),
     url: z.string().min(1),
-    videoId: z.string().min(1),
+    /** YouTube video id, or Instagram shortcode when provider is Instagram. */
+    videoId: z.string().min(1).optional(),
   }),
   z.object({
     type: z.literal("list"),

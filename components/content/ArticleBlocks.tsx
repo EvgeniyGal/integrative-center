@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { InlineMarkdown } from "@/components/content/InlineMarkdown";
+import { InstagramEmbed } from "@/components/content/InstagramEmbed";
 import type { ArticleBlock } from "@/lib/content/blocks";
 
 function stripOuterQuotes(text: string) {
@@ -189,9 +190,19 @@ export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
               </blockquote>
             );
           case "video": {
+            previousType = block.type;
+            if (block.provider === "instagram") {
+              const permalink = block.url?.trim();
+              if (!permalink) return null;
+              return (
+                <div key={key} className={`${space} w-full max-w-4xl`}>
+                  <InstagramEmbed url={permalink} />
+                </div>
+              );
+            }
+
             const id = block.videoId?.trim();
             if (!id) return null;
-            previousType = block.type;
             return (
               <div key={key} className={`${space} w-full max-w-4xl`}>
                 <div className="relative aspect-video overflow-hidden bg-ink">

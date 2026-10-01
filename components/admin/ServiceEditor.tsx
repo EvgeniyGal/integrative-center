@@ -9,7 +9,7 @@ import {
   useTransition,
 } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ImageIcon, Link2, Video, X } from "lucide-react";
+import { Film, ImageIcon, Link2, Video, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { generateServiceDraftAction } from "@/app/admin/actions/ai";
@@ -163,6 +163,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
   const [youtubeUrl, setYoutubeUrl] = useState(
     "https://www.youtube.com/watch?v=",
   );
+  const [instagramOpen, setInstagramOpen] = useState(false);
+  const [instagramUrl, setInstagramUrl] = useState(
+    "https://www.instagram.com/reel/",
+  );
   const imageAltOpen = Boolean(pendingImage);
 
   const action = service ? updateServiceAction : createServiceAction;
@@ -267,6 +271,18 @@ export function ServiceEditor({ service }: { service?: Service }) {
     if (!url) return;
     applyInsertion(`\n\n${url}\n\n`);
     setYoutubeOpen(false);
+  }
+
+  function openInstagramModal() {
+    setInstagramUrl("https://www.instagram.com/reel/");
+    setInstagramOpen(true);
+  }
+
+  function confirmInstagram() {
+    const url = instagramUrl.trim();
+    if (!url) return;
+    applyInsertion(`\n\n${url}\n\n`);
+    setInstagramOpen(false);
   }
 
   function insertImage() {
@@ -413,6 +429,10 @@ export function ServiceEditor({ service }: { service?: Service }) {
                 <Video className="size-3.5" />
                 YouTube
               </Button>
+              <Button type="button" size="sm" onClick={openInstagramModal}>
+                <Film className="size-3.5" />
+                Instagram
+              </Button>
               <Button
                 type="button"
                 size="sm"
@@ -488,6 +508,27 @@ export function ServiceEditor({ service }: { service?: Service }) {
             </InsertDialog>
 
             <InsertDialog
+              open={instagramOpen}
+              onOpenChange={setInstagramOpen}
+              title="Insert Instagram post"
+              description="Paste a public Instagram Reel or post URL. Stories are not supported."
+              onConfirm={confirmInstagram}
+              confirmLabel="Insert Instagram"
+              confirmDisabled={!instagramUrl.trim()}
+            >
+              <AdminField label="Instagram URL" htmlFor={`instagram-url-${id}`}>
+                <Input
+                  id={`instagram-url-${id}`}
+                  variant="box"
+                  value={instagramUrl}
+                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  placeholder="https://www.instagram.com/reel/…"
+                  autoFocus
+                />
+              </AdminField>
+            </InsertDialog>
+
+            <InsertDialog
               open={imageAltOpen}
               onOpenChange={(open) => {
                 if (!open) setPendingImage(null);
@@ -525,7 +566,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
                 onChange={(e) => setBodyMarkdown(e.target.value)}
                 rows={16}
                 className="min-h-64 font-mono text-sm"
-                placeholder={`## What to expect\n\nPaste your service copy here.\n\n- Benefit one\n- Benefit two\n\nhttps://www.youtube.com/watch?v=VIDEO_ID`}
+                placeholder={`## What to expect\n\nPaste your service copy here.\n\n- Benefit one\n- Benefit two\n\nhttps://www.youtube.com/watch?v=VIDEO_ID\n\nhttps://www.instagram.com/reel/SHORTCODE/`}
               />
             </AdminField>
             {!parseResult.ok ? (
