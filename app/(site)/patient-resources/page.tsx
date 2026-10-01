@@ -151,20 +151,28 @@ export default function PatientResourcesPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
           <Reveal>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-              {forms.eyebrow}
+              {supplements.eyebrow}
             </p>
             <h2 className="mt-4 font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
-              {forms.title}
+              {supplements.title}
             </h2>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              {forms.body}
+              {supplements.body}
             </p>
-          </Reveal>
-          <Reveal className="text-center" delay={0.08}>
-            <FormsIllustration />
             <Button asChild className="mt-8">
-              <Link href={forms.ctaHref}>{forms.ctaLabel}</Link>
+              <Link href={supplements.ctaHref}>{supplements.ctaLabel}</Link>
             </Button>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <div className="relative aspect-[4/3] overflow-hidden bg-stone">
+              <Image
+                src={supplements.image}
+                alt={supplements.imageAlt}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
           </Reveal>
         </div>
       </section>
@@ -173,16 +181,19 @@ export default function PatientResourcesPage() {
         <div className="mx-auto grid max-w-7xl items-start gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
           <Reveal>
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-              {supplements.eyebrow}
+              {forms.eyebrow}
             </p>
             <h2 className="mt-4 font-display text-3xl tracking-tight text-ink text-balance sm:text-4xl">
-              {supplements.title}
+              {forms.title}
             </h2>
             <p className="mt-4 max-w-md text-base leading-relaxed text-muted">
-              {supplements.body}
+              {forms.body}
             </p>
-            <Button asChild className="mt-8">
-              <Link href={supplements.ctaHref}>{supplements.ctaLabel}</Link>
+            <div className="mt-8 max-w-xs">
+              <FormsIllustration />
+            </div>
+            <Button asChild className="mt-6">
+              <Link href={forms.ctaHref}>{forms.ctaLabel}</Link>
             </Button>
           </Reveal>
 

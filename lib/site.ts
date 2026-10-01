@@ -284,8 +284,8 @@ export const patientResources = {
     body: "Please review our office policies before your visit. These guidelines explain important information about appointments, cancellations, communication, prescription refills, laboratory results, payments, urgent concerns, and your responsibilities as an HBIC patient.",
     ctaLabel: "View office policies",
     ctaHref: "/patient-resources/office-policies",
-    image: "/images/generated/care.jpg",
-    imageAlt: "Visit preparation materials at the practice",
+    image: "/images/generated/office-policies.jpg",
+    imageAlt: "Office policies and patient guidelines materials",
   },
   forms: {
     eyebrow: "Patient forms",
@@ -300,6 +300,8 @@ export const patientResources = {
     body: "Browse HBIC-recommended supplements, practitioner-preferred brands, and selected wellness products available through trusted partners and Amazon.",
     ctaLabel: "Explore recommendations",
     ctaHref: "/patient-resources/supplements",
+    image: "/images/generated/supplements-section.jpg",
+    imageAlt: "Recommended supplements and wellness products",
   },
   portal: {
     eyebrow: "Online access",
