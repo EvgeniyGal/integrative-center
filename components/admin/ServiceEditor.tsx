@@ -317,7 +317,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
   }
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
+    <div className="space-y-8">
       <div className="space-y-5">
         <form
           action={aiAction}
@@ -677,7 +677,7 @@ export function ServiceEditor({ service }: { service?: Service }) {
         </form>
       </div>
 
-      <div className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+      <div className="space-y-5">
         <ServiceHomePreview
           title={title}
           eyebrow={eyebrow}

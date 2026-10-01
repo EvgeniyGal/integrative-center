@@ -321,7 +321,7 @@ export function ArticleEditor({ article }: { article?: Article }) {
   const previewBlocks = parseResult.ok ? parseResult.blocks : lastGoodBlocks;
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,400px)]">
+    <div className="space-y-8">
       <div className="space-y-5">
         {!article ? (
           <form
@@ -757,7 +757,7 @@ Body paragraph here.
         </form>
       </div>
 
-      <div className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+      <div className="space-y-5">
         <ArticleHomePreview
           title={title}
           excerpt={excerpt}
