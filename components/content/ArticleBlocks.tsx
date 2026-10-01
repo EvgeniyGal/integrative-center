@@ -45,16 +45,40 @@ function spacingBefore(
   return "mt-6";
 }
 
+/** Adjacent document inserts become one centered row. */
+function coalesceDocumentsBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
+  const result: ArticleBlock[] = [];
+  for (const block of blocks) {
+    if (!block || typeof block !== "object" || !("type" in block)) continue;
+    const prev = result[result.length - 1];
+    if (
+      block.type === "documents" &&
+      prev?.type === "documents" &&
+      Array.isArray(block.items) &&
+      Array.isArray(prev.items)
+    ) {
+      result[result.length - 1] = {
+        type: "documents",
+        items: [...prev.items, ...block.items],
+      };
+      continue;
+    }
+    result.push(block);
+  }
+  return result;
+}
+
 export function ArticleBlocks({ blocks }: { blocks: ArticleBlock[] }) {
   if (!Array.isArray(blocks) || blocks.length === 0) {
     return null;
   }
 
+  const coalesced = coalesceDocumentsBlocks(blocks);
   let previousType: BlockType | null = null;
 
   return (
     <div>
-      {blocks.map((block, index) => {
+      {coalesced.map((block, index) => {
         if (!block || typeof block !== "object" || !("type" in block)) {
           return null;
         }

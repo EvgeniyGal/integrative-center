@@ -2,10 +2,78 @@
 
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Download, FileText, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { DocumentBlockItem } from "@/lib/content/blocks";
+
+function pdfPreviewSrc(url: string) {
+  const base = url.split("#")[0] ?? url;
+  return `${base}#page=1&view=FitH&toolbar=0&navpanes=0&scrollbar=0`;
+}
+
+function DocumentsGrid({
+  count,
+  className,
+  children,
+}: {
+  count: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const cols =
+    count <= 1
+      ? "mx-auto max-w-xs grid-cols-1"
+      : count === 2
+        ? "mx-auto max-w-2xl grid-cols-2"
+        : count === 3
+          ? "mx-auto max-w-3xl grid-cols-3"
+          : "mx-auto max-w-5xl grid-cols-4";
+
+  return (
+    <div className={`grid gap-5 sm:gap-6 ${cols} ${className ?? ""}`.trim()}>
+      {children}
+    </div>
+  );
+}
+
+function DocumentTile({
+  item,
+  onOpen,
+}: {
+  item: DocumentBlockItem;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group flex w-full min-w-0 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+    >
+      <span className="font-display text-lg leading-snug text-ink text-balance sm:text-xl">
+        {item.title}
+      </span>
+      {item.description ? (
+        <span className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-muted">
+          {item.description}
+        </span>
+      ) : null}
+      <span className="relative mt-4 block aspect-[3/4] w-full overflow-hidden border border-ink/15 bg-stone/40 shadow-[0_8px_24px_rgba(28,27,25,0.08)] transition duration-500 group-hover:border-brand/35 group-hover:shadow-[0_12px_28px_rgba(28,27,25,0.12)]">
+        <iframe
+          src={pdfPreviewSrc(item.url)}
+          title=""
+          aria-hidden
+          tabIndex={-1}
+          className="pointer-events-none absolute left-0 top-0 h-[140%] w-full origin-top scale-[1.02] border-0 bg-white"
+        />
+        <span className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+        <span className="absolute inset-x-0 bottom-0 bg-ink/70 px-3 py-2 text-center text-[10px] uppercase tracking-[0.22em] text-ivory opacity-0 transition duration-500 group-hover:opacity-100">
+          View PDF
+        </span>
+      </span>
+    </button>
+  );
+}
 
 export function DocumentsBlock({
   items,
@@ -20,33 +88,15 @@ export function DocumentsBlock({
 
   return (
     <>
-      <div
-        className={`flex flex-wrap justify-center gap-4 ${className}`.trim()}
-      >
+      <DocumentsGrid count={items.length} className={className}>
         {items.map((item, index) => (
-          <button
+          <DocumentTile
             key={`${item.url}-${index}`}
-            type="button"
-            onClick={() => setActive(item)}
-            className="group flex w-full max-w-xs flex-col border border-ink/15 bg-white px-5 py-5 text-left transition hover:border-brand/40 hover:bg-brand-light/20 sm:w-[14rem]"
-          >
-            <span className="inline-flex size-10 items-center justify-center bg-brand-light/50 text-brand transition group-hover:bg-brand group-hover:text-ivory">
-              <FileText className="size-5" aria-hidden />
-            </span>
-            <span className="mt-4 font-display text-xl leading-snug text-ink text-balance">
-              {item.title}
-            </span>
-            {item.description ? (
-              <span className="mt-2 text-sm leading-relaxed text-muted">
-                {item.description}
-              </span>
-            ) : null}
-            <span className="mt-4 text-[11px] uppercase tracking-[0.22em] text-brand">
-              View PDF
-            </span>
-          </button>
+            item={item}
+            onOpen={() => setActive(item)}
+          />
         ))}
-      </div>
+      </DocumentsGrid>
 
       <Dialog.Root
         open={Boolean(active)}
