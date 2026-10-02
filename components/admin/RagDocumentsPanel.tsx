@@ -23,6 +23,7 @@ import {
   AdminTableHeaderCell,
   AdminTableRow,
 } from "@/components/admin/AdminTable";
+import { DocumentField } from "@/components/admin/DocumentField";
 import { DeleteButton } from "@/components/admin/TableActions";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,7 @@ export function RagDocumentsPanel({
   documents: SerializedDocument[];
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [fileFieldKey, setFileFieldKey] = useState(0);
   const [state, formAction, pending] = useActionState(
     createRagDocumentAction,
     {} as ActionState,
@@ -94,6 +96,7 @@ export function RagDocumentsPanel({
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
+      setFileFieldKey((key) => key + 1);
     }
   }, [state.success]);
 
@@ -206,20 +209,13 @@ export function RagDocumentsPanel({
               placeholder="Use for questions about scheduling, forms, and first visits."
             />
           </AdminField>
-          <AdminField
+          <DocumentField
+            key={fileFieldKey}
             label="File"
-            htmlFor="rag-file"
+            name="file"
+            required
             hint="PDF, DOCX, or TXT · max 10MB"
-          >
-            <Input
-              id="rag-file"
-              name="file"
-              type="file"
-              required
-              accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-              variant="box"
-            />
-          </AdminField>
+          />
           <AdminToggle
             name="enabled"
             label="Enabled for public chat"
