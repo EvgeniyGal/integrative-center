@@ -206,6 +206,7 @@ export function RagDocumentsPanel({
               name="description"
               rows={3}
               variant="box"
+              className="min-h-28 border border-ink/20 bg-white px-3 py-3 shadow-[inset_0_1px_0_rgba(28,27,25,0.03)] focus:border-brand focus:ring-2 focus:ring-brand/20"
               placeholder="Use for questions about scheduling, forms, and first visits."
             />
           </AdminField>
