@@ -125,7 +125,7 @@ export default async function PatientResourcesPage() {
       </section>
 
       {guides.length > 0 ? (
-        <section className="bg-ivory pb-24 lg:pb-32">
+        <section className="bg-stone/40 py-24 lg:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <Reveal>
               <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
@@ -148,13 +148,13 @@ export default async function PatientResourcesPage() {
                 return (
                   <Reveal key={guide.id} delay={0.05 * Math.min(index, 4)}>
                     <article className="flex h-full items-start gap-4 border border-ink/10 bg-white px-5 py-5 sm:gap-5 sm:px-6 sm:py-6">
-                      <div className="relative size-14 shrink-0 overflow-hidden rounded-full bg-brand-light sm:size-16">
+                      <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-brand-light sm:size-24">
                         <Image
                           src={guide.imageUrl}
                           alt=""
                           fill
                           className="object-cover"
-                          sizes="64px"
+                          sizes="96px"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -194,10 +194,12 @@ export default async function PatientResourcesPage() {
         </section>
       ) : null}
 
-      <section className="bg-stone/40 py-24 lg:py-32">
+      <section
+        className={`${guides.length > 0 ? "bg-ivory" : "bg-stone/40"} py-24 lg:py-32`}
+      >
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
           <Reveal className="h-full">
-            <div className="flex h-full flex-col border border-ink/10 bg-ivory px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
+            <div className="flex h-full flex-col border border-ink/10 bg-white px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
               <div className="flex flex-1 items-start gap-3 sm:gap-4">
                 <SectionIcon>
                   <ClipboardList className="size-12 sm:size-14" strokeWidth={1.25} />
@@ -221,7 +223,7 @@ export default async function PatientResourcesPage() {
           </Reveal>
 
           <Reveal className="h-full" delay={0.08}>
-            <div className="flex h-full flex-col border border-ink/10 bg-ivory px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
+            <div className="flex h-full flex-col border border-ink/10 bg-white px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
               <div className="flex flex-1 items-start gap-3 sm:gap-4">
                 <SectionIcon>
                   <Laptop className="size-12 sm:size-14" strokeWidth={1.25} />
