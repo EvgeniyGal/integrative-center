@@ -73,6 +73,138 @@ function statusLabel(status: string) {
   return status;
 }
 
+const PAGE_SIZE = 10;
+
+function RagDocumentsTable({
+  documents,
+  reindexPending,
+  onReindex,
+}: {
+  documents: SerializedDocument[];
+  reindexPending: boolean;
+  onReindex: (docId: string) => void;
+}) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(documents.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageDocs = documents.slice(start, start + PAGE_SIZE);
+  const rangeEnd = Math.min(start + PAGE_SIZE, documents.length);
+
+  return (
+    <div className="space-y-3">
+      <AdminTable>
+        <AdminTableElement>
+          <AdminTableHead>
+            <tr>
+              <AdminTableHeaderCell>Document</AdminTableHeaderCell>
+              <AdminTableHeaderCell>Status</AdminTableHeaderCell>
+              <AdminTableHeaderCell>Chunks</AdminTableHeaderCell>
+              <AdminTableHeaderCell className="text-right">
+                Actions
+              </AdminTableHeaderCell>
+            </tr>
+          </AdminTableHead>
+          <AdminTableBody>
+            {pageDocs.map((doc) => (
+              <AdminTableRow key={doc.id}>
+                <AdminTableCell>
+                  <div className="space-y-1">
+                    <p className="font-medium text-ink">{doc.title}</p>
+                    <p className="text-xs text-muted">{doc.fileName}</p>
+                    {doc.description ? (
+                      <p className="text-xs text-muted line-clamp-2">
+                        {doc.description}
+                      </p>
+                    ) : null}
+                    {doc.error ? (
+                      <p className="text-xs text-red-600">{doc.error}</p>
+                    ) : null}
+                  </div>
+                </AdminTableCell>
+                <AdminTableCell>
+                  <span className="text-sm">{statusLabel(doc.status)}</span>
+                  <p className="text-xs text-muted">
+                    {doc.enabled ? "Enabled" : "Disabled"}
+                  </p>
+                </AdminTableCell>
+                <AdminTableCell>
+                  <span className="text-sm">{doc.chunkCount}</span>
+                </AdminTableCell>
+                <AdminTableCell className="text-right">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <form action={toggleRagDocumentAction}>
+                      <input type="hidden" name="id" value={doc.id} />
+                      <input
+                        type="hidden"
+                        name="enabled"
+                        value={doc.enabled ? "false" : "true"}
+                      />
+                      <Button type="submit" variant="outline" size="sm">
+                        {doc.enabled ? "Disable" : "Enable"}
+                      </Button>
+                    </form>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={reindexPending}
+                      onClick={() => onReindex(doc.id)}
+                    >
+                      Reindex
+                    </Button>
+                    <DeleteButton
+                      action={deleteRagDocumentAction}
+                      id={doc.id}
+                      label={`Delete ${doc.title}`}
+                    />
+                  </div>
+                </AdminTableCell>
+              </AdminTableRow>
+            ))}
+          </AdminTableBody>
+        </AdminTableElement>
+      </AdminTable>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted">
+          Showing {start + 1}–{rangeEnd} of {documents.length}
+        </p>
+        {totalPages > 1 ? (
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-xs text-muted">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function RagDocumentsPanel({
   documents,
 }: {
@@ -239,85 +371,18 @@ export function RagDocumentsPanel({
         {documents.length === 0 ? (
           <p className="text-sm text-muted">No RAG documents yet.</p>
         ) : (
-          <AdminTable>
-            <AdminTableElement>
-              <AdminTableHead>
-                <AdminTableRow>
-                  <AdminTableHeaderCell>Document</AdminTableHeaderCell>
-                  <AdminTableHeaderCell>Status</AdminTableHeaderCell>
-                  <AdminTableHeaderCell>Chunks</AdminTableHeaderCell>
-                  <AdminTableHeaderCell className="text-right">
-                    Actions
-                  </AdminTableHeaderCell>
-                </AdminTableRow>
-              </AdminTableHead>
-              <AdminTableBody>
-                {documents.map((doc) => (
-                  <AdminTableRow key={doc.id}>
-                    <AdminTableCell>
-                      <div className="space-y-1">
-                        <p className="font-medium text-ink">{doc.title}</p>
-                        <p className="text-xs text-muted">{doc.fileName}</p>
-                        {doc.description ? (
-                          <p className="text-xs text-muted line-clamp-2">
-                            {doc.description}
-                          </p>
-                        ) : null}
-                        {doc.error ? (
-                          <p className="text-xs text-red-600">{doc.error}</p>
-                        ) : null}
-                      </div>
-                    </AdminTableCell>
-                    <AdminTableCell>
-                      <span className="text-sm">{statusLabel(doc.status)}</span>
-                      <p className="text-xs text-muted">
-                        {doc.enabled ? "Enabled" : "Disabled"}
-                      </p>
-                    </AdminTableCell>
-                    <AdminTableCell>
-                      <span className="text-sm">{doc.chunkCount}</span>
-                    </AdminTableCell>
-                    <AdminTableCell className="text-right">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <form action={toggleRagDocumentAction}>
-                          <input type="hidden" name="id" value={doc.id} />
-                          <input
-                            type="hidden"
-                            name="enabled"
-                            value={doc.enabled ? "false" : "true"}
-                          />
-                          <Button type="submit" variant="outline" size="sm">
-                            {doc.enabled ? "Disable" : "Enable"}
-                          </Button>
-                        </form>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={reindexPending}
-                          onClick={() => {
-                            startReindex(async () => {
-                              const fd = new FormData();
-                              fd.set("id", doc.id);
-                              const result = await reindexRagDocumentAction(fd);
-                              setReindexState(result);
-                            });
-                          }}
-                        >
-                          Reindex
-                        </Button>
-                        <DeleteButton
-                          action={deleteRagDocumentAction}
-                          id={doc.id}
-                          label={`Delete ${doc.title}`}
-                        />
-                      </div>
-                    </AdminTableCell>
-                  </AdminTableRow>
-                ))}
-              </AdminTableBody>
-            </AdminTableElement>
-          </AdminTable>
+          <RagDocumentsTable
+            documents={documents}
+            reindexPending={reindexPending}
+            onReindex={(docId) => {
+              startReindex(async () => {
+                const fd = new FormData();
+                fd.set("id", docId);
+                const result = await reindexRagDocumentAction(fd);
+                setReindexState(result);
+              });
+            }}
+          />
         )}
         <FormStatus state={reindexState} />
       </AdminSection>
