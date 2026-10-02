@@ -8,10 +8,19 @@ import {
   primaryKey,
   text,
   timestamp,
+  vector,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
 import type { ArticleBlock } from "@/lib/content/blocks";
+
+export const RAG_EMBEDDING_DIMENSIONS = 1536;
+export const RAG_DOCUMENT_STATUSES = [
+  "processing",
+  "ready",
+  "failed",
+] as const;
+export type RagDocumentStatus = (typeof RAG_DOCUMENT_STATUSES)[number];
 
 export const users = pgTable("users", {
   id: text("id")
@@ -340,6 +349,60 @@ export const analyticsEvents = pgTable(
   ],
 );
 
+export const ragDocuments = pgTable("rag_documents", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  title: text("title").notNull(),
+  description: text("description"),
+  blobUrl: text("blobUrl").notNull(),
+  fileName: text("fileName").notNull(),
+  mimeType: text("mimeType").notNull(),
+  byteSize: integer("byteSize").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  status: text("status").$type<RagDocumentStatus>().notNull().default("processing"),
+  error: text("error"),
+  chunkCount: integer("chunkCount").notNull().default(0),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const ragChunks = pgTable(
+  "rag_chunks",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    documentId: text("documentId")
+      .notNull()
+      .references(() => ragDocuments.id, { onDelete: "cascade" }),
+    chunkIndex: integer("chunkIndex").notNull(),
+    content: text("content").notNull(),
+    tokenEstimate: integer("tokenEstimate").notNull().default(0),
+    embedding: vector("embedding", {
+      dimensions: RAG_EMBEDDING_DIMENSIONS,
+    }).notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("rag_chunks_document_id_idx").on(table.documentId),
+    index("rag_chunks_embedding_hnsw_idx")
+      .using("hnsw", table.embedding.op("vector_cosine_ops"))
+      .with({ m: 16, ef_construction: 64 }),
+  ],
+);
+
+export const ragDocumentsRelations = relations(ragDocuments, ({ many }) => ({
+  chunks: many(ragChunks),
+}));
+
+export const ragChunksRelations = relations(ragChunks, ({ one }) => ({
+  document: one(ragDocuments, {
+    fields: [ragChunks.documentId],
+    references: [ragDocuments.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
@@ -376,3 +439,5 @@ export type NotificationRecipient = typeof notificationRecipients.$inferSelect;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type RagDocument = typeof ragDocuments.$inferSelect;
+export type RagChunk = typeof ragChunks.$inferSelect;

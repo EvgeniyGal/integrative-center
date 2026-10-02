@@ -59,3 +59,14 @@ export async function getOpenAI(useCase: AiUseCase) {
   const client = createOpenAI({ apiKey: settings.apiKey });
   return { model: client(modelId), settings };
 }
+
+/** Shared OpenAI client for embeddings (model chosen by caller). */
+export async function getOpenAIEmbeddingClient() {
+  const settings = await getAiSettings();
+  if (!settings.apiKey) return null;
+  return {
+    apiKey: settings.apiKey,
+    client: createOpenAI({ apiKey: settings.apiKey }),
+    settings,
+  };
+}

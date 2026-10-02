@@ -2,6 +2,15 @@ import { streamText } from "ai";
 import { z } from "zod";
 
 import { getLiveClinicCatalog } from "@/lib/ai/catalog";
+import {
+  RAG_KNOWLEDGE_SOFT_CAP,
+  softCapText,
+} from "@/lib/ai/rag/constants";
+import {
+  buildChatSystemPrompt,
+  formatRetrievedContext,
+} from "@/lib/ai/rag/format";
+import { retrieveRagContext } from "@/lib/ai/rag/retrieve";
 import { getOpenAI } from "@/lib/ai/openai";
 import {
   chatMessageSchema,
@@ -65,13 +74,20 @@ export async function POST(request: Request) {
     return Response.json({ error: "Send a question to continue." }, { status: 400 });
   }
 
-  const catalog = await getLiveClinicCatalog();
-  const system = `${configured.settings.systemPrompt}
+  const [catalog, retrieved] = await Promise.all([
+    getLiveClinicCatalog(),
+    retrieveRagContext(last.content, { enabledOnly: true }),
+  ]);
 
-Knowledge base:
-${configured.settings.knowledgeBase}
-
-${catalog}`;
+  const system = buildChatSystemPrompt({
+    systemPrompt: configured.settings.systemPrompt,
+    knowledgeBase: softCapText(
+      configured.settings.knowledgeBase,
+      RAG_KNOWLEDGE_SOFT_CAP,
+    ),
+    retrieved: formatRetrievedContext(retrieved),
+    catalog,
+  });
 
   const result = streamText({
     model: configured.model,

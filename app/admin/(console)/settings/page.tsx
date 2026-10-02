@@ -3,10 +3,12 @@ import {
   OpenAiSettingsForm,
 } from "@/components/admin/AiSettingsForm";
 import { NotificationRecipientsPanel } from "@/components/admin/NotificationRecipients";
+import { RagDocumentsPanel } from "@/components/admin/RagDocumentsPanel";
 import {
   SettingsTabs,
   parseSettingsTab,
 } from "@/components/admin/SettingsTabs";
+import { listRagDocuments } from "@/lib/ai/rag/ingest";
 import { listOpenAIModels } from "@/lib/ai/openai";
 import { getAiSettings } from "@/lib/ai/settings";
 import { requireUserManager } from "@/lib/auth/session";
@@ -19,6 +21,7 @@ const INTRO: Record<string, string> = {
     "Manage the OpenAI API key and the models used for the assistant and AI drafts.",
   knowledge:
     "The public chatbot answers from this prompt and knowledge base, plus live services, hours, and contact details.",
+  rag: "Upload PDF, Word, or text documents into the hybrid RAG index. Public chat retrieves relevant excerpts alongside the plain-text knowledge base.",
   emails:
     "Choose who receives consult requests from the contact form and newsletter signups. Delivery uses Resend; verify your domain there so mail can leave the test account.",
 };
@@ -32,9 +35,10 @@ export default async function AdminSettingsPage({
   const { tab } = await searchParams;
   const current = parseSettingsTab(tab);
 
-  const [settings, recipients] = await Promise.all([
+  const [settings, recipients, ragDocuments] = await Promise.all([
     getAiSettings(),
     current === "emails" ? getNotificationRecipients() : Promise.resolve([]),
+    current === "rag" ? listRagDocuments() : Promise.resolve([]),
   ]);
   const models =
     current === "openai" && settings.apiKey
@@ -60,6 +64,9 @@ export default async function AdminSettingsPage({
           systemPrompt={settings.systemPrompt}
           knowledgeBase={settings.knowledgeBase}
         />
+      ) : null}
+      {current === "rag" ? (
+        <RagDocumentsPanel documents={ragDocuments} />
       ) : null}
       {current === "emails" ? (
         <NotificationRecipientsPanel recipients={recipients} />

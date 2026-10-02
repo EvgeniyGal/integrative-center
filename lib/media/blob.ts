@@ -18,7 +18,7 @@ export function isManagedBlobUrl(url: string): boolean {
     }
     const path = parsed.pathname;
     if (path.includes("/library/")) return false;
-    return /\/(articles|services|care-guides)(\/|$)/.test(path);
+    return /\/(articles|services|care-guides|rag-documents)(\/|$)/.test(path);
   } catch {
     return false;
   }

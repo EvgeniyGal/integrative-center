@@ -10,6 +10,11 @@ export const SETTINGS_TABS = [
     href: "/admin/settings?tab=knowledge",
   },
   {
+    id: "rag",
+    label: "RAG documents",
+    href: "/admin/settings?tab=rag",
+  },
+  {
     id: "emails",
     label: "Notification emails",
     href: "/admin/settings?tab=emails",
@@ -19,7 +24,9 @@ export const SETTINGS_TABS = [
 export type SettingsTabId = (typeof SETTINGS_TABS)[number]["id"];
 
 export function parseSettingsTab(value: string | undefined): SettingsTabId {
-  if (value === "knowledge" || value === "emails") return value;
+  if (value === "knowledge" || value === "rag" || value === "emails") {
+    return value;
+  }
   return "openai";
 }
 
