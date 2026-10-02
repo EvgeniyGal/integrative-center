@@ -5,6 +5,7 @@ import { ClipboardList, Laptop } from "lucide-react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
+import { getPublishedCareGuides } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
 import { patientResources, site } from "@/lib/site";
 
@@ -18,9 +19,10 @@ function SectionIcon({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function PatientResourcesPage() {
-  const { hero, intro, beforeVisit, forms, supplements, portal } =
+export default async function PatientResourcesPage() {
+  const { hero, intro, beforeVisit, forms, supplements, careGuides, portal } =
     patientResources;
+  const guides = await getPublishedCareGuides();
 
   return (
     <>
@@ -121,6 +123,76 @@ export default function PatientResourcesPage() {
           </Reveal>
         </div>
       </section>
+
+      {guides.length > 0 ? (
+        <section className="bg-ivory pb-24 lg:pb-32">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <Reveal>
+              <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
+                {careGuides.eyebrow}
+              </p>
+              <h2 className="mt-4 max-w-2xl font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
+                {careGuides.title}
+              </h2>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+                {careGuides.body}
+              </p>
+            </Reveal>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 sm:gap-6">
+              {guides.map((guide, index) => {
+                const href =
+                  guide.actionType === "pdf"
+                    ? guide.pdfUrl ?? "#"
+                    : guide.linkUrl ?? "#";
+                return (
+                  <Reveal key={guide.id} delay={0.05 * Math.min(index, 4)}>
+                    <article className="flex h-full items-start gap-4 border border-ink/10 bg-white px-5 py-5 sm:gap-5 sm:px-6 sm:py-6">
+                      <div className="relative size-14 shrink-0 overflow-hidden rounded-full bg-brand-light sm:size-16">
+                        <Image
+                          src={guide.imageUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-2xl tracking-tight text-ink text-balance">
+                          {guide.title}
+                        </h3>
+                        <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">
+                          {guide.description}
+                        </p>
+                        <Button asChild className="mt-5">
+                          {guide.actionType === "pdf" ? (
+                            <a
+                              href={href}
+                              download={guide.pdfFileName || undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {guide.ctaLabel}
+                            </a>
+                          ) : (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {guide.ctaLabel}
+                            </a>
+                          )}
+                        </Button>
+                      </div>
+                    </article>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="bg-stone/40 py-24 lg:py-32">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">

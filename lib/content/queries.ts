@@ -14,6 +14,7 @@ import {
   storeBrands,
   supplementBrands,
   testimonials,
+  careGuides,
 } from "@/lib/db/schema";
 import { defaultTickerText } from "@/lib/site";
 
@@ -240,6 +241,25 @@ export async function getAllSupplementBrands() {
     .select()
     .from(supplementBrands)
     .orderBy(asc(supplementBrands.sortOrder), asc(supplementBrands.createdAt));
+}
+
+export async function getPublishedCareGuides() {
+  "use cache";
+  cacheTag("care-guides");
+  cacheLife("days");
+
+  return db
+    .select()
+    .from(careGuides)
+    .where(eq(careGuides.published, true))
+    .orderBy(asc(careGuides.sortOrder), asc(careGuides.createdAt));
+}
+
+export async function getAllCareGuides() {
+  return db
+    .select()
+    .from(careGuides)
+    .orderBy(asc(careGuides.sortOrder), asc(careGuides.createdAt));
 }
 
 export async function getPublishedRecommendedProducts(): Promise<

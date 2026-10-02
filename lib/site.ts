@@ -303,6 +303,11 @@ export const patientResources = {
     image: "/images/generated/supplements-section.jpg",
     imageAlt: "Recommended supplements and wellness products",
   },
+  careGuides: {
+    eyebrow: "Patient care guides",
+    title: "Helpful instructions for your care at home.",
+    body: "Simple step-by-step resources to help you prepare for tests, treatments, and at-home care.",
+  },
   portal: {
     eyebrow: "Online access",
     title: "Patient portal",

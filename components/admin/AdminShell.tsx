@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpen,
   ChartColumn,
   FileText,
   HelpCircle,
@@ -35,6 +36,7 @@ const siteLinks = [
   { href: "/admin/questions", label: "Questions", icon: HelpCircle },
   { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/policies", label: "Policies", icon: ScrollText },
+  { href: "/admin/care-guides", label: "Care guides", icon: BookOpen },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/news", label: "News", icon: FileText },
 ];
@@ -173,6 +175,14 @@ function pageTitle(pathname: string) {
     return "Edit policy";
   }
   if (pathname.startsWith("/admin/policies")) return "Policies";
+  if (pathname === "/admin/care-guides/new") return "New care guide";
+  if (
+    pathname.startsWith("/admin/care-guides/") &&
+    pathname !== "/admin/care-guides"
+  ) {
+    return "Edit care guide";
+  }
+  if (pathname.startsWith("/admin/care-guides")) return "Care guides";
   if (pathname === "/admin/testimonials/new") return "New testimonial";
   if (
     pathname.startsWith("/admin/testimonials/") &&

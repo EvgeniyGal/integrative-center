@@ -3,7 +3,7 @@ import { del } from "@vercel/blob";
 import type { ArticleBlock } from "@/lib/content/blocks";
 import { normalizeServiceBody } from "@/lib/content/service-body";
 import { db } from "@/lib/db";
-import { articles, services } from "@/lib/db/schema";
+import { articles, careGuides, services } from "@/lib/db/schema";
 
 /** Only delete blobs we uploaded for content (not shared library assets). */
 export function isManagedBlobUrl(url: string): boolean {
@@ -18,7 +18,7 @@ export function isManagedBlobUrl(url: string): boolean {
     }
     const path = parsed.pathname;
     if (path.includes("/library/")) return false;
-    return /\/(articles|services)(\/|$)/.test(path);
+    return /\/(articles|services|care-guides)(\/|$)/.test(path);
   } catch {
     return false;
   }
@@ -69,6 +69,13 @@ export function collectServiceImageUrls(service: {
   return [...new Set(urls.filter(Boolean))];
 }
 
+export function collectCareGuideBlobUrls(guide: {
+  imageUrl?: string | null;
+  pdfUrl?: string | null;
+}): string[] {
+  return [...new Set([guide.imageUrl ?? "", guide.pdfUrl ?? ""].filter(Boolean))];
+}
+
 function uniqueManaged(urls: Iterable<string>) {
   return [
     ...new Set(
@@ -91,19 +98,23 @@ export async function deleteBlobUrls(urls: Iterable<string>): Promise<void> {
 }
 
 /**
- * Collect every image URL currently stored on articles/services,
+ * Collect every managed blob URL currently stored on content tables,
  * optionally excluding one record (the one being updated/deleted).
  */
 export async function getReferencedBlobUrls(except?: {
   articleId?: string;
   serviceId?: string;
+  careGuideId?: string;
 }): Promise<Set<string>> {
-  const [allArticles, allServices] = await Promise.all([
+  const [allArticles, allServices, allCareGuides] = await Promise.all([
     db.query.articles.findMany({
       columns: { id: true, coverImageUrl: true, blocks: true },
     }),
     db.query.services.findMany({
       columns: { id: true, imageUrl: true, body: true },
+    }),
+    db.query.careGuides.findMany({
+      columns: { id: true, imageUrl: true, pdfUrl: true },
     }),
   ]);
 
@@ -129,13 +140,20 @@ export async function getReferencedBlobUrls(except?: {
     }
   }
 
+  for (const guide of allCareGuides) {
+    if (except?.careGuideId && guide.id === except.careGuideId) continue;
+    for (const url of collectCareGuideBlobUrls(guide)) {
+      if (isManagedBlobUrl(url)) referenced.add(url);
+    }
+  }
+
   return referenced;
 }
 
 /** Delete managed blob URLs that are no longer referenced by other content. */
 export async function deleteOrphanBlobUrls(
   candidates: Iterable<string>,
-  except?: { articleId?: string; serviceId?: string },
+  except?: { articleId?: string; serviceId?: string; careGuideId?: string },
 ): Promise<void> {
   const managed = uniqueManaged(candidates);
   if (managed.length === 0) return;

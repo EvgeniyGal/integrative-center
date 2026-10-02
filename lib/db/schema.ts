@@ -193,6 +193,24 @@ export const supplementBrands = pgTable("supplement_brands", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const careGuides = pgTable("care_guides", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  imageUrl: text("imageUrl").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  ctaLabel: text("ctaLabel").notNull(),
+  actionType: text("actionType").$type<"link" | "pdf">().notNull(),
+  linkUrl: text("linkUrl"),
+  pdfUrl: text("pdfUrl"),
+  pdfFileName: text("pdfFileName"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  published: boolean("published").notNull().default(true),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const productCategories = pgTable("product_categories", {
   id: text("id")
     .primaryKey()
@@ -348,6 +366,7 @@ export type Policy = typeof policies.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type SupplementBrand = typeof supplementBrands.$inferSelect;
+export type CareGuide = typeof careGuides.$inferSelect;
 export type ProductCategory = typeof productCategories.$inferSelect;
 export type StoreBrand = typeof storeBrands.$inferSelect;
 export type RecommendedProduct = typeof recommendedProducts.$inferSelect;
