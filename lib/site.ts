@@ -140,7 +140,7 @@ export const homeQuestions = {
 export const homeNews = {
   eyebrow: "News",
   title: "News and Articles",
-  body: "Stay informed with expert insights on wellness, prevention, and integrative care.",
+  body: "Explore insights on hormone health, metabolic wellness, preventive medicine, integrative care, and healthy aging.",
   items: [
     {
       slug: "testosterone-replacement-therapy",

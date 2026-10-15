@@ -277,7 +277,7 @@ export default async function HomePage() {
                 variant="outline"
                 className="bg-white hover:bg-brand-light/40"
               >
-                <Link href="/news">View all news</Link>
+                <Link href="/news">View All News</Link>
               </Button>
             </Reveal>
           </div>
