@@ -8,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { policyCardExcerpt } from "@/lib/content/policy-body";
 import { getAboutPolicies } from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
-import { aboutPolicies, officePolicyToc, practiceIntro, team } from "@/lib/site";
+import {
+  aboutPolicies,
+  hbicExperience,
+  officePolicyToc,
+  practiceIntro,
+  team,
+} from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.about);
 
@@ -54,6 +60,32 @@ export default async function AboutPage() {
             delay={0.08}
           >
             {practiceIntro.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="bg-stone/30 py-24 lg:py-32">
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-12 lg:gap-16 lg:px-10">
+          <Reveal className="lg:col-span-5">
+            <SectionHeading
+              eyebrow={hbicExperience.eyebrow}
+              title={hbicExperience.title}
+            />
+            <Button
+              asChild
+              variant="outline"
+              className="mt-8 bg-white hover:bg-brand-light/40"
+            >
+              <Link href={hbicExperience.ctaHref}>{hbicExperience.ctaLabel}</Link>
+            </Button>
+          </Reveal>
+          <Reveal
+            className="space-y-6 text-base leading-relaxed text-muted sm:text-lg lg:col-span-7"
+            delay={0.08}
+          >
+            {hbicExperience.paragraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 48)}>{paragraph}</p>
             ))}
           </Reveal>

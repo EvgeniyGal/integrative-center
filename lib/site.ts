@@ -263,6 +263,18 @@ export const team = [
   },
 ] as const;
 
+export const hbicExperience = {
+  eyebrow: "The HBIC Experience",
+  title: "More Time to Listen. Practical Next Steps.",
+  paragraphs: [
+    "Our complimentary 15-minute discovery call helps prospective patients understand our approach and determine whether HBIC may be a good fit. New-patient visits last approximately 90 minutes, while dedicated laboratory-review visits typically last 60–75 minutes.",
+    "Bring previous laboratory results, imaging, specialty testing, and relevant medical records: useful information should inform your care rather than automatically be repeated. With your permission, a spouse, partner, adult child, or another family member may participate in person or by phone.",
+    "When appropriate, we may coordinate morning blood collection, clinically indicated injections or IV therapy, routine medication management, and ShapeScale 3D body composition analysis during the visit. Not every patient needs every service, and some care requires a separate appointment or follow-up.",
+  ],
+  ctaLabel: "Prepare for Your Visit",
+  ctaHref: "/patient-resources",
+} as const;
+
 export const aboutPolicies = {
   eyebrow: "Policies",
   title: "Clear policies for respectful, efficient care.",
