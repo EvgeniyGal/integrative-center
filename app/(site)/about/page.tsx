@@ -35,7 +35,7 @@ export default async function AboutPage() {
               About us
             </p>
             <h1 className="mt-5 font-display text-5xl leading-[1.02] text-ivory text-balance sm:text-7xl">
-              A private practice for root-cause care.
+              A More Personalized Approach to Medicine.
             </h1>
           </div>
         </div>

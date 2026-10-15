@@ -73,12 +73,12 @@ export const defaultTickerText = tickerItems.join("  •  ");
 
 export const practiceIntro = {
   eyebrow: "Our Practice",
-  title: "Functional and traditional medicine, held to a clinical standard.",
+  title: "Your Health Is Interconnected. Your Care Should Be Too.",
   paragraphs: [
-    "Located in the heart of Sarasota, Florida, Health and Beauty Integrative Center combines modern functional and traditional health therapies with science-backed treatments to support the physical, emotional, and aesthetic needs of our clients. Using a variety of modalities, we address the root causes of our patients’ issues while helping to reduce their symptoms.",
-    "Every patient is unique. No matter your concern, our dedicated providers listen to your needs, and use the latest diagnostic testing to identify the source of your issues. Once we assess your health factors, we develop comprehensive treatment plans personalized to your needs. During your treatments, we monitor your progress and adjust the process based on your body’s response.",
-    "Backed by years of experience, we provide a wide range of health therapies, including Hormone Balancing for Men and Women, Weight Management, Nutritional Analysis, Detox, and more...",
-    "At Health and Beauty Integrative Center, we offer Skin Care and Cosmetic Services, including PRP Facials, Micro-Needling, and Facials with RF and Intense Pulsed Light (IPL) treatment. From our extensive experience in medicine and cosmetology, we know that underlying health conditions cause most skin issues. That’s why we offer personalized skincare solutions - combining aesthetic and health therapies to help you feel and look your best, inside and out.",
+    "Health & Beauty Integrative Center (HBIC) is an integrative and functional medicine practice in Sarasota, Florida, providing individualized care for adult women and men. More than 20 years of clinical experience inform an approach that combines conventional medicine with functional and integrative strategies.",
+    "Hormones, thyroid function, metabolism, nutrition, gastrointestinal health, sleep, muscle and bone health, and cardiovascular risk can influence one another. At HBIC, we review the broader clinical picture rather than treating every symptom or laboratory value in isolation.",
+    "There is no standard protocol for every patient. We develop plans around each person’s medical history, symptoms, previous testing, goals, preferences, and response to care. When appropriate, treatment may include prescription therapy, hormone optimization, metabolic care, lifestyle and nutritional strategies, IV nutrient therapy, selected peptide therapies, or regenerative procedures.",
+    "Our philosophy is to identify clinically relevant factors, explain our findings, agree on practical next steps, and adjust the plan as needs change.",
   ],
 } as const;
 
