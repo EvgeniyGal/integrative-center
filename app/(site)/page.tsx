@@ -183,17 +183,29 @@ export default async function HomePage() {
             <SectionHeading
               light
               eyebrow="Services"
-              title="Functional and traditional medicine, held to a clinical standard."
+              title="Comprehensive Care, Personalized to You."
             />
-            <p className="mt-6 text-base leading-relaxed text-ivory/75 sm:text-lg">
-              Explore personalized care for women and men, including diagnostic
-              testing, hormone balancing, injections and IV therapy, medical
-              weight management, nutritional analysis, pelvic floor therapies,
-              PRP and PRF, ozone therapy, and peptide therapy when appropriate
-              and available. Services are offered at our Sarasota, Florida
-              clinic, with secure telehealth appointments available in states
-              where our providers are licensed.
-            </p>
+            <div className="mt-6 space-y-4 text-base leading-relaxed text-ivory/75 sm:text-lg">
+              <p>
+                At HBIC, we recognize that hormones, thyroid function,
+                metabolism, nutrition, sleep, and overall health are
+                interconnected. Our approach combines conventional medical care
+                with functional and integrative strategies to identify clinically
+                relevant factors and develop individualized treatment plans.
+              </p>
+              <p>
+                Our services include hormone and thyroid optimization, metabolic
+                health and medical weight management, advanced testing and
+                diagnostics, peptide therapy, IV and nutrient therapy, PRP and
+                PRF regenerative medicine, women&apos;s health, pelvic floor
+                care, and preventive medicine.
+              </p>
+              <p>
+                Treatment recommendations are based on each patient&apos;s
+                medical history, symptoms, laboratory findings, and personal
+                goals.
+              </p>
+            </div>
           </Reveal>
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {serviceItems.map((service, i) => {

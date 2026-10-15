@@ -55,7 +55,7 @@ export default async function ServicesPage() {
               Services
             </p>
             <h1 className="mt-5 font-display text-5xl leading-[1.02] text-ivory text-balance sm:text-7xl">
-              Care tailored to the person in front of us.
+              Comprehensive Care, Personalized to You.
             </h1>
           </div>
         </div>

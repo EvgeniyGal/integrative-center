@@ -85,8 +85,9 @@ export const practiceIntro = {
 export const servicesIntro = {
   title: "Feel and look your best at any age.",
   paragraphs: [
-    "Maintaining our health means providing our body with the care it needs, so we can feel and look our best at any age. Since each person is unique, at Health & Beauty Integrative Center, we provide personalized health and wellness care tailored to your specific needs. Our services include hormone replacement therapy for women and men, diagnostics, IV therapy, weight management, nutritional support, and other individualized treatments designed to support your physical, mental, and emotional well-being.",
-    "Improving your health begins with you. Taking the next step begins with us. Our experienced team uses advanced technology and individualized therapies to address your specific concerns and help you work toward your health goals.",
+    "At HBIC, we recognize that hormones, thyroid function, metabolism, nutrition, sleep, and overall health are interconnected. Our approach combines conventional medical care with functional and integrative strategies to identify clinically relevant factors and develop individualized treatment plans.",
+    "Our services include hormone and thyroid optimization, metabolic health and medical weight management, advanced testing and diagnostics, peptide therapy, IV and nutrient therapy, PRP and PRF regenerative medicine, women's health, pelvic floor care, and preventive medicine.",
+    "Treatment recommendations are based on each patient's medical history, symptoms, laboratory findings, and personal goals.",
   ],
 } as const;
 
