@@ -84,27 +84,30 @@ export default async function HomePage() {
             Sarasota, Florida
           </p>
           <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[0.95] text-ivory text-balance sm:text-7xl lg:text-8xl">
-            Integrative & Functional Health Care in Sarasota, Florida
+            Integrative Medicine for Hormones, Metabolism & Healthy Aging
           </h1>
           <div className="mt-6 max-w-2xl space-y-4 text-base leading-relaxed text-ivory/80 sm:text-lg">
             <p>
-              Health & Beauty Integrative Center is an integrative health clinic
-              in Sarasota, Florida, combining science-backed treatments with
-              integrative and functional medicine principles to support the
-              physical and mental health of patients of all ages.
+              Health & Beauty Integrative Center (HBIC) is an integrative and
+              functional medicine practice in Sarasota, Florida, focused on
+              hormone and thyroid optimization, metabolic health and medical
+              weight management, peptide therapy, longevity, preventive
+              medicine, and regenerative care.
             </p>
             <p>
-              Using practical, personalized therapies, we focus on identifying
-              and addressing potential root causes of health concerns while also
-              helping to reduce symptoms and support overall well-being.
+              With more than 20 years of clinical experience informing our
+              approach, HBIC combines conventional medical care with
+              individualized integrative strategies. Your care is guided by
+              medical history, symptoms, laboratory findings, goals, and
+              response to treatment.
             </p>
           </div>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild variant="inverted" size="lg">
-              <Link href="/contact">Request a consult</Link>
+              <Link href="/contact">Request a Consult</Link>
             </Button>
             <Button asChild variant="ghost" size="lg" className="border border-white/25">
-              <Link href="/services">Explore care</Link>
+              <Link href="/services">Explore Care</Link>
             </Button>
           </div>
         </div>
