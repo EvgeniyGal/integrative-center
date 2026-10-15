@@ -92,8 +92,10 @@ export const servicesIntro = {
 
 export const homeQuestions = {
   eyebrow: "Questions",
-  title: "Questions we help you explore",
-  body: ["You know something feels off.", "The question is why."],
+  title: "Questions We Help You Explore",
+  body: [
+    "At HBIC, we take time to understand your health, review previous testing, and identify clinically relevant factors. With your permission, family members are welcome to participate in your care.",
+  ],
   items: [
     {
       number: "1",

@@ -122,7 +122,7 @@ export default async function HomePage() {
             <h2 className="mt-4 max-w-3xl font-display text-4xl leading-[1.1] tracking-tight text-balance text-ink sm:text-5xl">
               {homeQuestions.title}
             </h2>
-            <div className="mt-4 max-w-xl space-y-1 text-base leading-relaxed text-muted sm:text-lg">
+            <div className="mt-4 space-y-1 text-base leading-relaxed text-muted sm:text-lg">
               {homeQuestions.body.map((line) => (
                 <p key={line}>{line}</p>
               ))}
