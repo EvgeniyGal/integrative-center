@@ -153,27 +153,25 @@ export default async function HomePage() {
           <Reveal className="lg:col-span-7" delay={0.1}>
             <SectionHeading
               eyebrow="The practice"
-              title="Medicine that listens, then looks deeper."
-              body={
-                <>
-                  <strong className="font-semibold text-ink">
-                    Elina Belilovskiy, ARNP, leads the Health & Beauty
-                    Integrative Center,
-                  </strong>{" "}
-                  where we care for patients with a range of health concerns. We
-                  combine holistic therapies with science-backed treatments,
-                  using diagnostic testing and personalized plans to target root
-                  causes and relieve symptoms.
-                </>
-              }
+              title="Medicine That Listens, Then Looks Deeper."
             />
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted">
-              No matter your concern, our dedicated providers listen to your
-              needs and use the latest diagnostic tests to find the source of
-              your symptoms.
-            </p>
+            <div className="mt-6 max-w-2xl space-y-4 text-base leading-relaxed text-muted sm:text-lg">
+              <p>
+                Led by Elina Belilovskiy, ARNP, MSN, Health & Beauty Integrative
+                Center takes time to understand the broader clinical picture. We
+                consider connections among hormones, thyroid function,
+                metabolism, nutrition, sleep, and overall well-being rather than
+                treating each symptom or laboratory result in isolation.
+              </p>
+              <p>
+                Our individualized plans may combine conventional treatment,
+                diagnostic testing, nutritional and lifestyle strategies, and
+                selected integrative therapies when appropriate. As needs and
+                results change, care can evolve with the patient.
+              </p>
+            </div>
             <Button asChild variant="outline" className="mt-8 bg-white hover:bg-brand-light/40">
-              <Link href="/about">Meet the team</Link>
+              <Link href="/about">Meet the Team</Link>
             </Button>
           </Reveal>
         </div>
