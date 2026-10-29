@@ -129,16 +129,16 @@ body {
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(7, 156, 162, 0.35);
+    filter: brightness(1);
   }
   50% {
-    opacity: 0.88;
-    box-shadow: 0 0 0 10px rgba(7, 156, 162, 0);
+    opacity: 0.45;
+    filter: brightness(1.35);
   }
 }
 
 .animate-announce-pulse {
-  animation: announce-pulse 2.2s ease-in-out infinite;
+  animation: announce-pulse 1s ease-in-out infinite;
 }
 
 .group\/chat-fab:hover .animate-chat-ring,
