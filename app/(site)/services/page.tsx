@@ -2,21 +2,38 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { InlineMarkdown } from "@/components/content/InlineMarkdown";
 import { Reveal } from "@/components/motion/Reveal";
 import { ListingBreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { getVisibleServices } from "@/lib/content/queries";
-import { serviceBodyPlainText } from "@/lib/content/service-body";
+import { normalizeServiceBody } from "@/lib/content/service-body";
 import { contentImageAlt, pageMetadata, pages } from "@/lib/seo";
 import { servicesIntro } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.services);
 
+/** Paragraph / list copy for cards — keeps inline markdown, skips headings. */
+function serviceCardSource(body: unknown, fallback: string) {
+  const fromBody = normalizeServiceBody(body)
+    .flatMap((block) => {
+      if (block.type === "paragraph" || block.type === "imageText") {
+        return [block.text];
+      }
+      if (block.type === "list") return block.items;
+      return [];
+    })
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return (fromBody || fallback).trim();
+}
+
 /** First 2–3 body sentences, ending with … to show more follows. */
 function serviceCardExcerpt(body: unknown, fallback: string) {
-  const source = serviceBodyPlainText(body);
-  const text = (source || fallback).trim();
+  const text = serviceCardSource(body, fallback);
   if (!text) return "";
 
   const sentences =
@@ -30,7 +47,11 @@ function serviceCardExcerpt(body: unknown, fallback: string) {
   }
 
   const excerpt = sentences.slice(0, count).join(" ").trim();
-  return `${excerpt.replace(/[.…]+$/, "")}…`;
+  // Drop unpaired ** so incomplete bold markers don't show as raw text.
+  const markers = excerpt.match(/\*\*/g)?.length ?? 0;
+  const cleaned =
+    markers % 2 === 0 ? excerpt : excerpt.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+  return `${cleaned.replace(/[.…]+$/, "")}…`;
 }
 
 export default async function ServicesPage() {
@@ -128,7 +149,7 @@ export default async function ServicesPage() {
                   </Link>
                 </h2>
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-                  {excerpt}
+                  <InlineMarkdown text={excerpt} />
                 </p>
                 <Button asChild className="mt-8">
                   <Link href={`/services/${service.slug}`}>Read more</Link>
