@@ -81,14 +81,15 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
       <section className="bg-ivory py-24 lg:py-32">
         <div className="mx-auto max-w-3xl px-6 lg:px-10">
-          <Reveal>
-            <p className="text-lg leading-relaxed text-muted sm:text-xl">
-              {service.summary}
-            </p>
-          </Reveal>
           {body.length > 0 ? (
-            <Reveal className="mt-10" delay={0.08}>
+            <Reveal>
               <ArticleBlocks blocks={body} />
+            </Reveal>
+          ) : service.summary ? (
+            <Reveal>
+              <p className="text-lg leading-relaxed text-muted sm:text-xl">
+                {service.summary}
+              </p>
             </Reveal>
           ) : null}
           <Reveal className="mt-12 flex flex-wrap gap-3" delay={0.12}>
