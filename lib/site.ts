@@ -289,6 +289,8 @@ export const patientResources = {
     image: "/images/generated/reception.jpg",
     imageAlt: "Reception area at Health & Beauty Integrative Center",
   },
+  announcement:
+    "Before your first visit: follow the instructions in your confirmation email and complete all required patient forms.",
   intro: {
     title: "Forms, portal access, and visit prep.",
     body: "Your experience with Health & Beauty Integrative Center should be as pleasant and productive as possible, and oftentimes that starts even before you arrive. The information below will help familiarize you with what to expect during your visit as well as your rights and responsibilities as a patient. If you have any questions or concerns not addressed here, please don't hesitate to contact our office during regular business hours so we can help you as quickly as possible.",

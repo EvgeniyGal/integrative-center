@@ -125,6 +125,22 @@ body {
   transform-origin: 50% 70%;
 }
 
+@keyframes announce-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(7, 156, 162, 0.35);
+  }
+  50% {
+    opacity: 0.88;
+    box-shadow: 0 0 0 10px rgba(7, 156, 162, 0);
+  }
+}
+
+.animate-announce-pulse {
+  animation: announce-pulse 2.2s ease-in-out infinite;
+}
+
 .group\/chat-fab:hover .animate-chat-ring,
 .group\/chat-fab:hover .animate-chat-icon,
 .group\/chat-fab:focus-within .animate-chat-ring,
@@ -135,7 +151,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-ticker,
   .animate-chat-ring,
-  .animate-chat-icon {
+  .animate-chat-icon,
+  .animate-announce-pulse {
     animation: none;
   }
 }

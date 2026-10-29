@@ -20,8 +20,16 @@ function SectionIcon({ children }: { children: React.ReactNode }) {
 }
 
 export default async function PatientResourcesPage() {
-  const { hero, intro, beforeVisit, forms, supplements, careGuides, portal } =
-    patientResources;
+  const {
+    hero,
+    announcement,
+    intro,
+    beforeVisit,
+    forms,
+    supplements,
+    careGuides,
+    portal,
+  } = patientResources;
   const guides = await getPublishedCareGuides();
 
   return (
@@ -47,6 +55,15 @@ export default async function PatientResourcesPage() {
           </div>
         </div>
       </section>
+
+      <div
+        className="animate-announce-pulse bg-[#c45c26] px-6 py-3 text-center lg:px-10"
+        role="status"
+      >
+        <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-white sm:text-[13px]">
+          {announcement}
+        </p>
+      </div>
 
       <section className="bg-ivory py-24 lg:py-32">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-12 lg:gap-16 lg:px-10">
