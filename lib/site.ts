@@ -307,7 +307,9 @@ export const patientResources = {
     title: "Everything you need before your appointment.",
     body: "Complete the required patient forms in advance to help make your visit as smooth and efficient as possible. Having your information ready allows our team to better prepare for your appointment.",
     ctaLabel: "View patient forms",
-    ctaHref: "/contact",
+    ctaHref: "/patient-resources/forms",
+    image: "/images/generated/office-policies.jpg",
+    imageAlt: "Patient forms and paperwork for your visit",
   },
   supplements: {
     eyebrow: "Supplements & recommended products",
@@ -328,6 +330,20 @@ export const patientResources = {
     title: "Patient portal",
     body: "View records, messages, and appointment details through our secure patient portal.",
     ctaLabel: "Open patient portal",
+  },
+} as const;
+
+export const patientFormsPage = {
+  hero: {
+    eyebrow: "Patient forms",
+    title: "Download and complete your forms before your visit.",
+    body: "Review each document, preview it in your browser, and download the PDFs you need. Completing forms in advance helps us prepare for your appointment and keeps your visit running smoothly.",
+    image: "/images/generated/office-policies.jpg",
+    imageAlt: "Patient forms at Health & Beauty Integrative Center",
+  },
+  empty: {
+    title: "Forms coming soon",
+    body: "Patient forms will appear here once they are published. If you need paperwork before your visit, please contact our office.",
   },
 } as const;
 

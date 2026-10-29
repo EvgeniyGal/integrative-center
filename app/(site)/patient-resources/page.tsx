@@ -95,114 +95,15 @@ export default async function PatientResourcesPage() {
       </section>
 
       <section className="bg-ivory py-24 lg:py-32">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
-          <Reveal>
-            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-              {supplements.eyebrow}
-            </p>
-            <h2 className="mt-4 font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
-              {supplements.title}
-            </h2>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              {supplements.body}
-            </p>
-            <Button asChild className="mt-8">
-              <Link href={supplements.ctaHref}>{supplements.ctaLabel}</Link>
-            </Button>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <div className="relative aspect-[4/3] overflow-hidden bg-stone">
-              <Image
-                src={supplements.image}
-                alt={supplements.imageAlt}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 50vw, 100vw"
-              />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {guides.length > 0 ? (
-        <section className="bg-stone/40 py-24 lg:py-32">
-          <div className="mx-auto max-w-7xl px-6 lg:px-10">
-            <Reveal>
-              <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
-                {careGuides.eyebrow}
-              </p>
-              <h2 className="mt-4 max-w-2xl font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
-                {careGuides.title}
-              </h2>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-                {careGuides.body}
-              </p>
-            </Reveal>
-
-            <div className="mt-12 grid gap-5 sm:grid-cols-2 sm:gap-6">
-              {guides.map((guide, index) => {
-                const href =
-                  guide.actionType === "pdf"
-                    ? guide.pdfUrl ?? "#"
-                    : guide.linkUrl ?? "#";
-                return (
-                  <Reveal key={guide.id} delay={0.05 * Math.min(index, 4)}>
-                    <article className="flex h-full items-start gap-4 border border-ink/10 bg-white px-5 py-5 sm:gap-5 sm:px-6 sm:py-6">
-                      <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-brand-light sm:size-24">
-                        <Image
-                          src={guide.imageUrl}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="96px"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-display text-2xl tracking-tight text-ink text-balance">
-                          {guide.title}
-                        </h3>
-                        <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">
-                          {guide.description}
-                        </p>
-                        <Button asChild className="mt-5">
-                          {guide.actionType === "pdf" ? (
-                            <a
-                              href={href}
-                              download={guide.pdfFileName || undefined}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {guide.ctaLabel}
-                            </a>
-                          ) : (
-                            <a
-                              href={href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {guide.ctaLabel}
-                            </a>
-                          )}
-                        </Button>
-                      </div>
-                    </article>
-                  </Reveal>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      <section
-        className={`${guides.length > 0 ? "bg-ivory" : "bg-stone/40"} py-24 lg:py-32`}
-      >
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
           <Reveal className="h-full">
             <div className="flex h-full flex-col border border-ink/10 bg-white px-6 py-8 shadow-[0_18px_50px_-28px_rgba(28,27,25,0.35)] sm:px-8 sm:py-10">
               <div className="flex flex-1 items-start gap-3 sm:gap-4">
                 <SectionIcon>
-                  <ClipboardList className="size-12 sm:size-14" strokeWidth={1.25} />
+                  <ClipboardList
+                    className="size-12 sm:size-14"
+                    strokeWidth={1.25}
+                  />
                 </SectionIcon>
                 <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                   <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
@@ -254,6 +155,106 @@ export default async function PatientResourcesPage() {
           </Reveal>
         </div>
       </section>
+
+      <section className="bg-stone/40 py-24 lg:py-32">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-10">
+          <Reveal>
+            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
+              {supplements.eyebrow}
+            </p>
+            <h2 className="mt-4 font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
+              {supplements.title}
+            </h2>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+              {supplements.body}
+            </p>
+            <Button asChild className="mt-8">
+              <Link href={supplements.ctaHref}>{supplements.ctaLabel}</Link>
+            </Button>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <div className="relative aspect-[4/3] overflow-hidden bg-stone">
+              <Image
+                src={supplements.image}
+                alt={supplements.imageAlt}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {guides.length > 0 ? (
+        <section className="bg-ivory py-24 lg:py-32">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <Reveal>
+              <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-brand">
+                {careGuides.eyebrow}
+              </p>
+              <h2 className="mt-4 max-w-2xl font-display text-4xl tracking-tight text-ink text-balance sm:text-5xl">
+                {careGuides.title}
+              </h2>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+                {careGuides.body}
+              </p>
+            </Reveal>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 sm:gap-6">
+              {guides.map((guide, index) => {
+                const href =
+                  guide.actionType === "pdf"
+                    ? (guide.pdfUrl ?? "#")
+                    : (guide.linkUrl ?? "#");
+                return (
+                  <Reveal key={guide.id} delay={0.05 * Math.min(index, 4)}>
+                    <article className="flex h-full items-start gap-4 border border-ink/10 bg-white px-5 py-5 sm:gap-5 sm:px-6 sm:py-6">
+                      <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-brand-light sm:size-24">
+                        <Image
+                          src={guide.imageUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="96px"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-2xl tracking-tight text-ink text-balance">
+                          {guide.title}
+                        </h3>
+                        <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">
+                          {guide.description}
+                        </p>
+                        <Button asChild className="mt-5">
+                          {guide.actionType === "pdf" ? (
+                            <a
+                              href={href}
+                              download={guide.pdfFileName || undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {guide.ctaLabel}
+                            </a>
+                          ) : (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {guide.ctaLabel}
+                            </a>
+                          )}
+                        </Button>
+                      </div>
+                    </article>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

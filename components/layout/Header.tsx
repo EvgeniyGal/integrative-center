@@ -35,15 +35,16 @@ function HeaderFallback({ tickerText }: HeaderProps) {
           ))}
         </nav>
         <div className="hidden items-center gap-3 min-[1100px]:flex">
-          <a
-            href={site.portalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-analytics="portal_click"
-            className="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-ink"
-          >
-            Patient Portal
-          </a>
+          <Button asChild size="sm" variant="outline">
+            <a
+              href={site.portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics="portal_click"
+            >
+              Patient Portal
+            </a>
+          </Button>
           <Button asChild size="sm">
             <Link href="/contact" data-analytics="consult_click">
               Request a consult
@@ -120,18 +121,25 @@ function HeaderInner({ tickerText }: HeaderProps) {
         </nav>
 
         <div className="hidden items-center gap-3 min-[1100px]:flex">
-          <a
-            href={site.portalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-analytics="portal_click"
-            className={cn(
-              "text-[11px] font-medium uppercase tracking-[0.22em] transition-colors",
-              onHero ? "text-white/80 hover:text-white" : "text-ink/70 hover:text-ink",
-            )}
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className={
+              onHero
+                ? "border-white/45 bg-white/10 text-white hover:border-white hover:bg-white/20 hover:text-white"
+                : undefined
+            }
           >
-            Patient Portal
-          </a>
+            <a
+              href={site.portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics="portal_click"
+            >
+              Patient Portal
+            </a>
+          </Button>
           <Button asChild size="sm" variant={onHero ? "inverted" : "default"}>
             <Link href="/contact" data-analytics="consult_click">
               Request a consult

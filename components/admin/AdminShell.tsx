@@ -3,6 +3,7 @@
 import {
   BookOpen,
   ChartColumn,
+  ClipboardList,
   FileText,
   HelpCircle,
   Inbox,
@@ -37,6 +38,7 @@ const siteLinks = [
   { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/policies", label: "Policies", icon: ScrollText },
   { href: "/admin/care-guides", label: "Care guides", icon: BookOpen },
+  { href: "/admin/patient-forms", label: "Patient forms", icon: ClipboardList },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/news", label: "News", icon: FileText },
 ];
@@ -183,6 +185,14 @@ function pageTitle(pathname: string) {
     return "Edit care guide";
   }
   if (pathname.startsWith("/admin/care-guides")) return "Care guides";
+  if (pathname === "/admin/patient-forms/new") return "New patient form";
+  if (
+    pathname.startsWith("/admin/patient-forms/") &&
+    pathname !== "/admin/patient-forms"
+  ) {
+    return "Edit patient form";
+  }
+  if (pathname.startsWith("/admin/patient-forms")) return "Patient forms";
   if (pathname === "/admin/testimonials/new") return "New testimonial";
   if (
     pathname.startsWith("/admin/testimonials/") &&

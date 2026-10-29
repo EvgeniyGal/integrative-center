@@ -277,6 +277,20 @@ export const pages = {
     image: "/images/generated/care.jpg",
     imageAlt: "Office policies at Health & Beauty Integrative Center",
   },
+  patientForms: {
+    title: "Patient Forms | HBI Sarasota",
+    description:
+      "Download and preview required patient forms before your appointment at Health & Beauty Integrative Center in Sarasota.",
+    keywords: [
+      "HBIC patient forms",
+      "new patient paperwork Sarasota",
+      "download medical forms",
+      "Health and Beauty Integrative Center forms",
+    ],
+    path: "/patient-resources/forms",
+    image: "/images/generated/office-policies.jpg",
+    imageAlt: "Patient forms at Health & Beauty Integrative Center",
+  },
   supplements: {
     title: "Supplements & Recommended Products | HBI Sarasota",
     description:
