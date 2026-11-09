@@ -6,14 +6,16 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { policyCardExcerpt } from "@/lib/content/policy-body";
-import { getAboutPolicies } from "@/lib/content/queries";
+import {
+  getAboutPolicies,
+  getPublishedTeamMembers,
+} from "@/lib/content/queries";
 import { pageMetadata, pages } from "@/lib/seo";
 import {
   aboutPolicies,
   hbicExperience,
   officePolicyToc,
   practiceIntro,
-  team,
 } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.about);
@@ -21,7 +23,10 @@ export const metadata: Metadata = pageMetadata(pages.about);
 export const instant = false;
 
 export default async function AboutPage() {
-  const policyCards = await getAboutPolicies();
+  const [policyCards, members] = await Promise.all([
+    getAboutPolicies(),
+    getPublishedTeamMembers(),
+  ]);
 
   return (
     <>
@@ -145,34 +150,36 @@ export default async function AboutPage() {
             />
           </Reveal>
 
-          <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-16">
-            {[team[0], team[0]].map((member, index) => (
-              <Reveal key={`${member.name}-${index}`} delay={index * 0.08}>
-                <article className="grid gap-6 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:items-start lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-stone/40">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                      sizes="(min-width: 1024px) 13rem, (min-width: 640px) 11rem, 100vw"
-                    />
-                  </div>
-                  <div className="sm:pt-1">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-brand">
-                      {member.role}
-                    </p>
-                    <h3 className="mt-3 font-display text-2xl tracking-tight text-ink sm:text-3xl">
-                      {member.name}
-                    </h3>
-                    <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-                      {member.bio}
-                    </p>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
+          {members.length > 0 ? (
+            <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-16">
+              {members.map((member, index) => (
+                <Reveal key={member.id} delay={0.08 * Math.min(index, 4)}>
+                  <article className="grid gap-6 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:items-start lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-stone/40">
+                      <Image
+                        src={member.imageUrl}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 1024px) 13rem, (min-width: 640px) 11rem, 100vw"
+                      />
+                    </div>
+                    <div className="sm:pt-1">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-brand">
+                        {member.role}
+                      </p>
+                      <h3 className="mt-3 font-display text-2xl tracking-tight text-ink sm:text-3xl">
+                        {member.name}
+                      </h3>
+                      <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
+                        {member.bio}
+                      </p>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
     </>

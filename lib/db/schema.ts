@@ -234,6 +234,20 @@ export const patientForms = pgTable("patient_forms", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
+export const teamMembers = pgTable("team_members", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  bio: text("bio").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  published: boolean("published").notNull().default(true),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export const productCategories = pgTable("product_categories", {
   id: text("id")
     .primaryKey()
@@ -445,6 +459,7 @@ export type Article = typeof articles.$inferSelect;
 export type SupplementBrand = typeof supplementBrands.$inferSelect;
 export type CareGuide = typeof careGuides.$inferSelect;
 export type PatientForm = typeof patientForms.$inferSelect;
+export type TeamMember = typeof teamMembers.$inferSelect;
 export type ProductCategory = typeof productCategories.$inferSelect;
 export type StoreBrand = typeof storeBrands.$inferSelect;
 export type RecommendedProduct = typeof recommendedProducts.$inferSelect;

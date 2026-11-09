@@ -3,7 +3,13 @@ import { del } from "@vercel/blob";
 import type { ArticleBlock } from "@/lib/content/blocks";
 import { normalizeServiceBody } from "@/lib/content/service-body";
 import { db } from "@/lib/db";
-import { articles, careGuides, patientForms, services } from "@/lib/db/schema";
+import {
+  articles,
+  careGuides,
+  patientForms,
+  services,
+  teamMembers,
+} from "@/lib/db/schema";
 
 /** Only delete blobs we uploaded for content (not shared library assets). */
 export function isManagedBlobUrl(url: string): boolean {
@@ -18,7 +24,7 @@ export function isManagedBlobUrl(url: string): boolean {
     }
     const path = parsed.pathname;
     if (path.includes("/library/")) return false;
-    return /\/(articles|services|care-guides|patient-forms|rag-documents)(\/|$)/.test(
+    return /\/(articles|services|care-guides|patient-forms|team-members|rag-documents)(\/|$)/.test(
       path,
     );
   } catch {
@@ -84,6 +90,12 @@ export function collectPatientFormBlobUrls(form: {
   return [...new Set([form.pdfUrl ?? ""].filter(Boolean))];
 }
 
+export function collectTeamMemberBlobUrls(member: {
+  imageUrl?: string | null;
+}): string[] {
+  return [...new Set([member.imageUrl ?? ""].filter(Boolean))];
+}
+
 function uniqueManaged(urls: Iterable<string>) {
   return [
     ...new Set(
@@ -114,22 +126,31 @@ export async function getReferencedBlobUrls(except?: {
   serviceId?: string;
   careGuideId?: string;
   patientFormId?: string;
+  teamMemberId?: string;
 }): Promise<Set<string>> {
-  const [allArticles, allServices, allCareGuides, allPatientForms] =
-    await Promise.all([
-      db.query.articles.findMany({
-        columns: { id: true, coverImageUrl: true, blocks: true },
-      }),
-      db.query.services.findMany({
-        columns: { id: true, imageUrl: true, body: true },
-      }),
-      db.query.careGuides.findMany({
-        columns: { id: true, imageUrl: true, pdfUrl: true },
-      }),
-      db.query.patientForms.findMany({
-        columns: { id: true, pdfUrl: true },
-      }),
-    ]);
+  const [
+    allArticles,
+    allServices,
+    allCareGuides,
+    allPatientForms,
+    allTeamMembers,
+  ] = await Promise.all([
+    db.query.articles.findMany({
+      columns: { id: true, coverImageUrl: true, blocks: true },
+    }),
+    db.query.services.findMany({
+      columns: { id: true, imageUrl: true, body: true },
+    }),
+    db.query.careGuides.findMany({
+      columns: { id: true, imageUrl: true, pdfUrl: true },
+    }),
+    db.query.patientForms.findMany({
+      columns: { id: true, pdfUrl: true },
+    }),
+    db.query.teamMembers.findMany({
+      columns: { id: true, imageUrl: true },
+    }),
+  ]);
 
   const referenced = new Set<string>();
 
@@ -167,6 +188,13 @@ export async function getReferencedBlobUrls(except?: {
     }
   }
 
+  for (const member of allTeamMembers) {
+    if (except?.teamMemberId && member.id === except.teamMemberId) continue;
+    for (const url of collectTeamMemberBlobUrls(member)) {
+      if (isManagedBlobUrl(url)) referenced.add(url);
+    }
+  }
+
   return referenced;
 }
 
@@ -178,6 +206,7 @@ export async function deleteOrphanBlobUrls(
     serviceId?: string;
     careGuideId?: string;
     patientFormId?: string;
+    teamMemberId?: string;
   },
 ): Promise<void> {
   const managed = uniqueManaged(candidates);

@@ -20,6 +20,7 @@ import {
   Sparkles,
   Store,
   Tags,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -40,6 +41,7 @@ const siteLinks = [
   { href: "/admin/care-guides", label: "Care guides", icon: BookOpen },
   { href: "/admin/patient-forms", label: "Patient forms", icon: ClipboardList },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
+  { href: "/admin/team-members", label: "Team", icon: UserRound },
   { href: "/admin/news", label: "News", icon: FileText },
 ];
 
@@ -201,6 +203,14 @@ function pageTitle(pathname: string) {
     return "Edit testimonial";
   }
   if (pathname.startsWith("/admin/testimonials")) return "Testimonials";
+  if (pathname === "/admin/team-members/new") return "New team member";
+  if (
+    pathname.startsWith("/admin/team-members/") &&
+    pathname !== "/admin/team-members"
+  ) {
+    return "Edit team member";
+  }
+  if (pathname.startsWith("/admin/team-members")) return "Team";
   if (pathname === "/admin/news/new") return "New article";
   if (pathname.startsWith("/admin/news/") && pathname !== "/admin/news") {
     return "Edit article";

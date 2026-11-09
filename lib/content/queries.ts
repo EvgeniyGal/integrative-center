@@ -16,6 +16,7 @@ import {
   testimonials,
   careGuides,
   patientForms,
+  teamMembers,
 } from "@/lib/db/schema";
 import { defaultTickerText } from "@/lib/site";
 
@@ -280,6 +281,25 @@ export async function getAllPatientForms() {
     .select()
     .from(patientForms)
     .orderBy(asc(patientForms.sortOrder), asc(patientForms.createdAt));
+}
+
+export async function getPublishedTeamMembers() {
+  "use cache";
+  cacheTag("team-members");
+  cacheLife("days");
+
+  return db
+    .select()
+    .from(teamMembers)
+    .where(eq(teamMembers.published, true))
+    .orderBy(asc(teamMembers.sortOrder), asc(teamMembers.createdAt));
+}
+
+export async function getAllTeamMembers() {
+  return db
+    .select()
+    .from(teamMembers)
+    .orderBy(asc(teamMembers.sortOrder), asc(teamMembers.createdAt));
 }
 
 export async function getPublishedRecommendedProducts(): Promise<

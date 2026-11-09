@@ -254,15 +254,6 @@ export const carePath = [
   },
 ] as const;
 
-export const team = [
-  {
-    name: "Elina Belilovskiy, ARNP, MSN",
-    role: "Founder & Family Medicine Nurse Practitioner",
-    image: "/images/staff/elina.jpg",
-    bio: "Elina holds an autonomous Nurse Practitioner license and leads Health & Beauty Integrative Center. She received medical training in Russia and the United States, graduating from Regis College in Weston, MA, in 2001. Her private practice spans Integrative Medicine, Women’s Health, and Urology, with a focus on diagnosing root causes and applying physiological, natural, and anti-aging approaches.",
-  },
-] as const;
-
 export const hbicExperience = {
   eyebrow: "The HBIC Experience",
   title: "More Time to Listen. Practical Next Steps.",

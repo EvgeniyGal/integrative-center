@@ -12,21 +12,24 @@ import {
   getFeaturedArticles,
   getHomeServices,
   getPublishedQuestions,
+  getPublishedTeamMembers,
   getPublishedTestimonials,
 } from "@/lib/content/queries";
 import { contentImageAlt, pageMetadata, pages } from "@/lib/seo";
-import { homeNews, homeQuestions, team } from "@/lib/site";
+import { homeNews, homeQuestions } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata(pages.home);
 
 export default async function HomePage() {
-  const [questionRows, serviceRows, articleRows, reviewRows] =
+  const [questionRows, serviceRows, articleRows, reviewRows, teamMembers] =
     await Promise.all([
       getPublishedQuestions(),
       getHomeServices(),
       getFeaturedArticles(3),
       getPublishedTestimonials(),
+      getPublishedTeamMembers(),
     ]);
+  const featuredMember = teamMembers[0];
 
   const questionItems =
     questionRows.length > 0
@@ -136,21 +139,26 @@ export default async function HomePage() {
 
       <section className="bg-ivory pt-12 pb-24 lg:pt-16 lg:pb-32">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-12 lg:px-10">
-          <Reveal className="relative lg:col-span-5">
-            <div className="relative aspect-[4/5] overflow-hidden">
-              <Image
-                src={team[0].image}
-                alt={team[0].name}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 40vw, 100vw"
-              />
-            </div>
-            <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.22em] text-brand">
-              {team[0].name}
-            </p>
-          </Reveal>
-          <Reveal className="lg:col-span-7" delay={0.1}>
+          {featuredMember ? (
+            <Reveal className="relative lg:col-span-5">
+              <div className="relative aspect-[4/5] overflow-hidden">
+                <Image
+                  src={featuredMember.imageUrl}
+                  alt={featuredMember.name}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                />
+              </div>
+              <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.22em] text-brand">
+                {featuredMember.name}
+              </p>
+            </Reveal>
+          ) : null}
+          <Reveal
+            className={featuredMember ? "lg:col-span-7" : "lg:col-span-12"}
+            delay={0.1}
+          >
             <SectionHeading
               eyebrow="The practice"
               title="Medicine That Listens, Then Looks Deeper."
