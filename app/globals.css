@@ -21,8 +21,6 @@
 
 html {
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-brand) var(--color-stone);
 }
 
 body {
@@ -31,27 +29,66 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/*
+ * IMPORTANT (Chrome 121+ on Windows):
+ * Setting scrollbar-width / scrollbar-color OVERRIDES all
+ * ::-webkit-scrollbar-* rules and forces classic OS scrollbars
+ * with ↑↓ arrows + opaque track. So:
+ * - Chromium/WebKit → only ::-webkit-scrollbar-* (can hide arrows)
+ * - Firefox → only standard scrollbar-* (no webkit support)
+ */
+
+/* Chrome / Edge / Safari — thumb only */
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
+  background: transparent;
 }
 
-*::-webkit-scrollbar-track {
-  background: var(--color-stone);
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button:single-button,
+*::-webkit-scrollbar-button:vertical:start:decrement,
+*::-webkit-scrollbar-button:vertical:end:increment,
+*::-webkit-scrollbar-button:vertical:start:increment,
+*::-webkit-scrollbar-button:vertical:end:decrement,
+*::-webkit-scrollbar-button:horizontal:start:decrement,
+*::-webkit-scrollbar-button:horizontal:end:increment,
+*::-webkit-scrollbar-button:horizontal:start:increment,
+*::-webkit-scrollbar-button:horizontal:end:decrement {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--color-brand);
-  border: 2px solid var(--color-stone);
+  background-color: color-mix(in srgb, var(--color-brand) 70%, transparent);
   border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--color-brand-dark);
+  background-color: var(--color-brand);
 }
 
-*::-webkit-scrollbar-corner {
-  background: var(--color-stone);
+*::-webkit-scrollbar-thumb:active {
+  background-color: var(--color-brand-dark);
+}
+
+/* Firefox only — standard props must not run in Chromium */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-brand) 70%, transparent)
+      transparent;
+  }
 }
 
 ::selection {
