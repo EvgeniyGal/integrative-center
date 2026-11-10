@@ -134,7 +134,7 @@ export default function LocationPage() {
           <Reveal>
             <div className="relative aspect-[16/11] overflow-hidden rounded-2xl">
               <Image
-                src="/images/Office-800x463.png"
+                src="/images/location-exterior.jpg"
                 alt="Exterior of Health & Beauty Integrative Center"
                 fill
                 className="object-cover"
