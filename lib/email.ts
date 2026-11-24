@@ -86,6 +86,122 @@ async function sendToRecipients(params: {
   };
 }
 
+function contactRequestEmailHtml(params: {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+}) {
+  const name = escapeHtml(params.name);
+  const phone = escapeHtml(params.phone);
+  const email = escapeHtml(params.email);
+  const message = escapeHtml(params.message).replaceAll("\n", "<br />");
+  const phoneHref = `tel:${params.phone.replace(/[^\d+]/g, "")}`;
+  const adminLink = `${appUrl()}/admin/contact-requests`;
+  const brand = "#079ca2";
+  const brandDark = "#05747a";
+  const ivory = "#f6f3ee";
+  const stone = "#e4ddd2";
+  const ink = "#1c1b19";
+  const muted = "#6d6861";
+
+  const detailRow = (label: string, valueHtml: string) => `
+    <tr>
+      <td style="padding:0 0 16px 0;">
+        <p style="margin:0 0 4px 0;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:${muted};font-family:Georgia,'Times New Roman',serif;">
+          ${label}
+        </p>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:${ink};font-family:Arial,Helvetica,sans-serif;">
+          ${valueHtml}
+        </p>
+      </td>
+    </tr>
+  `;
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New consult request</title>
+  </head>
+  <body style="margin:0;padding:0;background:${ivory};color:${ink};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${ivory};padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#ffffff;border:1px solid ${stone};">
+            <tr>
+              <td style="background:${brand};padding:22px 28px;">
+                <p style="margin:0;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;font-family:Arial,Helvetica,sans-serif;opacity:0.9;">
+                  ${escapeHtml(site.shortName)}
+                </p>
+                <h1 style="margin:8px 0 0 0;font-size:24px;line-height:1.3;color:#ffffff;font-weight:normal;font-family:Georgia,'Times New Roman',serif;">
+                  New consult request
+                </h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px;">
+                <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:${muted};font-family:Arial,Helvetica,sans-serif;">
+                  A visitor submitted the contact form on
+                  <strong style="color:${ink};">${escapeHtml(site.name)}</strong>.
+                  You can reply directly to this email to reach them.
+                </p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${ivory};border:1px solid ${stone};">
+                  <tr>
+                    <td style="padding:22px 22px 6px 22px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        ${detailRow("Name", name)}
+                        ${detailRow(
+                          "Email",
+                          `<a href="mailto:${email}" style="color:${brandDark};text-decoration:none;">${email}</a>`,
+                        )}
+                        ${detailRow(
+                          "Phone",
+                          `<a href="${phoneHref}" style="color:${brandDark};text-decoration:none;">${phone}</a>`,
+                        )}
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 22px 22px 22px;">
+                      <p style="margin:0 0 8px 0;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:${muted};font-family:Georgia,'Times New Roman',serif;">
+                        Message
+                      </p>
+                      <div style="padding:16px 18px;background:#ffffff;border-left:3px solid ${brand};font-size:15px;line-height:1.65;color:${ink};font-family:Arial,Helvetica,sans-serif;">
+                        ${message}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0 0;">
+                  <tr>
+                    <td style="background:${brand};border-radius:2px;">
+                      <a href="${escapeHtml(adminLink)}" style="display:inline-block;padding:12px 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;color:#ffffff;font-family:Arial,Helvetica,sans-serif;">
+                        Open in admin
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 28px;border-top:1px solid ${stone};background:${ivory};">
+                <p style="margin:0;font-size:12px;line-height:1.5;color:${muted};font-family:Arial,Helvetica,sans-serif;">
+                  ${escapeHtml(site.name)} · ${escapeHtml(site.address.full)}
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `.trim();
+}
+
 export async function sendContactRequestEmail(params: {
   to: string[];
   firstName: string;
@@ -99,14 +215,12 @@ export async function sendContactRequestEmail(params: {
     to: params.to,
     replyTo: params.email,
     subject: `New consult request from ${name}`,
-    html: `
-      <p>A visitor submitted the contact form on ${site.name}.</p>
-      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(params.email)}</p>
-      <p><strong>Phone:</strong> ${escapeHtml(params.phone)}</p>
-      <p><strong>Message:</strong></p>
-      <p>${escapeHtml(params.message).replaceAll("\n", "<br />")}</p>
-    `,
+    html: contactRequestEmailHtml({
+      name,
+      phone: params.phone,
+      email: params.email,
+      message: params.message,
+    }),
   });
 }
 

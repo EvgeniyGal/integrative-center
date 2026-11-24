@@ -1,7 +1,13 @@
 "use client";
 
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
-import { useActionState, useEffect, useRef, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 import { submitContactAction } from "@/app/(site)/actions/inquiries";
 import type { ActionState } from "@/app/admin/actions/auth";
@@ -13,11 +19,72 @@ import { cn } from "@/lib/utils";
 
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type ContactFields = {
+  first: string;
+  last: string;
+  phone: string;
+  email: string;
+  message: string;
+};
+
+type FieldKey = keyof ContactFields;
+type FieldErrors = Partial<Record<FieldKey | "turnstile", string>>;
+
+const emptyFields: ContactFields = {
+  first: "",
+  last: "",
+  phone: "",
+  email: "",
+  message: "",
+};
+
+function validateFields(fields: ContactFields, token: string | null): FieldErrors {
+  const errors: FieldErrors = {};
+
+  if (!fields.first.trim()) {
+    errors.first = "Please enter your first name.";
+  }
+  if (!fields.last.trim()) {
+    errors.last = "Please enter your last name.";
+  }
+  if (!fields.phone.trim()) {
+    errors.phone = "Please enter your phone number.";
+  } else if (fields.phone.trim().length < 7) {
+    errors.phone = "Please enter a valid phone number.";
+  }
+  if (!fields.email.trim()) {
+    errors.email = "Please enter your email.";
+  } else if (!EMAIL_PATTERN.test(fields.email.trim())) {
+    errors.email = "Please enter a valid email address.";
+  }
+  if (!fields.message.trim()) {
+    errors.message = "Please enter a message.";
+  }
+  if (!token) {
+    errors.turnstile = "Please complete the security check.";
+  }
+
+  return errors;
+}
+
+function FieldHint({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="text-sm text-red-700" role="alert">
+      {message}
+    </p>
+  );
+}
+
 export function ContactForm({ className }: { className?: string }) {
   const [state, formAction, pending] = useActionState(
     submitContactAction,
     {} as ActionState,
   );
+  const [fields, setFields] = useState<ContactFields>(emptyFields);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [token, setToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance | null>(null);
   const previousError = useRef<string | undefined>(undefined);
@@ -29,6 +96,25 @@ export function ContactForm({ className }: { className?: string }) {
     }
     previousError.current = state.error;
   }, [state.error]);
+
+  function updateField<K extends FieldKey>(key: K, value: string) {
+    setFields((current) => ({ ...current, [key]: value }));
+    if (errors[key]) {
+      setErrors((current) => {
+        const next = { ...current };
+        delete next[key];
+        return next;
+      });
+    }
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const nextErrors = validateFields(fields, token);
+    if (Object.keys(nextErrors).length > 0) {
+      event.preventDefault();
+      setErrors(nextErrors);
+    }
+  }
 
   if (state.success) {
     return (
@@ -59,7 +145,12 @@ export function ContactForm({ className }: { className?: string }) {
   }
 
   return (
-    <form action={formAction} className={cn("relative space-y-6", className)} noValidate>
+    <form
+      action={formAction}
+      onSubmit={handleSubmit}
+      className={cn("relative space-y-6", className)}
+      noValidate
+    >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0"
@@ -81,8 +172,13 @@ export function ContactForm({ className }: { className?: string }) {
             name="first"
             autoComplete="given-name"
             required
+            value={fields.first}
+            onChange={(event) => updateField("first", event.target.value)}
+            aria-invalid={Boolean(errors.first)}
+            aria-describedby={errors.first ? "first-error" : undefined}
             className={fieldClass}
           />
+          <FieldHint id="first-error" message={errors.first} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="last">Last name</Label>
@@ -91,8 +187,13 @@ export function ContactForm({ className }: { className?: string }) {
             name="last"
             autoComplete="family-name"
             required
+            value={fields.last}
+            onChange={(event) => updateField("last", event.target.value)}
+            aria-invalid={Boolean(errors.last)}
+            aria-describedby={errors.last ? "last-error" : undefined}
             className={fieldClass}
           />
+          <FieldHint id="last-error" message={errors.last} />
         </div>
       </div>
       <div className="space-y-2">
@@ -103,8 +204,13 @@ export function ContactForm({ className }: { className?: string }) {
           type="tel"
           autoComplete="tel"
           required
+          value={fields.phone}
+          onChange={(event) => updateField("phone", event.target.value)}
+          aria-invalid={Boolean(errors.phone)}
+          aria-describedby={errors.phone ? "phone-error" : undefined}
           className={fieldClass}
         />
+        <FieldHint id="phone-error" message={errors.phone} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
@@ -114,28 +220,52 @@ export function ContactForm({ className }: { className?: string }) {
           type="email"
           autoComplete="email"
           required
+          value={fields.email}
+          onChange={(event) => updateField("email", event.target.value)}
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? "email-error" : undefined}
           className={fieldClass}
         />
+        <FieldHint id="email-error" message={errors.email} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
-        <Textarea id="message" name="message" required className={fieldClass} />
+        <Textarea
+          id="message"
+          name="message"
+          required
+          value={fields.message}
+          onChange={(event) => updateField("message", event.target.value)}
+          aria-invalid={Boolean(errors.message)}
+          aria-describedby={errors.message ? "message-error" : undefined}
+          className={fieldClass}
+        />
+        <FieldHint id="message-error" message={errors.message} />
       </div>
-      <div>
+      <div className="space-y-2">
         <Turnstile
           ref={turnstileRef}
           siteKey={turnstileSiteKey}
           options={{ theme: "light" }}
-          onSuccess={setToken}
+          onSuccess={(value) => {
+            setToken(value);
+            setErrors((current) => {
+              if (!current.turnstile) return current;
+              const next = { ...current };
+              delete next.turnstile;
+              return next;
+            });
+          }}
           onExpire={() => setToken(null)}
           onError={() => setToken(null)}
         />
         <input type="hidden" name="cf-turnstile-response" value={token ?? ""} />
+        <FieldHint id="turnstile-error" message={errors.turnstile} />
       </div>
       {state.error ? (
         <p className="text-sm text-red-700">{state.error}</p>
       ) : null}
-      <Button type="submit" size="lg" disabled={pending || !token}>
+      <Button type="submit" size="lg" disabled={pending}>
         {pending ? "Sending…" : "Send message"}
       </Button>
     </form>
