@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { JsonLd } from "@/components/JsonLd";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { isChatWidgetEnabled } from "@/lib/ai/settings";
 import { getTickerText } from "@/lib/content/queries";
 
@@ -17,7 +18,7 @@ export default async function SiteLayout({
   ]);
 
   return (
-    <>
+    <MotionProvider>
       <JsonLd />
       <AnalyticsTracker />
       <Header tickerText={tickerText} />
@@ -26,6 +27,6 @@ export default async function SiteLayout({
       </main>
       <Footer />
       <FloatingActions chatEnabled={chatEnabled} />
-    </>
+    </MotionProvider>
   );
 }
